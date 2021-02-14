@@ -1,0 +1,368 @@
+pre.hljs {
+	border: solid 1px $color-neutral-light;
+	border-radius: 5px;
+	* {
+		font-size: 0.7rem;
+	}
+}
+
+.page-fields.facts {
+	dt {
+		font-weight: bold;
+		margin-bottom: 0.5rem;
+		color: #333;
+	}
+	.code {
+		font-family: Monospace;
+		font-size: 0.7rem;
+	}
+	.page-field + .page-field {
+		margin-top: 1rem;
+	}
+}
+
+.ace_editor * {
+	// it does _not_ like to be set to anything else it seems
+	font-size: 12px;
+}
+
+.data-table-list {
+	.page-field-fragment a {
+		color: steelblue;
+	}
+}
+
+.data-common-header {
+	.data-combo-filter, .data-filter-default {
+		max-width: 100%;
+	}
+	.combo-filter-tag, .default-filter-tag {
+		.value {
+			color: $color-primary-dark;
+		}
+	}
+}
+
+// position the reload icon to the top right
+.data-filter-default.always-open {
+	.fa-sync {
+		position: absolute;
+		top: 2rem;
+		right: 2rem;
+	}
+}
+
+// the default filter
+.n-form.filter {
+	> .n-form-content {
+		flex-direction: row !important;
+		.n-form-label-wrapper {
+			margin-bottom: 0 !important;
+			label {
+				margin-bottom: 0;	
+			}
+		}
+		> * {
+			flex-basis: 0;
+			flex-grow: 1;
+			&:not(:first-child) {
+				margin-left: 1rem !important;
+			}
+		}
+	}
+}
+
+button.inline {
+	background-color: transparent;
+	border: none;
+}
+
+// support for tags!
+.tag {
+	background-color: $color-neutral-darkest;	
+	color: $color-neutral-lightest;
+	padding: 0.3rem 0.5rem;
+	font-size: 0.55rem !important;
+	border-radius: 5px;
+	text-transform: uppercase;
+	white-space: nowrap;
+	&.warning {
+		color: $color-warning-dark;
+		background-color: $color-warning-light;
+		border: solid 1px $color-warning-base;
+	}
+	&.light {
+		background-color: $color-neutral-lighter;
+		color: $color-neutral-darker;
+		border: solid 1px $color-neutral-light;
+	}
+}
+// easier to put spacers than a text fragment with a space in it
+.page-field-fragment.spacer {
+	width: 0.3rem;
+	display: inline-block;
+}
+
+// without this, it is defined as an inline block, which results in a magical 3 pixel difference between the label and the dropdown in firefox
+.n-form .n-form-combo.n-form-component {
+	display: block;
+}
+
+@include media("<tablet") {
+	.menu {
+		position: relative;
+		.mobile-menu {
+			position: initial !important;
+			display: block !important;
+			margin-left: auto;
+			.page-actions {
+				width: 100vw;
+				position: absolute;
+				top: 100%;
+				left: 0;
+				.page-action {
+					display: block;
+				}
+			}
+		}
+		.page-action:not(.retain-mobile) {
+			display: none;
+		}
+	}
+}
+@include media(">=tablet") {
+	.menu {
+		.mobile-menu {
+			display: none;
+		}
+	}
+}
+@include media("<tablet") {
+	.page-row {
+		flex-direction: column;
+		.align-start {
+			align-self: stretch;
+		}
+		img {
+			max-width: calc(100vw - 2rem);
+			height: auto;
+		}
+	}
+	.n-form .n-form-component {
+		min-width: auto;
+	}
+	.n-prompt-content {
+		width: 90vw;
+	}
+}
+
+.page-actions.menu .is-active {
+	border: dashed 1px $color-primary-light;
+	border-radius: 10px;
+}
+
+// less hard background color for selected
+[template="data-table-list"] table tbody tr.selected td {
+	background-color: $color-primary-lighter;
+}
+
+.page-cell.content-cell {
+	padding: 0 !important;
+}
+
+.properties-cell {
+	padding: 1.3rem !important;
+	.page-fields.row {
+		border: none;
+		padding: 0;
+		margin: 0;
+		background-color: transparent;
+	}
+}
+
+.align-start {
+	align-self: start;
+}
+
+.page-prompt.overflow {
+	.n-prompt-content {
+		overflow: auto;
+		max-height: 90vh;
+		max-width: 90vw;
+	}
+}
+.page-prompt.visible {
+	.n-prompt-content {
+		overflow: visible;
+	}
+}
+.page-prompt ul.page-actions {
+	margin: 1rem 0;
+	text-align: right;
+}
+
+.nabu-cms-core-login .oauth2 {
+	text-align: center;
+	margin: 2rem 0;
+	padding: 2rem;
+	border: solid 1px $color-primary-base;
+	background-color: $color-primary-lightest;
+	border-radius: 3px;
+	h2 {
+		margin-bottom: 2rem;
+	}
+	.oauth2-option {
+		background-color: $color-primary-darker;
+		color: $color-primary-lightest;
+		padding: 0.7rem 2rem;
+		border: solid 1px $color-primary-base;
+		border-radius: 3px;
+	}
+}
+
+
+.page-row.content-row {
+	margin: 0 1rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+	background-color: white;
+}
+
+.data-table-list table.small {
+	* {
+		font-size: 0.7rem;
+	}
+	td, th {
+		white-space: nowrap;
+	}
+}
+
+.page-row.content-row, .page-row.blank {
+	.page-cell {
+		margin: 0 !important;
+		padding: 0 !important;
+		background: none !important;
+		border: none !important;
+		box-shadow: none !important;
+	}
+	
+	.page-richtext {
+		padding: 2rem;
+	}
+	
+	/* we want to decouple from content above (e.G. menu, table,...) */
+	margin-top: 1rem;
+	/* but if you chain multiple together, we want them to be seamless */
+	+ .page-row.content-row {
+		margin-top: 0;
+	}
+}
+
+.n-message.n-message-severity-error {
+	padding: 0 !important;
+}
+
+/* fix date styling */
+.n-input-date {
+	.n-input-date-available {
+		.n-input-date-label {
+			text-decoration: none;
+			display: block;
+		}
+		&:hover {
+			background-color: $color-neutral-lighter;
+		}
+		&:not(.n-input-date-today):not(.n-input-date-selected) {
+			.n-input-date-label {	
+				color: $color-primary-darker;
+				&:hover {
+					color: $color-primary-darkest;
+				}
+			}
+		}
+	}
+}
+
+/* we don't want actions to overflow, just take up more space */
+/* additionally actual buttons should not have margin... */
+.data-table-list .actions {
+	white-space: nowrap;
+	button {
+		margin: 0;
+		+ button {
+			margin-left: 1rem;
+		}
+	}
+}
+
+.data-table-list button.inline {
+	color: $color-neutral-base;
+}
+
+/* style data cards */
+.data-cards {
+	.data-card {
+		.data-card-field {
+			dt {
+				font-weight: bold;
+				display: block;
+			}
+			dd {
+				padding: 0;
+				margin: 0;
+			}
+			
+			+.data-card-field {
+				margin-top: 0.7rem;
+			}
+		}
+	}
+}
+
+.data-card-list {
+	margin: -0.7rem;
+	.data-card {
+		margin: 0.7rem;
+		.data-card-actions {
+			text-align: right;
+			padding-top: 1rem;
+			button {
+				margin: 0;
+			}
+		}
+	}
+}
+
+.data-table-list table.small {
+	th *, td *{
+		font-size: 0.7rem;
+	}
+}
+
+.data-card-list.row .data-card, .page-fields.row {
+	padding: 1rem;
+	border: solid 1px $color-neutral-light;
+	border-radius: 3px;
+	background-color: $color-neutral-lightest;
+	.page-field {
+		display: flex;
+		+ .page-field {
+			margin-top: 1rem;
+		}
+		dt {
+			font-weight: bold;
+			&:after {
+				content: ': ';
+			}
+			min-width: 7rem;
+		}
+		dd {
+			flex-grow: 1;
+			text-align: right;
+			margin-left: 2rem;
+		}
+	}
+	&:hover {
+		border-color: $color-neutral-dark;
+	}
+}
+

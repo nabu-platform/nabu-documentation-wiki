@@ -1,0 +1,31 @@
+{
+    "name": "web-plato--extras--page-builder-mapping",
+    "resources": {
+        "reset.scss": {
+            "url": "reset.scss"
+        },
+        "prompt.scss": {
+            "url": "prompt.scss"
+        },
+        "form": {
+            "checkbox.scss": {
+                "url": "form/checkbox.scss"
+            },
+            "combo.scss": {
+                "url": "form/combo.scss"
+            },
+            "date.scss": {
+                "url": "form/date.scss"
+            },
+            "form.scss": {
+                "url": "form/form.scss"
+            },
+            "form-section.scss": {
+                "url": "form/form-section.scss"
+            },
+            "radio.scss": {
+                "url": "form/radio.scss"
+            }
+        }
+    }
+}

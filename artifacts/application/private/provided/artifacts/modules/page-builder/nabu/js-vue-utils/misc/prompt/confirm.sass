@@ -1,0 +1,55 @@
+.n-confirm {
+	margin: auto;
+	background-color: $alpha-color;
+	box-shadow: 4px 4px 4px 4px #777;
+	width: 30rem;
+	max-width: 90vw;
+	
+	h1 {
+		font-size: 1.5rem;
+		text-align: center;
+		margin: 0.7rem 0;
+		&+ .n-confirm-content {
+			margin-top: 0;
+			padding-top: 0.7rem;
+		}
+	}
+	
+	.n-confirm-content {
+		width: 23rem;
+		display: inline-block;
+		padding: 2rem;
+		padding-left: 3rem;
+		text-align: left;
+		margin-top: 1rem;
+		color: $alpha-contrast;
+	}
+	.n-confirm-buttons {
+		padding: 1rem;
+		text-align: right;
+		button {
+			margin: 0 1rem;
+		}
+	}
+	.n-confirm-icon {
+		width: 6rem;
+		display: inline-block;
+		padding: 2rem;
+		vertical-align: top;
+		.n-icon {
+			&:before {
+				font-size: 6rem;
+				vertical-align: middle;
+			}
+			&.n-icon-question-circle-o, &.fa-question-circle-o {
+				color: $primary-color;
+			}
+			&.n-icon-exclamation-triangle, &.fa-exclamation-triangle {
+				color: $warning-color;
+			}
+			&.n-icon-exclamation-circle, &.fa-exclamation-circle {
+				color: $danger-color;
+			}
+		}
+	}
+}

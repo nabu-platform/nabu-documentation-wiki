@@ -1,0 +1,17 @@
+.data-multi-select {
+	.data-multi-select-content {
+		display: flex;
+		.source, .target {
+			flex-grow: 1;
+			flex-basis: 0
+		}
+		.data-multi-select-actions {
+			margin-top: auto;
+			margin-bottom: auto;
+			padding: 1rem;
+			button {
+				display: block;
+			}
+		}
+	}
+}

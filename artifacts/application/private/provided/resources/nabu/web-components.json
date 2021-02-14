@@ -1,0 +1,356 @@
+{
+	"name": "web-components", 
+	"resources": {
+		"input": {
+			"date": {
+				"date.sass": {
+					"url": "input/date/date.sass"
+				}, 
+				"date.tpl": {
+					"url": "input/date/date.tpl"
+				}, 
+				"date.gcss": {
+					"url": "input/date/date.gcss"
+				}, 
+				"date.js": {
+					"url": "input/date/date.js"
+				}
+			}, 
+			"file": {
+				"file.js": {
+					"url": "input/file/file.js"
+				}, 
+				"file.sass": {
+					"url": "input/file/file.sass"
+				}, 
+				"file.tpl": {
+					"url": "input/file/file.tpl"
+				}, 
+				"file.gcss": {
+					"url": "input/file/file.gcss"
+				}
+			}, 
+			"combo": {
+				"combo.sass": {
+					"url": "input/combo/combo.sass"
+				}, 
+				"combo.gcss": {
+					"url": "input/combo/combo.gcss"
+				}, 
+				"combo.js": {
+					"url": "input/combo/combo.js"
+				}, 
+				"combo.tpl": {
+					"url": "input/combo/combo.tpl"
+				}
+			}
+		}, 
+		"form": {
+			"input": {
+				"date": {
+					"date.sass": {
+						"url": "form/input/date/date.sass"
+					}, 
+					"date.tpl": {
+						"url": "form/input/date/date.tpl"
+					}, 
+					"date.gcss": {
+						"url": "form/input/date/date.gcss"
+					}, 
+					"date.js": {
+						"url": "form/input/date/date.js"
+					}
+				},
+				"date-picker": {
+					"date-picker.scss": {
+						"url": "form/input/date-picker/date-picker.scss"
+					}, 
+					"date-picker.tpl": {
+						"url": "form/input/date-picker/date-picker.tpl"
+					}, 
+					"date-picker.js": {
+						"url": "form/input/date-picker/date-picker.js"
+					}
+				}, 
+				"combo": {
+					"combo.sass": {
+						"url": "form/input/combo/combo.sass"
+					}, 
+					"combo.gcss": {
+						"url": "form/input/combo/combo.gcss"
+					}, 
+					"combo.js": {
+						"url": "form/input/combo/combo.js"
+					}, 
+					"combo.tpl": {
+						"url": "form/input/combo/combo.tpl"
+					}
+				}, 
+				"section": {
+					"section.js": {
+						"url": "form/input/section/section.js"
+					}, 
+					"section.tpl": {
+						"url": "form/input/section/section.tpl"
+					}
+				}, 
+				"richtext": {
+					"richtext.tpl": {
+						"url": "form/input/richtext/richtext.tpl"
+					}, 
+					"richtext.sass": {
+						"url": "form/input/richtext/richtext.sass"
+					}, 
+					"richtext.js": {
+						"url": "form/input/richtext/richtext.js"
+					}, 
+					"richtext.gcss": {
+						"url": "form/input/richtext/richtext.gcss"
+					}
+				}, 
+				"check": {
+					"check.gcss": {
+						"url": "form/input/check/check.gcss"
+					}, 
+					"check.js": {
+						"url": "form/input/check/check.js"
+					}, 
+					"check.tpl": {
+						"url": "form/input/check/check.tpl"
+					}
+				}, 
+				"text": {
+					"text.tpl": {
+						"url": "form/input/text/text.tpl"
+					}, 
+					"text.js": {
+						"url": "form/input/text/text.js"
+					}
+				}, 
+				"switch": {
+					"switch.sass": {
+						"url": "form/input/switch/switch.sass"
+					}, 
+					"switch.gcss": {
+						"url": "form/input/switch/switch.gcss"
+					}, 
+					"switch.tpl": {
+						"url": "form/input/switch/switch.tpl"
+					}, 
+					"switch.js": {
+						"url": "form/input/switch/switch.js"
+					}
+				}, 
+				"radio": {
+					"radio.tpl": {
+						"url": "form/input/radio/radio.tpl"
+					}, 
+					"radio.js": {
+						"url": "form/input/radio/radio.js"
+					}, 
+					"radio.sass": {
+						"url": "form/input/radio/radio.sass"
+					}
+				},
+				"location": {
+					"location.tpl": {
+						"url": "form/input/location/location.tpl"
+					},
+					"location.js": {
+						"url": "form/input/location/location.js"
+					}
+				},
+				"address": {
+					"address.tpl": {
+						"url": "form/input/address/address.tpl"
+					},
+					"address.js": {
+						"url": "form/input/address/address.js"
+					}
+				}
+			}, 
+			"plain": {
+				"form.sass": {
+					"url": "form/plain/form.sass"
+				}, 
+				"form.gcss": {
+					"url": "form/plain/form.gcss"
+				}, 
+				"form.tpl": {
+					"url": "form/plain/form.tpl"
+				}, 
+				"form.js": {
+					"url": "form/plain/form.js"
+				}
+			}, 
+			"table": {
+				"table.gcss": {
+					"url": "form/table/table.gcss"
+				}, 
+				"table.tpl": {
+					"url": "form/table/table.tpl"
+				}, 
+				"table.js": {
+					"url": "form/table/table.js"
+				}, 
+				"table.sass": {
+					"url": "form/table/table.sass"
+				}
+			}, 
+			"form-utils.js": {
+				"url": "form/form-utils.js"
+			}
+		}, 
+		"display": {
+			"secret": {
+				"secret.tpl": {
+					"url": "display/secret/secret.tpl"
+				}, 
+				"secret.js": {
+					"url": "display/secret/secret.js"
+				}
+			}
+		}, 
+		"containers": {
+			"wizard": {
+				"wizard.js": {
+					"url": "containers/wizard/wizard.js"
+				}, 
+				"wizard.sass": {
+					"url": "containers/wizard/wizard.sass"
+				}, 
+				"wizard.tpl": {
+					"url": "containers/wizard/wizard.tpl"
+				}, 
+				"wizard.gcss": {
+					"url": "containers/wizard/wizard.gcss"
+				}
+			}, 
+			"collapsible": {
+				"collapsible.gcss": {
+					"url": "containers/collapsible/collapsible.gcss"
+				}, 
+				"collapsible.js": {
+					"url": "containers/collapsible/collapsible.js"
+				}, 
+				"collapsible.sass": {
+					"url": "containers/collapsible/collapsible.sass"
+				}, 
+				"collapsible.tpl": {
+					"url": "containers/collapsible/collapsible.tpl"
+				}
+			}
+		}, 
+		"menus": {
+			"dropdown": {
+				"dropdown.tpl": {
+					"url": "menus/dropdown/dropdown.tpl"
+				}, 
+				"dropdown.js": {
+					"url": "menus/dropdown/dropdown.js"
+				}, 
+				"dropdown.gcss": {
+					"url": "menus/dropdown/dropdown.gcss"
+				}
+			}
+		}, 
+		"email": {
+			"components.js": {
+				"url": "email/components.js"
+			}, 
+			"foundation-emails-2.2.1.css": {
+				"url": "email/foundation-emails-2.2.1.css"
+			}
+		}, 
+		"misc": {
+			"button": {
+				"button.tpl": {
+					"url": "misc/button/button.tpl"
+				}, 
+				"button.js": {
+					"url": "misc/button/button.js"
+				}
+			}, 
+			"windowing": {
+				"windowing.tpl": {
+					"url": "misc/windowing/windowing.tpl"
+				}, 
+				"windowing.gcss": {
+					"url": "misc/windowing/windowing.gcss"
+				}, 
+				"windowing.js": {
+					"url": "misc/windowing/windowing.js"
+				}
+			}, 
+			"sidebar": {
+				"sidebar.sass": {
+					"url": "misc/sidebar/sidebar.sass"
+				}, 
+				"sidebar.gcss": {
+					"url": "misc/sidebar/sidebar.gcss"
+				}, 
+				"sidebar.js": {
+					"url": "misc/sidebar/sidebar.js"
+				}, 
+				"sidebar.tpl": {
+					"url": "misc/sidebar/sidebar.tpl"
+				}
+			}, 
+			"messages": {
+				"messages.gcss": {
+					"url": "misc/messages/messages.gcss"
+				}, 
+				"messages.js": {
+					"url": "misc/messages/messages.js"
+				}, 
+				"messages.tpl": {
+					"url": "misc/messages/messages.tpl"
+				}
+			}, 
+			"paging": {
+				"paging.tpl": {
+					"url": "misc/paging/paging.tpl"
+				}, 
+				"paging.gcss": {
+					"url": "misc/paging/paging.gcss"
+				}, 
+				"paging.sass": {
+					"url": "misc/paging/paging.sass"
+				}, 
+				"paging.js": {
+					"url": "misc/paging/paging.js"
+				}
+			}, 
+			"info": {
+				"info.sass": {
+					"url": "misc/info/info.sass"
+				}, 
+				"info.js": {
+					"url": "misc/info/info.js"
+				}, 
+				"info.tpl": {
+					"url": "misc/info/info.tpl"
+				}, 
+				"info.gcss": {
+					"url": "misc/info/info.gcss"
+				}
+			}, 
+			"tags": {
+				"tags.js": {
+					"url": "misc/tags/tags.js"
+				}, 
+				"tags.tpl": {
+					"url": "misc/tags/tags.tpl"
+				}, 
+				"tags.gcss": {
+					"url": "misc/tags/tags.gcss"
+				}
+			}
+		},
+		"services": {
+			"geo.js": {
+				"url": "services/geo.js"
+			}
+		}
+	}
+}

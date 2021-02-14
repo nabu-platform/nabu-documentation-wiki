@@ -1,0 +1,68 @@
+{
+	"name": "js-utils", 
+	"resources": {
+		"schema": {
+			"json-schema.js": {
+				"url": "schema/json-schema.js"
+			}
+		}, 
+		"iterators": {
+			"iterator-static.js": {
+				"url": "iterators/iterator-static.js"
+			}, 
+			"iterator-window.js": {
+				"url": "iterators/iterator-window.js"
+			}
+		}, 
+		"polyfill": {
+			"function.js": {
+				"url": "polyfill/function.js"
+			}
+		}, 
+		"utils": {
+			"objects.js": {
+				"url": "utils/objects.js"
+			}, 
+			"staging.js": {
+				"url": "utils/staging.js"
+			}, 
+			"arrays.js": {
+				"url": "utils/arrays.js"
+			}, 
+			"dom.js": {
+				"url": "utils/dom.js"
+			}, 
+			"dates.js": {
+				"url": "utils/dates.js"
+			}, 
+			"gtin.js": {
+				"url": "utils/gtin.js"
+			}
+		}, 
+		"net": {
+			"swagger-client.js": {
+				"url": "net/swagger-client.js"
+			}, 
+			"ajax.js": {
+				"url": "net/ajax.js"
+			}
+		}, 
+		"misc": {
+			"router.js": {
+				"url": "misc/router.js"
+			}, 
+			"services.js": {
+				"url": "misc/services.js"
+			}, 
+			"promise.js": {
+				"url": "misc/promise.js"
+			}, 
+			"cookies.js": {
+				"url": "misc/cookies.js"
+			}, 
+			"batchResolver.js": {
+				"url": "misc/batchResolver.js"
+			}
+		}
+	}
+}

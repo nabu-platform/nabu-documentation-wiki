@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<node artifactManager="be.nabu.eai.module.rest.provider.RESTServiceManager" created="2020-01-06T21:10:41.907+01:00" lastModified="2021-02-14T14:49:43.471+01:00" leaf="true" version="34">
+    <environmentId>apollo</environmentId>
+    <hidden>false</hidden>
+    <properties/>
+    <references>be.nabu.libs.types.api.KeyValuePair</references>
+    <references>nabu.web.application.Services.information</references>
+    <references>nabu.utils.String.replace</references>
+    <references>java.lang.Long</references>
+    <references>nabu.documentation.wiki.types.configuration</references>
+    <references>java.lang.String</references>
+    <references>nabu.web.application.types.WebApplicationInformation</references>
+    <references>java.io.InputStream</references>
+    <references>nabu.web.wiki.Services.read</references>
+</node>

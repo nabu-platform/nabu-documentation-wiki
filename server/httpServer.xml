@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<httpServer>
+    <enabled>true</enabled>
+    <port>3111</port>
+    <proxied>false</proxied>
+    <proxySecure>false</proxySecure>
+    <headerMapping>
+        <property key="X-Proxy-Path"/>
+        <property key="X-Remote-Port"/>
+        <property key="X-Local-Port"/>
+        <property key="X-Request-Relative-URI"/>
+        <property key="X-Remote-Is-Local"/>
+        <property key="X-Remote-Address"/>
+        <property key="X-Remote-User"/>
+        <property key="X-Request-Received"/>
+        <property key="X-Request-URI"/>
+        <property key="X-Request-Protocol"/>
+        <property key="X-Request-Security"/>
+        <property key="X-Authentication-Scheme"/>
+        <property key="X-Remote-Host"/>
+        <property key="X-Resource-URI"/>
+        <property key="X-Request-Type"/>
+    </headerMapping>
+</httpServer>

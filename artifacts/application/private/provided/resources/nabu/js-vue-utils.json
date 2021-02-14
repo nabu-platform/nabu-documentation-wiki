@@ -1,0 +1,111 @@
+{
+	"name": "js-vue-utils", 
+	"resources": {
+		"directives": {
+			"sticky-header": {
+				"sticky-header.css": {
+					"url": "directives/sticky-header/sticky-header.css"
+				}, 
+				"sticky-header.js": {
+					"url": "directives/sticky-header/sticky-header.js"
+				}
+			}, 
+			"select-on.js": {
+				"url": "directives/select-on.js"
+			}, 
+			"auto-close.js": {
+				"url": "directives/auto-close.js"
+			}, 
+			"timeout.js": {
+				"url": "directives/timeout.js"
+			}, 
+			"css.js": {
+				"url": "directives/css.js"
+			}, 
+			"action.js": {
+				"url": "directives/action.js"
+			}, 
+			"group.js": {
+				"url": "directives/group.js"
+			}, 
+			"route-render.js": {
+				"url": "directives/route-render.js"
+			}, 
+			"visible.js": {
+				"url": "directives/visible.js"
+			}, 
+			"content.js": {
+				"url": "directives/content.js"
+			}, 
+			"fixed-header.js": {
+				"url": "directives/fixed-header.js"
+			}, 
+			"focus.js": {
+				"url": "directives/focus.js"
+			}, 
+			"route.js": {
+				"url": "directives/route.js"
+			}, 
+			"bubble.js": {
+				"url": "directives/bubble.js"
+			},
+			"swipe.js": {
+				"url": "directives/swipe.js"
+			}
+		}, 
+		"vue": {
+			"vue.js": {
+				"url": "vue/vue.js", 
+				"template": true
+			}
+		}, 
+		"cms": {
+			"cms-masterdata.js": {
+				"url": "cms/cms-masterdata.js"
+			}
+		}, 
+		"misc": {
+			"prompt": {
+				"prompt.sass": {
+					"url": "misc/prompt/prompt.sass"
+				}, 
+				"confirm.sass": {
+					"url": "misc/prompt/confirm.sass"
+				}, 
+				"confirm.gcss": {
+					"url": "misc/prompt/confirm.gcss"
+				}, 
+				"confirm.tpl": {
+					"url": "misc/prompt/confirm.tpl"
+				}, 
+				"prompt.gcss": {
+					"url": "misc/prompt/prompt.gcss"
+				}, 
+				"prompt.js": {
+					"url": "misc/prompt/prompt.js"
+				}
+			}, 
+			"pane.js": {
+				"url": "misc/pane.js"
+			}, 
+			"service.js": {
+				"url": "misc/service.js"
+			}, 
+			"vue2-features.js": {
+				"url": "misc/vue2-features.js"
+			}, 
+			"vue-router.js": {
+				"url": "misc/vue-router.js"
+			}, 
+			"render.js": {
+				"url": "misc/render.js"
+			}, 
+			"observable.js": {
+				"url": "misc/observable.js"
+			}, 
+			"fetcher.js": {
+				"url": "misc/fetcher.js"
+			}
+		}
+	}
+}

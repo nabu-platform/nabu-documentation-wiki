@@ -1,0 +1,187 @@
+$font-family: "Lato", "open-sans", sans-serif;
+$font-family-alt: $font-family;
+$font-icon-family: "Font Awesome 5 Free";
+$icon-family: "Font Awesome 5 Free";
+
+// having default z-indexes on layers messes up page builder
+// the problem is that the sidebars are fixed positioned and inline
+// popping them out to the root causes other issues (we did this initially)
+// leaving them in the DOM means the z-index-on-everything interferes with the sidebar
+// this is only if the content is set to for example 100vw or is just bigger than can be contained in the view between the sidebars
+$layers-levels-z: ();
+
+/* make sure aggregate charts take up the full height, otherwise the legend might for example get cut off even though there is plenty of space */
+[route="frappe-aggregate-chart"] {
+	height: 100%;
+	.frappe-aggregate-chart {
+		height: 100%;
+		.chart-container-parent {
+			/* leave some room for the data-common-header */
+		 	height: calc(100% - 2rem);
+		 	.chart-container {
+		 		height: 100%;
+		 		svg {
+		 			height: 100%;
+		 		}
+		 	}
+		}
+	}
+}
+
+.data-common-header .data-combo-filter {
+	max-width: 64rem !important;
+	.n-input-combo-label-container + div {
+		flex-grow: 1;
+	}
+}
+
+/* make sure the entries don't break */
+.page-actions.menu {
+	.page-action-entry {
+		white-space: nowrap;
+	}
+}
+
+.n-prompt-content .code {
+	display: block;
+	max-width: 80vw;
+	font-size: 0.7rem;
+	.hljs {
+		font-size: 0.7rem;	
+		* {
+			font-size: 0.7rem;
+		}
+	}
+}
+
+/* the buttons are wrongly positioned by default, this is a quick fix */
+.data-table-list .data-common-footer .global-actions {
+	margin-top: -9px;
+}
+
+
+$color-warning-dark: #534c10;
+$color-warning-base: #ad9800;
+$color-warning-light: #e7e0aa;
+
+.danger {
+	border-bottom: solid 1px red;
+	color: red;
+}
+.danger-text {
+	color: red;
+	background: none;
+	border: none;
+}
+.success {
+	border-bottom: solid 1px green;
+	color: green;
+}
+.success-text {
+	color: green;
+	background: none;
+	border: none;
+}
+.warning {
+	color: $color-warning-base;
+	border-bottom: solid 1px $color-warning-base;
+}
+.warning-text {
+	color: $color-warning-base;
+	background: none;
+	border: none;
+}
+button {
+	cursor: pointer;
+}
+
+// ---------------------------------------------- brand colors
+
+/*
+$color-primary-lightest: #F4F5F6 !default;
+$color-primary-lighter: #E9EBED !default;
+$color-primary-light: #DDE0E3 !default;
+$color-primary-base: #D1D5DB !default;
+$color-primary-dark: #636D7E !default;
+$color-primary-darker: #5C6670 !default;
+$color-primary-darkest: #49525A !default;
+
+$color-secondary-lightest: #65707B !default;
+$color-secondary-lighter: #5C6670 !default;
+$color-secondary-light: #535C65 !default;
+$color-secondary-base: #40474F !default;
+$color-secondary-dark: #1C1E22 !default;
+$color-secondary-darker: #121416 !default;
+$color-secondary-darkest: #090A0B !default;
+*/
+
+// ---------------------------------------------- neutral colors
+
+/*
+$color-neutral-lightest: #F4F5F6 !default;
+$color-neutral-lighter: #F6F6F6 !default;
+$color-neutral-light: #D2D2CA !default;
+$color-neutral-base: #919D9E !default;
+$color-neutral-dark: #6C787A !default;
+$color-neutral-darker: #3B4344 !default;
+$color-neutral-darkest: #3B4344 !default;
+
+$color-neutral-black: #000000 !default;
+$color-neutral-white: #FFFFFF !default;
+*/
+
+
+// ------------------------ breakpoints
+${{
+configuration = application.configuration("nabu.web.page.core.types.configuration")
+
+phone = first(configuration/devices[name = "phone"]/width)
+tablet = first(configuration/devices[name = "tablet"]/width)
+desktop = first(configuration/devices[name = "desktop"]/width)
+
+xsmall = first(configuration/devices[name = "xsmall"]/width)
+small = first(configuration/devices[name = "small"]/width)
+medium = first(configuration/devices[name = "medium"]/width)
+large = first(configuration/devices[name = "large"]/width)
+xlarge = first(configuration/devices[name = "xlarge"]/width)
+
+# set default values for include-media
+if (phone == null)
+	phone = "512"
+if (tablet == null)
+	tablet = "960"
+if (desktop == null)
+	desktop = "1280"
+	
+# set defaults for plato
+#320px
+if (xsmall == null)
+	xsmall = "320"
+#512px
+if (small == null)
+	small = phone
+#960px,
+if (medium == null)
+	medium = tablet
+#1280px
+if (large == null)
+	large = desktop
+#1440
+if (xlarge == null)
+	xlarge = "1440"
+
+echo("$breakpoints: (
+		'phone': " + phone + "px,
+		'tablet': " + tablet + "px,
+		'desktop': " + desktop + "px,
+		'extra-small': " + xsmall + "px,
+		'small': " + small + "px,
+		'medium': " + medium + "px,
+		'large': " + large + "px,
+		'extra-large': " + xlarge + "px
+	);")
+}}
+
+
+$container-max-width: 100vw;
+

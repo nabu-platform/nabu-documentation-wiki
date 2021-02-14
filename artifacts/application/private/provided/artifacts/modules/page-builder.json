@@ -1,0 +1,34 @@
+{
+	"name": "page-builder",
+	"version": "1.0",
+	"resources": {
+		"vendor": {
+			"fonts": {
+				"font-awesome.json": {
+					"type": "bundle",
+					"url": "https://raw.githubusercontent.com/nablex/themes/master/font-awesome/font-awesome-5.0.12.json"
+				}
+			},
+			"vue.json": {
+				"type": "bundle",
+				"url": "https://raw.githubusercontent.com/nablex/js-vue-utils/master/bundle.json",
+				"includes": ["vue"]
+			}
+		},
+		"nabu": {
+			"js-utils.json": {
+				"type": "bundle",
+				"url": "https://raw.githubusercontent.com/nablex/js-utils/master/bundle.json"
+			},
+			"js-vue-utils.json": {
+				"type": "bundle",
+				"url": "https://raw.githubusercontent.com/nablex/js-vue-utils/master/bundle.json",
+				"excludes": ["vue"]
+			},
+			"web-components.json": {
+				"type": "bundle",
+				"url": "https://raw.githubusercontent.com/nablex/web-components/master/bundle.json"
+			}
+		}
+	}
+}

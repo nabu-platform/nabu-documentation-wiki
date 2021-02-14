@@ -1,0 +1,46 @@
+$n-form-line-height: 3rem !default;
+
+.n-form-date {
+	position: relative;
+
+	input {
+		line-height: $n-form-line-height;
+		height: $n-form-line-height;
+	}	
+	.n-form-text {
+		display: inline-block;
+	}
+	.n-input-date {
+		border: $border;
+		border-style: none solid none solid;
+		position: absolute;
+		top: 100%;
+		max-width: 25rem;
+		width: 100%;
+		z-index: 1000;
+		> * {
+			width: 100%;
+		}
+	}
+	.n-form-date-icon {
+		transition: all 250ms ease-in-out;
+		cursor: pointer;
+		background-color: $primary-color;
+		color: $primary-contrast;
+		line-height: 2.7rem;
+		width: $n-form-line-height;
+		height: $n-form-line-height;
+		text-align: center;
+		display: inline-block;
+		vertical-align: top;
+		
+		&:before {
+			font-size: 1.35rem;
+		}
+		
+		&.n-form-date-icon-show {
+			background-color: $danger-color;
+			color: $danger-contrast;
+		}
+	}
+}

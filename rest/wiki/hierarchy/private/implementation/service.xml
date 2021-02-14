@@ -1,0 +1,48 @@
+<sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		disabled="false"
+		id="50e8b1b8-9b27-46f4-914c-eb41a492d523">
+	<steps xsi:type="be.nabu.libs.services.vm.step.Map"
+			disabled="false"
+			id="dc4fb10e-ce24-48c6-97c3-24d883413ceb"
+			label="input/configuration/wikiId != null">
+		<steps xsi:type="be.nabu.libs.services.vm.step.Invoke"
+				disabled="false"
+				id="6ef97dd2-dae5-4f99-8e8c-dd5e9d807968"
+				serviceId="nabu.web.wiki.Services.list"
+				resultName="result1a28bd0982be43e0a59071a3841ee5db"
+				temporaryMapping="true"
+				x="72"
+				y="10"
+				invocationOrder="0"
+				asynchronous="false"
+				recache="false">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="35868292-7f92-4bab-b90b-db53586ea393"
+					mask="false"
+					optional="false"
+					fixedValue="true">
+				<from>true</from>
+				<to>recursive</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="48ff5930-c67c-43ca-b384-9a22256b540f"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>input/configuration/wikiId</from>
+				<to>wikiId</to>
+			</steps>
+		</steps>
+		<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+				disabled="false"
+				id="fc1307ff-de5e-4ffe-8779-c4c391bb3cdd"
+				mask="false"
+				optional="false"
+				fixedValue="false">
+			<from>result1a28bd0982be43e0a59071a3841ee5db/listing</from>
+			<to>output/content</to>
+		</steps>
+	</steps>
+</sequence>

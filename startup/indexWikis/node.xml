@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<node artifactManager="be.nabu.eai.module.services.vm.VMServiceManager" created="2021-02-14T14:12:44.911+01:00" lastModified="2021-02-14T14:20:28.437+01:00" leaf="true" version="14">
+    <environmentId>apollo</environmentId>
+    <hidden>false</hidden>
+    <properties/>
+    <references>nabu.utils.List.add</references>
+    <references>nabu.documentation.wiki.services.indexWiki</references>
+    <references>nabu.web.application.Services.information</references>
+    <references>nabu.web.application.Services.configuration</references>
+    <references>nabu.documentation.wiki.types.configuration</references>
+    <references>java.lang.String</references>
+    <references>nabu.web.wiki.types.WikiDirectory</references>
+    <references>nabu.web.application.types.WebApplicationInformation</references>
+    <references>nabu.utils.types.NodeDescription</references>
+    <references>nabu.utils.reflection.Node.dependencies</references>
+</node>

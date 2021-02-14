@@ -1,0 +1,22 @@
+{
+	"name": "page-builder-site",
+	"version": "1.0",
+	"resources": {
+		"themes": {
+			"dashboard.json": {
+				"type": "bundle",
+				"url": "https://raw.githubusercontent.com/nablex/themes/master/default-gg/bundle.json"
+			}
+		},
+		"modules": {
+			"page-builder.json": {
+				"type": "bundle",
+				"url": "https://raw.githubusercontent.com/nablex/web-modules/master/page-builder.json"
+			},
+			"frappe.json": {
+				"type": "bundle",
+				"url": "https://raw.githubusercontent.com/nabu-platform/web-component-frappe/master/bundle.json"
+			}
+		}
+	}
+}

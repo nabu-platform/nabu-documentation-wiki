@@ -1,0 +1,73 @@
+$n-form-switch-height: 2rem !default;
+$n-form-switch-width: 3rem !default;
+
+.n-form-switch.n-form-checkbox {
+	height: $n-form-switch-height;
+	position: relative;
+	width: $n-form-switch-width;
+
+	input[type='checkbox'] {
+		opacity: 0;
+		position: absolute;
+
+		&:checked + label {
+			&:before {
+				content:'';
+				width: $n-form-switch-width + 0.3;
+				background-color: $beta-color;
+			}
+			&:after {
+				content: '';
+				background-color: $success-color;
+				left: $n-form-switch-width / 2;
+				height: $n-form-switch-height - 0.5rem;
+			}
+		}
+
+		&[disabled] + label {
+			box-shadow: inset 0 0 0 1px $disabled-color;
+			cursor: not-allowed;
+			&:after {
+				background-color: $disabled-contrast;
+			}
+		}
+	}
+
+	label.n-form-label {
+		line-height: $n-form-switch-height;
+		//background-color: $beta-color;
+		cursor: pointer;
+		display: inline-block;
+		height: $n-form-switch-height;
+		position: relative;
+		user-select: none;
+		padding-left: $n-form-switch-width + 0.5rem !important;
+
+		&:before {
+			width: $n-form-switch-width + 0.3 !important;
+			background-color: $beta-color;
+			content: '';
+			display: block;
+			height: $n-form-switch-height;
+			left: 0;
+			position: absolute;
+			top: 0;
+			width: $n-form-switch-height;
+			box-shadow: inset 0 0 0 1px $beta-border !important;
+		}
+		&:after {
+			background-color: $disabled-color;
+			content: '';
+			display: block;
+			height: $n-form-switch-width / 2;
+			left: .25rem;
+			position: absolute;
+			top: .25rem;
+			transition-duration: 1s;
+			transition-property: background, left;
+			width: $n-form-switch-width / 2;
+			background-color: $disabled-color;
+			height: $n-form-switch-height - 0.5rem !important;
+		}
+	}
+}

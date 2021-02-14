@@ -1,0 +1,36 @@
+.n-prompt {
+	align-items: center;
+	background-color: rgba(100, 102, 105, 0.8);
+	display: flex;
+	flex-flow: row nowrap;
+	flex-direction: column;
+	height: 100%;
+	justify-content: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 10000;
+	.n-prompt-container {
+		position: relative;
+		height: auto;
+		min-height: 10rem;
+		max-height: 90vh;
+		width: auto;
+		max-width: 90vw;
+		overflow-y: auto;
+		overflow-x: hidden;
+		> .n-icon-spinner {
+			position: static;
+		}
+	}
+}
+
+
+@media (min-width: 40em) {
+	.n-prompt {
+		.n-prompt-container {
+			min-width: 30rem;
+		}
+	}
+}

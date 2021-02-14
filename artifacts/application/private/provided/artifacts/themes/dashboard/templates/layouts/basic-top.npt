@@ -1,0 +1,35 @@
+{ 
+	"category": "Layouts",
+	"name": "Top Menu",
+	"description": "A basic layout with a top menu and the content underneath.",
+	"icon": "templates/layouts/menu-top.png",
+	"content": {
+		"type":"page-row",
+		"content": [{
+			"name": "Top Menu",
+			"class": "full-width",
+			"condition": "$services.user.loggedIn",
+			"cells": [{
+				"name": "Main Menu",
+				"alias": "page-actions",
+				"state": {
+					"class": "menu",
+					"autoActions": true,
+					"isFixedHeader": true
+				}
+			}]
+		}, {
+			"direction": "vertical",
+			"name": "Basic Container",
+			"class": "basic-container",
+			"cells": [
+				{
+					"name": "Main Content",
+					"customId": "main",
+					"class": "basic-content"
+				}
+			]
+		}]
+	}
+}
+

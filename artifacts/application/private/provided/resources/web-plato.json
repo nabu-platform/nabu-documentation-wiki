@@ -1,0 +1,60 @@
+{
+	"name": "web-plato", 
+	"resources": {
+        "utilities": {
+            "include-media.json": {
+                "type": "bundle",
+                "url": "utilities/include-media/bundle.json"
+            }
+        },
+        "tokens": {
+            "color.json": {
+                "type": "bundle",
+                "url": "tokens/color/bundle.json"
+            },
+            "base.json": {
+                "type": "bundle",
+                "url": "tokens/base/bundle.json"
+            },
+            "borders.json": {
+                "type": "bundle",
+                "url": "tokens/borders/bundle.json"
+            },
+            "spacing.json": {
+                "type": "bundle",
+                "url": "tokens/spacing/bundle.json"
+            },
+            "grid.json": {
+                "type": "bundle",
+                "url": "tokens/grid/bundle.json"
+            },
+            "layers.json": {
+                "type": "bundle",
+                "url": "tokens/layers/bundle.json"
+            },
+            "typography.json": {
+                "type": "bundle",
+                "url": "tokens/typography/bundle.json"
+            }
+        },
+        "elements": {
+            "button.json": {
+                "type": "bundle",
+                "url": "elements/button/bundle.json"
+            },
+            "modal.json": {
+                "type": "bundle",
+                "url": "elements/modal/bundle.json"
+            }
+        },
+        "patterns": {
+            "form.json": {
+                "type": "bundle",
+                "url": "patterns/form/bundle.json"
+            },
+            "card.scss": {
+                "url": "patterns/card.scss"
+            }
+        }
+	}
+}

@@ -1,0 +1,127 @@
+.page-form-input-static-image {
+	.image-content {
+		display: flex;
+		justify-content: center;
+		> img {
+			max-width: 10rem;
+			max-height: 7rem;
+			vertical-align: top;
+			+ .n-input-file {
+				margin-left: 1rem;
+			}
+		}
+		.n-input-file {
+			padding: 1rem;
+			margin: auto 1rem;
+			margin-left: 0;
+			flex-grow: 1;
+		}
+	}
+}
+
+.page-row.wrap {
+	flex-wrap: wrap;
+}
+
+.n-absolute {
+	z-index: 100;
+}
+
+.n-prompt-container {
+	//min-height: 80vh !important;
+	&[template~="-page"] {
+		overflow: visible !important;
+	}
+}
+.page {
+	&.n-form {
+		background-color: #fff;
+		padding: 2rem;
+	}
+}
+
+.n-ace {
+	min-height: 10rem;
+}
+
+// red
+$major-background-color: #951111;
+// blue
+$major-background-color: #6c6a93;
+// lightblue
+$major-background-color: #dad9f0;
+$major-frontend-color: #595e71;
+
+.settings, .pages, .page-settings {
+	i {
+		&.n-icon {
+			font-style: normal;
+		}
+	}
+	main {
+		padding: 0;
+	}
+	.root-configuration {
+		padding: 1rem 2rem;
+	}
+	
+	.list-item-actions {
+		position: relative;
+	}
+	.list-item-actions {
+		text-align: right;
+		padding: 0.7rem;
+	}
+	.padded-content {
+		padding: 1rem 1.7rem;
+	}
+	.n-collapsible.padded {
+		> .n-collapsible-content {
+			padding: 1rem 1.7rem;
+		}
+	}
+	.list-actions {
+		text-align: right;
+		padding: 0.7rem;
+	}
+	.simple-row {
+		position: relative;
+		display: flex;
+	}
+	.list-row {
+		position: relative;
+		.fa-times {
+			position: absolute;
+			top: 0.3rem;
+			right: 0.3rem;
+			cursor: pointer;
+			color: #333;
+		}
+		display: flex;
+		flex-direction: column;
+		border-left: solid 5px #ccc;
+		padding: 0.7rem 1.3rem;
+		background-color: #eee;
+		//align-items: center;
+		button {
+			padding: 0.3rem 0.5rem;
+			font-weight: normal;
+		}
+		+ .list-row {
+			border-top: solid 1px #ccc;
+		}
+	}
+	.list {
+		.n-collapsible-content {
+			padding: 0;
+			.list-item {
+				.n-collapsible-content {
+					padding: 1rem 2rem;
+				}
+			}
+		}
+	}
+	.n-input-combo {
+		margin: 0;
+	}
+}

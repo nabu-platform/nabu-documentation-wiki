@@ -1,0 +1,17 @@
+{
+	"name": "web-plato-patterns-form",
+	"resources": {
+		"form.scss": {
+			"url": "form.scss"
+		},
+		"form-section.scss": {
+			"url": "form-section.scss"
+		},
+		"combo.scss": {
+			"url": "combo.scss"
+		},
+		"date.scss": {
+			"url": "date.scss"
+		}
+	}
+}

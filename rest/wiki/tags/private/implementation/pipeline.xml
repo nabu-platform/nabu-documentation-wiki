@@ -1,0 +1,6 @@
+<structure interface="nabu.documentation.wiki.rest.wiki.tags:api" name="pipeline">
+    <structure name="input"/>
+    <structure name="output"/>
+    <structure definition="nabu.web.wiki.types.WikiGroup" maxOccurs="unbounded" minOccurs="0" name="groups"/>
+    <structure definition="nabu.documentation.wiki.rest.wiki.tag" minOccurs="0" name="tag"/>
+</structure>

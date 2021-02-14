@@ -1,0 +1,4 @@
+<structure name="configuration">
+    <field comment="Defaults to &quot;$internal&quot;" minOccurs="0" name="wikiId" type="java.lang.String"/>
+    <field comment="The id of the lucene indexing object (if any)" minOccurs="0" name="luceneId" type="java.lang.String"/>
+</structure>

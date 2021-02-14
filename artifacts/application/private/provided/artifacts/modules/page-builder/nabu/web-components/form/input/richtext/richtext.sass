@@ -1,0 +1,101 @@
+.n-form-richtext {
+	margin: 1rem;
+	position: relative;
+
+	.n-form-richtext-editor {
+		display: flex;
+		.n-form-richtext-content {
+			flex-basis: 0;
+			flex-grow: 1;
+			&[contenteditable=true] {
+				width: 100%;
+				min-width: 10rem;
+				min-height: 5rem;
+				border: $border;
+				//background-color: $beta-color;
+			}
+		}
+		span {
+			flex-basis: 0;
+			flex-grow: 0;
+		}
+	}
+	
+	.n-form-richtext-menu {
+		z-index: 11;
+		position: absolute;
+		right: 0;
+		top: 100%;
+		white-space: nowrap;
+		.n-form-richtext-menu-content {
+			display: none;
+		}
+		.open-menu {
+			width: 2rem;
+			height: 2rem;
+			line-height: 2rem;
+			z-index: 10;
+			//position: absolute;
+			top: 0;
+			right: 0;
+		}
+		&:hover {
+			.n-form-richtext-menu-content {
+				z-index: 20;
+				display: block;
+				position: absolute;
+				top: 50%;
+			}
+		}
+		.n-form-richtext-menu-container {
+			position: relative;
+			display: inline-block;
+		}
+		> button {
+			position: relative;
+		}
+		.n-form-richtext-choices {
+			position: absolute;
+			bottom: 100%;
+			right: 0;
+			white-space: nowrap;
+			text-align: left;
+			button {
+				border-style: solid;
+				display: inline-block;
+			}
+			.fa {
+				&:before {
+					font-size: 0.6rem;
+				}
+			 }
+		}
+		button, input {
+			background-color: $light-color;
+			color: $light-contrast;
+			//margin: 0 0.2rem;
+			height: 2rem;
+			width: 2rem;
+			border: $beta-border solid 1px;
+			padding: 0;
+			
+			.n-form-richtext-button-description {
+				font-size: 0.5rem;
+				display: none;
+				margin-top: 0.2rem;
+			}
+		}
+		.n-form-richtext-choices {
+			button, input {
+				height: 2rem;
+				width: 2.3rem;
+			}
+			.n-form-richtext-button-description {
+				display: block;
+			}
+		}
+		input {
+			vertical-align: bottom;
+		}
+	}
+}

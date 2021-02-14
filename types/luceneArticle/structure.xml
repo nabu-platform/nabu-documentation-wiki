@@ -1,0 +1,6 @@
+<structure name="article">
+    <field comment="Saved as token so we can feed it to the user" name="name" token="true" type="java.lang.String"/>
+    <field comment="The primary key is always stored" name="path" primaryKey="true" type="java.lang.String"/>
+    <field comment="Not stored as token because it would take too much space" minOccurs="0" name="content" type="java.lang.String"/>
+    <field comment="The tags for this article" maxOccurs="unbounded" minOccurs="0" name="tag" token="true" type="java.lang.String"/>
+</structure>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<node artifactManager="be.nabu.eai.module.web.component.WebComponentManager" created="2021-02-14T14:07:57.151+01:00" lastModified="2021-02-14T14:49:33.160+01:00" leaf="true" version="9">
+    <environmentId>apollo</environmentId>
+    <hidden>false</hidden>
+    <properties/>
+    <references>nabu.documentation.wiki.types.configuration</references>
+    <references>nabu.documentation.wiki.rest.wiki.hierarchy</references>
+    <references>nabu.documentation.wiki.rest.wiki.read</references>
+    <references>nabu.documentation.wiki.rest.wiki.search</references>
+    <references>nabu.documentation.wiki.rest.wiki.tags</references>
+</node>

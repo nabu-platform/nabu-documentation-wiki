@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<virtualHost>
+    <server>nabu.documentation.wiki.server</server>
+    <useAcme>false</useAcme>
+    <enableHsts>false</enableHsts>
+    <hstsPreload>false</hstsPreload>
+    <hstsSubDomains>false</hstsSubDomains>
+    <enableRangeSupport>true</enableRangeSupport>
+    <enableCompression>true</enableCompression>
+</virtualHost>

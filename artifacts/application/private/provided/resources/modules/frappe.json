@@ -1,0 +1,30 @@
+{
+	"name": "web-component-frappe", 
+	"resources": {
+		"images": {
+			"components": {
+				"frappe-logo.png": {
+					"url": "frappe-logo.png"
+				}
+			}
+		},
+		"polyfill.js": {
+			"url": "polyfill.js"
+		},
+		"frappe-charts.min.js": {
+			"url": "https://cdn.jsdelivr.net/npm/frappe-charts@1.5.3/dist/frappe-charts.min.iife.js"
+		},
+		"frappe-charts.min.css": {
+			"url": "https://cdn.jsdelivr.net/npm/frappe-charts@1.5.3/dist/frappe-charts.min.css"
+		},
+		"frappe.scss": {
+			"url": "frappe.scss"
+		}, 
+		"frappe.js": {
+			"url": "frappe.js"
+		}, 
+		"frappe.tpl": {
+			"url": "frappe.tpl"
+		}
+	}
+}

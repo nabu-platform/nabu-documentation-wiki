@@ -1,0 +1,212 @@
+// The date component inherits most functionality from the basic text field component
+
+//// field - icon
+$plato-form_date-component_field_icon_background: transparent !default;
+$plato-form_date-component_field_icon_color: $plato-form_component_field_icon_color !default;
+$plato-form_date-component_field_icon_content: "\e916" !default;
+$plato-form_date-component_field_icon_height: auto !default;
+$plato-form_date-component_field_icon_line-height: inherit !default;
+$plato-form_date-component_field_icon_width: auto !default;
+$plato-form_date-component_field_icon_font-size: $font-icon-size !default;
+$plato-form_date-component_field_icon_font-family: $font-icon-family !default;
+$plato-form_date-component_field_icon_font-weight: $font-icon-weight !default;
+
+
+// valid 
+$plato-form_date-component_field_valid_border: $plato-form_component_field_valid_border !default;
+$plato-form_date-component_field_valid_color: $plato-form_component_field_valid_color !default;
+$plato-form_date-component_field_valid_color: $plato-form_component_field_valid_color !default;
+$plato-form_date-component_field_icon_valid_content: $font-icon-content-valid !default;
+$plato-form_date-component_field_icon_valid_font-size: $font-icon-size !default;
+$plato-form_date-component_field_icon_valid_font-family: $font-icon-family !default;
+$plato-form_date-component_field_icon_valid_font-weight: $font-icon-weight !default;
+// invalid 
+$plato-form_date-component_field_invalid_border: $plato-form_component_field_invalid_border !default;
+$plato-form_date-component_field_invalid_color: $plato-form_component_field_invalid_color !default;
+$plato-form_date-component_field_invalid_color: $plato-form_component_field_invalid_color !default;
+$plato-form_date-component_field_icon_invalid_content: $font-icon-content-invalid !default;
+$plato-form_date-component_field_icon_invalid_font-size: $font-icon-size !default;
+$plato-form_date-component_field_icon_invalid_font-family: $font-icon-family !default;
+$plato-form_date-component_field_icon_invalid_font-weight: $font-icon-weight !default;
+
+
+//-------- MIXINS
+
+//// date 
+@mixin plato-form_date-component {
+	
+}
+@mixin plato-form_date-component_field-wrapper {
+	
+}
+@mixin plato-form_date-component_field_icon-wrapper {
+	
+}
+@mixin plato-form_date-component_field_date-icon {
+	background-color: $plato-form_date-component_field_icon_background;
+	color: $plato-form_date-component_field_icon_color;
+	height: $plato-form_date-component_field_icon_height;
+	line-height: $plato-form_date-component_field_icon_line-height;
+	width: $plato-form_date-component_field_icon_width;
+}
+@mixin plato-form_date-component_field_date-icon_before {
+	content: $plato-form_date-component_field_icon_content;
+	font-size: $plato-form_component_field_icon_font-size;
+	font-family: $plato-form_component_field_icon_font-family;
+	font-weight: $plato-form_component_field_icon_font-weight;
+}
+
+//// valid
+@mixin plato-form_date-component_valid {
+	
+}
+@mixin plato-form_date-component_valid_field-wrapper {
+	
+}
+@mixin plato-form_date-component_valid_field {
+	border: $plato-form_date-component_field_valid_border;
+	color: $plato-form_date-component_field_valid_color;
+}
+@mixin plato-form_date-component_valid_field_icon-wrapper {
+	
+}
+@mixin plato-form_date-component_valid_field_icon {
+	color: $plato-form_date-component_field_valid_color;
+}
+//// invalid
+@mixin plato-form_date-component_invalid {
+	
+}
+@mixin plato-form_date-component_invalid_field-wrapper {
+	
+}
+@mixin plato-form_date-component_invalid_field {
+	border: $plato-form_date-component_field_invalid_border;
+	color: $plato-form_date-component_field_invalid_color;
+}
+@mixin plato-form_date-component_invalid_field_icon-wrapper {
+	
+}
+@mixin plato-form_date-component_invalid_field_icon {
+	color: $plato-form_date-component_field_invalid_color;
+}
+
+
+//-------- DEFINITIONS
+
+.plato-form, %plato-form {
+	@include plato-form;
+	.plato-form_date-component, %plato-form_date-component {
+		@include plato-form_date-component;
+		.component_field-wrapper, %plato-form_component_field-wrapper {
+			@include plato-form_date-component_field-wrapper;
+			.field_icon-wrapper, %plato-form_component_field_icon-wrapper {
+				@include plato-form_date-component_field_icon-wrapper;
+				.field_date-icon, %plato-form_component_field_date-icon {
+					@include plato-form_date-component_field_date-icon;
+					&:before {
+						@include plato-form_date-component_field_date-icon_before;
+					}
+				}
+			}
+		}
+	}
+}
+
+// valid 
+.plato-form .plato-form_date-component.component_valid, %plato-form_date-component_valid {
+	.component_field-wrapper .component_field {
+		@include plato-form_date-component_valid_field;
+	}
+	.field_icon-wrapper {
+		.field_icon {
+			@include plato-form_date-component_valid_field_icon;
+		}
+	}
+}
+
+// invalid 
+.plato-form .plato-form_date-component.component_invalid, %plato-form_date-component_invalid {
+	.component_field-wrapper .component_field {
+		@include plato-form_date-component_invalid_field;
+	}
+	.field_icon-wrapper {
+		.field_icon {
+			@include plato-form_date-component_invalid_field_icon;
+		}
+	}
+}
+
+
+// ---------------------------------------------- date picker 
+
+$plato-form_date-picker_margin-top: calc(-1 * #{$plato-form_component_margin-bottom}) !default;
+$plato-form_date-picker_margin-bottom: 0 !default;
+$plato-form_date-picker_margin-left: 0 !default;
+$plato-form_date-picker_margin-right: 0 !default;
+$plato-form_date-picker_margin: $plato-form_date-picker_margin-top $plato-form_date-picker_margin-right $plato-form_date-picker_margin-bottom $plato-form_date-picker_margin-left !default;
+
+//// legend 
+$plato-form_date-picker_legend_display: none !default;
+//// table 
+$plato-form_date-picker_table_layer-level: middle !default;
+//// table  - caption
+$plato-form_date-picker_table_caption_background: color-tint("primary", "base") !default;
+//// table  - head
+$plato-form_date-picker_table_head_background: color-tint("neutral", "darkest") !default;
+//// table  - body
+$plato-form_date-picker_table_body_background: $color-neutral-white !default;
+//// table  - body - day
+$plato-form_date-picker_table_day_color: $font-color-copy !default;
+$plato-form_date-picker_table_day_text-decoration: none !default;
+
+
+//-------- MIXINS
+
+//// date-picker 
+@mixin plato-form_date-picker {
+	margin: $plato-form_date-picker_margin;
+}
+@mixin plato-form_date-picker_table {
+	@include layer-level($plato-form_date-picker_table_layer-level);
+}
+@mixin plato-form_date-picker_table_caption {
+	background-color: $plato-form_date-picker_table_caption_background;
+}
+@mixin plato-form_date-picker_table_head {
+	background-color: $plato-form_date-picker_table_head_background;
+}
+@mixin plato-form_date-picker_table_body {
+	background-color: $plato-form_date-picker_table_body_background;
+}
+@mixin plato-form_date-picker_day {
+	color: $plato-form_date-picker_table_day_color;
+	text-decoration: $plato-form_date-picker_table_day_text-decoration;
+}
+@mixin plato-form_date-picker_legend {
+	display: $plato-form_date-picker_legend_display;
+}
+
+.plato-form, %plato-form {
+	.plato-form_date-picker, %plato-form_date-picker {
+		@include plato-form_date-picker;
+		.date-picker_table, %plato-form_date-picker_table {
+			@include plato-form_date-picker_table;
+			.date-picker_table_caption, %plato-form_date-picker_table_caption {
+				@include plato-form_date-picker_table_caption;
+			}
+			.date-picker_table_head, %plato-form_date-picker_table_head {
+				@include plato-form_date-picker_table_head;
+			}
+			.date-picker_table_body, %plato-form_date-picker_table_body {
+				@include plato-form_date-picker_table_body;
+				.date-picker_day, %plato-form_date-picker_day {
+					@include plato-form_date-picker_day
+				}
+			}
+		}
+		.date-picker_legend, %plato-form_date-picker_legend {
+			@include plato-form_date-picker_legend;
+		}
+	}
+}

@@ -1,0 +1,225 @@
+// ---------------------------------------------- font sizes
+$font-size-base: $base-font-size !default; // 1rem
+$font-size-large: 1.25rem !default;
+$font-size-small: 0.875rem !default;
+$font-size-tiny: 0.75rem !default;
+
+$font-color-light: $color-neutral-dark !default;
+
+/// Copy
+$font-color-copy: $font-color !default;
+$font-family-copy: $font-family !default;
+$font-line-height-copy: 1.25 !default; // ! always use numbers only !
+$font-weight-copy: $font-weight !default;
+
+
+//-------- MIXINS 
+
+@mixin font-base {
+	font-size: $font-size-base;
+}
+@mixin font-large {
+	font-size: $font-size-large;
+}
+@mixin font-small {
+	font-size: $font-size-small;
+}
+@mixin font-tiny {
+	font-size: $font-size-tiny;
+}
+
+@mixin plato-paragraph {
+    color: $font-color-copy;
+	font-size: $font-size-base;
+    font-weight: $font-weight-copy;
+    line-height: $font-line-height-copy;
+	&.large {
+		@include font-large;
+	}
+	&.small {
+		@include font-small;
+	}
+	&.tiny {
+		@include font-tiny;
+	}
+}
+
+body, * {
+	font-size: $font-size-base;
+}
+
+%font-base {
+	@include font-base;
+}
+%font-large {
+	@include font-large;
+}
+%font-small {
+	@include font-small;
+}
+%font-tiny {
+	@include font-tiny;
+}
+
+p, %paragraph, .plato-paragraph {
+	@include plato-paragraph;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.text-emphasis {
+	font-weight: $font-weight-emphasis;
+}
+
+.text-cursive {
+	font-style: italic;
+}
+
+.text-color-light, %text-color-light {
+	color: $font-color-light;
+}
+
+/// Shadow 
+
+$text-shadow-light: 0 0 0.5em rgba(255, 255, 255, 1);
+$text-shadow-dark: 0 0 0.5em rgba(0, 0, 0, 0.75);
+
+.text-shadow-light {
+	text-shadow: $text-shadow-light;
+}
+
+.text-shadow-dark {
+	text-shadow: $text-shadow-dark;
+}
+
+/// Heading
+$font-color-heading: $font-color !default;
+$font-family-heading: $font-family-alt !default;
+$font-line-height-heading: 1.25 !default;
+$font-margin-heading: 1.414em 0 0.5em !default;
+$font-weight-heading: $font-weight-emphasis !default;
+
+$font-size-heading1: 6rem !default;
+$font-size-heading2: 4rem !default;
+$font-size-heading3: 3rem !default;
+$font-size-heading4: 2rem !default;
+$font-size-heading5: 1.5rem !default;
+$font-size-heading6: 1.25rem !default;
+$font-size-heading7: 1rem !default;
+
+$font-spacing-heading1: -0.02em !default;
+$font-spacing-heading2: -0.015em !default;
+$font-spacing-heading3: -0.01em !default;
+$font-spacing-heading4: -0.01em !default;
+$font-spacing-heading5: -0.01em !default;
+$font-spacing-heading6: -0.01em !default;
+$font-spacing-heading7: -0.01em !default;
+
+/// Subheading
+$font-color-subheading: $font-color-heading !default;
+$font-family-subheading: $font-family-heading !default;
+$font-line-height-subheading: $font-line-height-heading !default;
+$font-margin-subheading: $font-margin-heading !default;
+$font-weight-subheading: $font-weight !default;
+
+$font-size-subheading1: $font-size-heading1 !default;
+$font-size-subheading2: $font-size-heading2 !default;
+$font-size-subheading3: $font-size-heading3 !default;
+$font-size-subheading4: $font-size-heading4 !default;
+$font-size-subheading5: $font-size-heading5 !default;
+$font-size-subheading6: $font-size-heading6 !default;
+$font-size-subheading7: $font-size-heading7 !default;
+
+$font-spacing-subheading1: $font-spacing-heading1 !default;
+$font-spacing-subheading2: $font-spacing-heading2 !default;
+$font-spacing-subheading3: $font-spacing-heading3 !default;
+$font-spacing-subheading4: $font-spacing-heading4 !default;
+$font-spacing-subheading5: $font-spacing-heading5 !default;
+$font-spacing-subheading6: $font-spacing-heading6 !default;
+$font-spacing-subheading7: $font-spacing-heading7 !default;
+
+
+$heading-size-map: (
+	"heading1": $font-size-heading1,
+	"heading2": $font-size-heading2,
+	"heading3": $font-size-heading3,
+	"heading4": $font-size-heading4,
+	"heading5": $font-size-heading5,
+	"heading6": $font-size-heading6,
+	"heading7": $font-size-heading7,
+	"subheading1": $font-size-subheading1,
+	"subheading2": $font-size-subheading2,
+	"subheading3": $font-size-subheading3,
+	"subheading4": $font-size-subheading4,
+	"subheading5": $font-size-subheading5,
+	"subheading6": $font-size-subheading6,
+	"subheading7": $font-size-subheading7
+);
+
+$heading-spacing-map: (
+	"heading1": $font-spacing-heading1,
+	"heading2": $font-spacing-heading2,
+	"heading3": $font-spacing-heading3,
+	"heading4": $font-spacing-heading4,
+	"heading5": $font-spacing-heading5,
+	"heading6": $font-spacing-heading6,
+	"heading7": $font-spacing-heading7,
+	"subheading1": $font-spacing-subheading1,
+	"subheading2": $font-spacing-subheading2,
+	"subheading3": $font-spacing-subheading3,
+	"subheading4": $font-spacing-subheading4,
+	"subheading5": $font-spacing-subheading5,
+	"subheading6": $font-spacing-subheading6,
+	"subheading7": $font-spacing-subheading7
+);
+
+$heading-sizes: 1, 2, 3, 4, 5, 6, 7;
+
+@mixin heading($size: 1, $variant: "normal") {
+	$sizes: $heading-sizes;
+	@if not list-index($sizes, $size) {
+		@error "#{$size} is not a valid size. Expected one of #{$sizes}."
+	}
+	$variants: "normal", "sub";
+	@if not list-index($variants, $variant) {
+		@error "#{$variant} is not a valid variant. Expected one of #{$variants}."
+	}
+	
+	@if $variant == "normal" {
+		color: $font-color-heading;
+	    font-family: $font-family-heading;
+	    font-weight: $font-weight-heading;
+		line-height: $font-line-height-heading;
+		margin: $font-margin-heading;
+		margin-top: 0;
+	}
+	@if $variant == "sub" {
+		color: $font-color-heading;
+	    font-family: $font-family-subheading;
+	    font-weight: $font-weight-subheading;
+		line-height: $font-line-height-subheading;
+		margin: $font-margin-subheading;
+		margin-top: 0;
+	}
+	
+	$keys: ( "normal": heading, "sub": subheading );
+	$key: map-get($keys, $variant)#{$size};
+	@if map-has-key($map: $heading-size-map, $key: $key) {
+		font-size: map-get($map: $heading-size-map, $key: $key);
+	}
+	@if map-has-key($map: $heading-spacing-map, $key: $key) {
+		letter-spacing: map-get($map: $heading-spacing-map, $key: $key);
+	}
+}
+
+// Render each size of heading in both variants
+@each $size in $heading-sizes {
+	h#{$size}, .h#{$size}, %h#{$size} {
+		@include heading($size);
+	}
+	.sh#{$size}, %sh#{$size} {
+		@include heading($size: $size, $variant: "sub");
+	}
+}

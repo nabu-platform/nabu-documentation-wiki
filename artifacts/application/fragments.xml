@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<webFragmentConfigurations>
+    <parts>
+        <configuration>
+            <property key="wikiId">nabu.documentation.wiki.artifacts.wiki</property>
+            <property key="luceneId">nabu.documentation.wiki.artifacts.lucene</property>
+        </configuration>
+        <environmentSpecific>false</environmentSpecific>
+        <type>nabu.documentation.wiki.types.configuration</type>
+    </parts>
+</webFragmentConfigurations>

@@ -1,0 +1,124 @@
+$n-form-date-hero-color: $primary-color !default;
+$n-form-date-hero-contrast: $primary-contrast !default;
+
+$n-form-date-color: $beta-color !default;
+$n-form-date-contrast: $beta-contrast !default;
+$n-form-date-border: $beta-border !default;
+
+$n-form-line-height: 3rem !default;
+
+.n-input-date {
+	.fa:before {
+		display: inline-block;
+		line-height: $n-form-line-height;
+	}
+	table {
+		background-color: $n-form-date-hero-color;
+		border: $n-form-date-border solid 1px;
+		border-style: none solid solid none
+	}
+	.time {
+		padding: 0;
+		display: flex;
+		.n-form-component {
+			margin: 0 !important;
+			input {
+				width: 100% !important;
+			}
+		}
+	}
+	.caption {
+		height: $n-form-line-height;
+		line-height: $n-form-line-height;
+		color: $n-form-date-hero-contrast;
+		text-decoration: none;
+		tr {
+			height: $n-form-line-height;
+		}
+		
+		.month {
+			font-weight: 700;
+			font-size: 1.2rem;
+			max-height: 3rem;
+			text-align: center;
+		}
+		a {
+			color: inherit;
+			font-size: 1.625rem;
+			height: $n-form-line-height;
+			width: $n-form-line-height;
+			text-decoration: none;
+			&[disabled="disabled"] {
+				cursor: not-allowed;
+			}
+			text-align: center;
+		}
+	}
+	td {
+		background-color: $n-form-date-color;
+		color: $n-form-date-contrast;
+		text-align: center;
+		padding: 0.7rem;
+	}
+	th {
+		padding: 0.7rem 1rem;
+		background-color: $n-form-date-contrast;
+		color: $n-form-date-color;
+		border: $beta-border solid 1px;
+		border-style: none none solid none;
+		text-align: center;
+	}
+	
+	td, span{
+		&.n-input-date-today {
+			background-color: $warning-color;
+			a {
+				color: $warning-contrast;
+			}
+		}
+		&.n-input-date-selected {
+			background-color: $success-color;
+			a {
+				color: $success-contrast;
+			}
+		}
+		&.n-input-date-not-available {
+			background-color: none;
+			a.n-input-date-label {
+				color: lighten($n-form-date-contrast, 60%);
+			}		
+		}
+	}
+	.table.dropdown {
+		.caption {
+			td {
+				position: relative;
+				padding: 0.3rem;
+			}
+			.n-input-combo {
+				margin-left: auto;
+				min-height: 3rem;
+				max-width: 5rem;
+				right: 0.3rem;
+				position: absolute;
+				display: inline-block;
+				.n-input-combo-input-container {
+					input {
+						font-size: 0.875rem;
+						padding: 0.5rem;
+					}
+					.n-icon {
+						color: black;
+						top: auto;
+					}
+					.n-icon:before {
+						color: black;
+						margin-top: auto;
+					}
+				}
+			}
+		}
+	}
+}
+
+

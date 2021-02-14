@@ -1,0 +1,102 @@
+$alpha-accent-color: #333 !default;
+$alpha-accent-contrast: #fff !default;
+$alpha-color: #fff !default;
+
+.pages {
+	max-width: 1024px;
+	margin: auto;
+	box-shadow: 4px 4px 4px 4px #aaa;
+
+	.odd-block {
+		background-color: #F4F5F6;
+		border-top: solid 1px #ccccd4;
+	}	
+	.panes {
+		display: flex;
+		.pane {
+			flex-grow: 1;
+			flex-basis: 0;
+			+ .pane {
+				border-left: solid 1px #ccccd4;
+			}
+		}
+		+ .panes {
+			border-top: solid 1px #ccccd4;
+		}
+	}
+	.n-collapsible {
+		.pane {
+			padding: 1rem;
+		}
+	}
+	h1.main {
+		font-size: 1.2rem;
+		text-align: center;
+		border: $border;
+		border-style: none none solid none;
+		padding: 0.7rem;
+		margin: 0;
+		background-color: #1C1E22;
+		color: white;
+		.subscript {
+			margin-left: 0.3rem;
+			display: inline-block;
+			color: #666;
+		}
+	}
+	.category-subscript {
+		padding: 1rem 2rem;
+		padding-top: 0;
+		margin: 0 !important;
+	}
+	h4.category {
+		color: #333;
+		padding: 1rem 2rem;
+		margin: 0 !important;
+		text-align: left;
+		&:first-letter {
+			text-transform: uppercase;
+		}
+		button {
+			margin-left: 0.7rem;
+		}
+		.subscript {
+			display: inline-block;
+			margin-right: 1rem;
+			font-size: 0.7rem;
+		}
+	}
+	.introduction {
+		text-align: center;
+		width: 50%;
+		margin: auto;
+	}
+	.main {
+		.n-collapsible-content {
+			margin: auto;
+		}
+	}
+	
+	.n-ace {
+		min-height: 50rem;
+	}
+	.danger.message {
+		padding: 1rem;
+		margin: 1rem 0;
+	}
+}
+
+.list-item {
+	background-color: $alpha-color;
+}
+
+[template="nabu-create-page"], [template="nabu-pages-paste"] {
+	overflow: visible !important;
+}
+.nabu-pages-paste, .nabu-create-page {
+	background-color: #fff;
+	padding: 2rem;
+	footer {
+		text-align: right;
+	}
+}

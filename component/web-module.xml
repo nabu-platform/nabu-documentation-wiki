@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<webModule>
+    <path>/wiki</path>
+    <configurationType>nabu.documentation.wiki.types.configuration</configurationType>
+    <webFragments>nabu.documentation.wiki.rest.wiki.hierarchy</webFragments>
+    <webFragments>nabu.documentation.wiki.rest.wiki.read</webFragments>
+    <webFragments>nabu.documentation.wiki.rest.wiki.search</webFragments>
+    <webFragments>nabu.documentation.wiki.rest.wiki.tags</webFragments>
+</webModule>

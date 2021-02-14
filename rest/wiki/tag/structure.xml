@@ -1,0 +1,4 @@
+<structure name="tag">
+    <field name="tag" type="java.lang.String"/>
+    <field maxOccurs="unbounded" minOccurs="0" name="paths" type="java.lang.String"/>
+</structure>

@@ -1,0 +1,39 @@
+.full-width .menu {
+	z-index: 99;
+	&.page-actions-root {
+		min-height: 3rem;
+		width: 100%;
+		border-bottom: solid 1px $color-primary-base;
+		padding-left: calc((100vw - 64rem) / 2);
+		padding-right: calc((100vw - 64rem) / 2);
+	}
+}
+.edit .full-width .menu {
+	&.page-actions-root {
+		padding-left: calc(((100vw - 64rem) / 2) - 300px);
+		padding-right: calc(((100vw - 64rem) / 2) - 400px);
+	}
+}
+.basic-container {
+	// we want to allow full width rows to still happen
+	.page-row:not(.full-width) {
+		max-width: 64rem;
+		margin: 0 auto;
+	}
+	.basic-main-menu.page-actions-root {
+		background-color: white;
+		border: solid 1px $color-primary-lighter;
+		border-top: none;
+		border-radius: 3px;
+		.page-action-entry {
+			color: $color-primary-dark;
+			
+			border-bottom: solid 2px $color-primary-base;
+			&:hover {
+				background-color: $color-primary-base;
+				border-bottom-color: $color-primary-dark;
+			}
+		}
+		
+	}
+}

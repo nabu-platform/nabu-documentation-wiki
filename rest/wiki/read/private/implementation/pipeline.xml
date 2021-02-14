@@ -1,0 +1,7 @@
+<structure interface="nabu.documentation.wiki.rest.wiki.read:api" name="pipeline">
+    <structure name="input"/>
+    <structure name="output"/>
+    <structure definition="be.nabu.libs.types.api.KeyValuePair" name="downloadPath"/>
+    <structure definition="be.nabu.libs.types.api.KeyValuePair" name="viewPath"/>
+    <structure definition="nabu.web.application.types.WebApplicationInformation" minOccurs="0" name="information"/>
+</structure>

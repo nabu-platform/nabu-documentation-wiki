@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<node artifactManager="be.nabu.eai.module.web.application.WebApplicationManager" created="2021-02-14T14:08:58.697+01:00" lastModified="2021-02-14T14:50:12.520+01:00" leaf="true" version="9">
+    <environmentId>apollo</environmentId>
+    <hidden>false</hidden>
+    <properties/>
+    <references>nabu.documentation.wiki.artifacts.host</references>
+    <references>nabu.web.core.components</references>
+    <references>nabu.web.page.core.component</references>
+    <references>nabu.web.page.data.component</references>
+    <references>nabu.documentation.wiki.component</references>
+    <references>nabu.documentation.wiki.artifacts.swagger</references>
+    <references>nabu.documentation.wiki.types.configuration</references>
+</node>

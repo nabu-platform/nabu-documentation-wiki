@@ -1,0 +1,313 @@
+<sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		disabled="false"
+		id="bdf32231-b288-4b82-bcf7-f2c7d26abb4a">
+	<steps xsi:type="be.nabu.libs.services.vm.step.Map"
+			comment="List wiki, clean lucene"
+			disabled="false"
+			id="e6b53c18-882f-4793-bd98-f78e7f4c6156">
+		<steps xsi:type="be.nabu.libs.services.vm.step.Invoke"
+				disabled="false"
+				id="1f4686a1-16b6-4d0b-9c6e-9ec16860d251"
+				serviceId="nabu.web.wiki.Services.list"
+				resultName="result4df2f145e4d441fc80c77fa5eb5853d3"
+				temporaryMapping="true"
+				x="48"
+				y="56"
+				invocationOrder="0"
+				asynchronous="false"
+				recache="false">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="c591e438-33e1-466c-b6d4-3c091f4bdbcf"
+					mask="false"
+					optional="false"
+					fixedValue="true">
+				<from>true</from>
+				<to>flatten</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="dd00c55f-a12f-42c4-b056-05f580568c9a"
+					mask="false"
+					optional="false"
+					fixedValue="true">
+				<from>true</from>
+				<to>includeContent</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="3aa771b2-5656-45cc-8b5d-7ce854a49df3"
+					mask="false"
+					optional="false"
+					fixedValue="true">
+				<from>true</from>
+				<to>recursive</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="5f448e4c-208b-4a99-9fa2-3cb716b6827c"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>input/wikiId</from>
+				<to>wikiId</to>
+			</steps>
+		</steps>
+		<steps xsi:type="be.nabu.libs.services.vm.step.Invoke"
+				disabled="false"
+				id="9bad17b1-8db5-4a81-9d55-57bdd64a9d8a"
+				serviceId="nabu.misc.lucene.Services.deleteAll"
+				resultName="resulta9fa404143d44198907b31aa750e1706"
+				temporaryMapping="true"
+				x="44"
+				y="235"
+				invocationOrder="0"
+				asynchronous="false"
+				recache="false">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="fbd37b71-fc33-4b40-9ade-623e4363fd1b"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>input/luceneId</from>
+				<to>luceneId</to>
+			</steps>
+		</steps>
+		<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+				disabled="false"
+				id="eec9de65-83a4-4281-82b0-7a0bc97a1691"
+				mask="false"
+				optional="false"
+				fixedValue="false">
+			<from>result4df2f145e4d441fc80c77fa5eb5853d3/listing/articles</from>
+			<to>articles</to>
+		</steps>
+	</steps>
+	<steps xsi:type="be.nabu.libs.services.vm.step.For"
+			disabled="false"
+			id="852f7271-c9b9-4aaa-ab76-6417242d5cb8"
+			variable="article">
+		<steps xsi:type="be.nabu.libs.services.vm.step.Map"
+				comment="Map lucene article"
+				disabled="false"
+				id="494659f2-6981-4fd2-aa36-5a2314d3158a">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="b45b20cb-671b-4475-9c15-e688cc797ebd"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>article/name</from>
+				<to>luceneArticle/name</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="e11fdc70-2e7d-4529-bed5-6a592697aed1"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>article/path</from>
+				<to>luceneArticle/path</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Invoke"
+					disabled="false"
+					id="1ea539d1-3608-490c-980a-9968a354a335"
+					serviceId="nabu.utils.Bytes.toString"
+					resultName="result5a4779e2c505482d97baa194950a8aa2"
+					temporaryMapping="true"
+					x="85"
+					y="215"
+					invocationOrder="0"
+					asynchronous="false"
+					recache="false">
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="5413f6da-5201-48b2-b5e8-6cf6393e8319"
+						mask="false"
+						optional="false"
+						fixedValue="false">
+					<from>article/content</from>
+					<to>bytes</to>
+				</steps>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="0353edb2-60d8-4bfd-a070-e8da5b61652b"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>result5a4779e2c505482d97baa194950a8aa2/string</from>
+				<to>luceneArticle/content</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Invoke"
+					disabled="false"
+					id="954e420a-f625-42dc-ae5b-d38df4ec601d"
+					serviceId="nabu.utils.String.split"
+					resultName="result100bdb69ae49494097bf1bfafc91ae5d"
+					temporaryMapping="true"
+					x="71"
+					y="338"
+					invocationOrder="0"
+					asynchronous="false"
+					recache="false">
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="322d5ff7-d4cf-48dd-a395-9b8cb583cf73"
+						mask="false"
+						optional="false"
+						fixedValue="false">
+					<from>article/path</from>
+					<to>string</to>
+				</steps>
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="960cfb7d-a5fb-4d54-b295-a849a9a1afdd"
+						mask="false"
+						optional="false"
+						fixedValue="true">
+					<from>/</from>
+					<to>separator</to>
+				</steps>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="77566640-8860-4e4b-89a2-629d230f36ea"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>result100bdb69ae49494097bf1bfafc91ae5d/parts</from>
+				<to>luceneArticle/tag</to>
+			</steps>
+		</steps>
+		<steps xsi:type="be.nabu.libs.services.vm.step.Map"
+				comment="Add actual tags"
+				disabled="false"
+				id="e8d8c88d-3253-4463-b3b4-2e528054f734">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Invoke"
+					disabled="false"
+					id="d8d65a41-07c1-4593-b447-0908fff9238b"
+					serviceId="nabu.utils.List.addAll"
+					resultName="resultdf08c51b817e4f71aa7597084abcc901"
+					temporaryMapping="true"
+					x="80"
+					y="74"
+					invocationOrder="0"
+					asynchronous="false"
+					recache="false">
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="7453d3b0-4467-4184-aa3a-ea157c5a07aa"
+						mask="false"
+						optional="false"
+						fixedValue="false">
+					<from>article/tags</from>
+					<to>objects</to>
+				</steps>
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="b11bea21-9a5b-43ee-abb5-684802a5967a"
+						mask="false"
+						optional="false"
+						fixedValue="false">
+					<from>luceneArticle/tag</from>
+					<to>list</to>
+				</steps>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="f9a8c333-8695-45b4-9f38-f549d0d6d1e9"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>resultdf08c51b817e4f71aa7597084abcc901/list</from>
+				<to>luceneArticle/tag</to>
+			</steps>
+		</steps>
+		<steps xsi:type="be.nabu.libs.services.vm.step.Map"
+				comment="Add to list"
+				disabled="false"
+				id="3e4b38e4-9cae-46ea-bed5-d6f950cfa2f9">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Invoke"
+					disabled="false"
+					id="04c2f039-b973-43be-a6c7-a79bd02f03e5"
+					serviceId="nabu.utils.List.add"
+					resultName="result00a0213d3eaa4ae9a8967fb90de02756"
+					temporaryMapping="true"
+					x="76"
+					y="145"
+					invocationOrder="0"
+					asynchronous="false"
+					recache="false">
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="a11a419e-c25e-4d95-9337-055aa6499c07"
+						mask="false"
+						optional="false"
+						fixedValue="false">
+					<from>luceneArticle</from>
+					<to>object</to>
+				</steps>
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="f1f55544-b690-4bae-82e0-32fef5761aac"
+						mask="false"
+						optional="false"
+						fixedValue="false">
+					<from>luceneArticles</from>
+					<to>list</to>
+				</steps>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="6339f703-c0fb-4609-9df0-4077ba63f23b"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>result00a0213d3eaa4ae9a8967fb90de02756/list</from>
+				<to>luceneArticles</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Drop"
+					disabled="false"
+					id="0eb91335-43ee-4096-aaeb-a9013111907f"
+					path="luceneArticle" xsi:nil="true"/>
+		</steps>
+		<query>articles</query>
+	</steps>
+	<steps xsi:type="be.nabu.libs.services.vm.step.Map"
+			comment="Index all articles"
+			disabled="false"
+			id="9ff61ae0-9626-4d4d-b7b9-922f9d80baba"
+			label="luceneArticles">
+		<steps xsi:type="be.nabu.libs.services.vm.step.Invoke"
+				disabled="false"
+				id="04151000-ef68-4d3b-be93-967defa7da29"
+				serviceId="nabu.misc.lucene.Services.index"
+				resultName="resultffcbd104456d475b88780dcffbc8e9bd"
+				temporaryMapping="true"
+				x="59"
+				y="67"
+				invocationOrder="0"
+				asynchronous="false"
+				recache="false">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="cb253a55-e2f4-4778-b2d4-81ae51f953b2"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>luceneArticles</from>
+				<to>entries</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="70857e0f-7d88-4163-aedb-ff4cb4febf5d"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>input/luceneId</from>
+				<to>luceneId</to>
+			</steps>
+		</steps>
+	</steps>
+</sequence>

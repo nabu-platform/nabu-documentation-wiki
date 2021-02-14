@@ -1,0 +1,24 @@
+[template="data-table"] {
+	.n-form {
+		.operation {
+			display: flex;
+			padding: 1rem;
+			.n-form-component {
+				flex-grow: 1;
+			}
+		}
+		.action, .formatter {
+			display: flex;
+			align-items: center;
+		}
+	}
+	table {
+		width: 100%;
+	}
+}
+
+.no-data {
+	.generate-stub {
+		margin-left: 0.3rem;
+	}
+}

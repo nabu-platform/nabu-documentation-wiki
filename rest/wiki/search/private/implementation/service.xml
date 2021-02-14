@@ -1,0 +1,71 @@
+<sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		disabled="false"
+		id="29a715ae-3824-4c2e-bcfe-d7c0716f4972">
+	<steps xsi:type="be.nabu.libs.services.vm.step.Map"
+			disabled="false"
+			id="9cba7dea-7498-4697-b2b7-d9932b2413bb"
+			label="input/query/limit = null || input/query/limit &lt;= 0 || input/query/limit &gt; 100">
+		<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+				disabled="false"
+				id="1a8ca1dc-9eef-4ffa-90bf-e48e86679076"
+				mask="false"
+				optional="false"
+				fixedValue="true">
+			<from>100</from>
+			<to>input/query/limit</to>
+		</steps>
+	</steps>
+	<steps xsi:type="be.nabu.libs.services.vm.step.Map"
+			disabled="false"
+			id="23e0c605-8200-4f28-9634-2d3d0214093c"
+			label="input/configuration/luceneId != null">
+		<steps xsi:type="be.nabu.libs.services.vm.step.Invoke"
+				disabled="false"
+				id="e9991c61-de30-4701-8360-225ff1bc776f"
+				serviceId="nabu.documentation.wiki.services.search"
+				resultName="result77807604dc16496da2ac9de4652cb71f"
+				temporaryMapping="true"
+				x="31"
+				y="56"
+				invocationOrder="0"
+				asynchronous="false"
+				recache="false">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="d558a5ec-bdf3-4d8b-a981-1b7e74c7fa24"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>input/query/q</from>
+				<to>query</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="9648dcdd-b7bc-436c-aebe-5ffc7ce55bb6"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>input/query/limit</from>
+				<to>limit</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+					disabled="false"
+					id="38e3f5fa-85e2-4f8b-97d5-590132de9821"
+					mask="false"
+					optional="false"
+					fixedValue="false">
+				<from>input/configuration/luceneId</from>
+				<to>luceneId</to>
+			</steps>
+		</steps>
+		<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+				disabled="false"
+				id="1765c21c-1d97-487b-b1f8-7849ab4e76b0"
+				mask="false"
+				optional="false"
+				fixedValue="false">
+			<from>result77807604dc16496da2ac9de4652cb71f/articles</from>
+			<to>output/content/articles</to>
+		</steps>
+	</steps>
+</sequence>

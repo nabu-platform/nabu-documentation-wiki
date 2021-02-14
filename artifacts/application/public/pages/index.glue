@@ -1,0 +1,6 @@
+@cache 0, revalidate, refresh
+@ignoreOffline
+
+nabu.page.index(
+	javascript: server.root() + "resources/javascript/application",
+	css: server.root() + "resources/css/application")

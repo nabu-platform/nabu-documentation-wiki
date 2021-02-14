@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<node artifactManager="be.nabu.eai.module.rest.provider.RESTServiceManager" created="2020-04-20T08:55:59.562+02:00" lastModified="2021-02-14T14:37:08.834+01:00" leaf="true" version="12">
+    <environmentId>apollo</environmentId>
+    <hidden>false</hidden>
+    <properties/>
+    <references>nabu.utils.List.add</references>
+    <references>nabu.web.wiki.types.WikiGroup</references>
+    <references>nabu.documentation.wiki.rest.wiki.tagList</references>
+    <references>nabu.documentation.wiki.rest.wiki.tag</references>
+    <references>nabu.web.wiki.Services.group</references>
+    <references>nabu.documentation.wiki.types.configuration</references>
+</node>

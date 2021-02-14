@@ -1,0 +1,83 @@
+// /// form wrapper
+
+.n-form {
+	@include plato-form;
+	.n-form-component {
+		@include plato-form_component;
+		.n-form-label-wrapper {
+			@include plato-form_component_label-wrapper;
+			.n-form-label {
+				@include plato-form_component_label;
+			}
+			.n-form-component-description-info {
+				@include plato-form_component_label-info;
+				.n-icon {
+					position: static;
+					@include plato-form_component_label-info_icon;
+				}
+				.n-info-content {
+					@include plato-form_component_label-info_content;
+				}
+			}
+		}
+		.n-form-input-wrapper {
+			@include plato-form_component_field-wrapper;
+			.field {
+				@include plato-form_component_field;
+				&.n-form-invalid {
+					@include plato-form_component_invalid_field;
+				}
+				&.n-form-valid {
+					@include plato-form_component_valid_field;
+				}
+			}
+			.n-form-suffix {
+				@include plato-form_component_field_icon_text;
+				.icon {
+					@include plato-form_component_field_icon;
+				}
+			}
+		}
+		// field icon invalid 
+		.field.n-form-invalid ~ .n-icon {
+			@include plato-form_component_invalid_field_icon;
+		}
+		// field icon valid 
+		// .field.n-form-valid ~.n-icon {
+		// 	@include icon_valid;
+		// }
+		.n-form-component-after {
+			@include plato-form_component_description-after;
+			.icon {
+				@include plato-form_component_description-after_icon;
+			}
+			.n-form-component-after-label {
+				@include plato-form_component_description-after_label;
+			}
+		}
+		.n-messages {
+			@include plato-form_component_messages;
+			.n-message {
+				@include plato-form_component_messages_message;
+				.title {
+					@include plato-form_component_messages_message_title;
+				}
+			}
+		}
+	}
+}
+.n-form-component.has-suffix-icon {
+	@include plato-form_component_description-after_icon;
+}
+.n-form-component.n-form-invalid {
+	@include plato-form_component_invalid;
+	.n-input-result {
+		@include plato-form_component_invalid_field_icon;
+	}
+}
+.n-form-component.n-form-valid {
+	@include plato-form_component_valid;
+	.n-input-result {
+		@include plato-form_component_valid_field_icon;
+	}
+}

@@ -1,0 +1,65 @@
+{
+    "name": "web-plato-dashboard",
+    "version": "0.1",
+	"resources": {
+        "pre-configuration.json": {
+            "type": "bundle",
+            "url": "./config/pre-configuration.json"
+        },
+        "web-plato-color.json": {
+            "type": "bundle",
+            "url": "https://raw.githubusercontent.com/nabu-platform/web-plato/master/tokens/color/bundle.json"
+        },
+        "post-configuration.json": {
+            "type": "bundle",
+            "url": "./config/post-configuration.json"
+        },
+        "web-plato.json": {
+            "type": "bundle",
+            "url": "https://raw.githubusercontent.com/nabu-platform/web-plato/master/bundle.json",
+            "excludes": ["tokens/color"]
+        },
+        "extras": {
+            "theme-mapping.json": {
+                "type": "bundle",
+                "url": "https://raw.githubusercontent.com/nabu-platform/web-plato/master/extras/theme-mapping/bundle.json"
+            },
+            "page-builder-mapping.json": {
+                "type": "bundle",
+                "url": "https://raw.githubusercontent.com/nabu-platform/web-plato/master/extras/page-builder-mapping/bundle.json"
+            }
+        },
+        "theme": {
+            "tokens.json": {
+                "type": "bundle",
+                "url": "./theme/tokens/bundle.json"
+            },
+            "elements.json": {
+                "type": "bundle",
+                "url": "./theme/elements/bundle.json"
+            },
+            "patterns.json": {
+                "type": "bundle",
+                "url": "./theme/patterns/bundle.json"
+            },
+            "mapping.json": {
+                "type": "bundle",
+                "url": "./theme/mapping/bundle.json"
+            }
+        },
+        "modules": {
+            "actions.scss": {
+                "url": "./modules/actions.scss"
+            },
+            "header.scss": {
+                "url": "./modules/header.scss"
+            },
+            "menu.scss": {
+                "url": "./modules/menu.scss"
+            },
+            "wizard.scss": {
+                "url": "./modules/wizard.scss"
+            }
+        }
+    }
+}

@@ -1,0 +1,86 @@
+{ 
+	"category": "Layouts",
+	"name": "Left Menu",
+	"description": "A basic layout with a menu on the left side and the content beside it.",
+	"icon": "templates/layouts/menu-left.png",
+	"content": {
+		"type":"page-row",
+		"content": {
+			"class": "menu-left",
+			"name": "Left Menu",
+			"cells": [{
+				"name": "Menu Container",
+				"rows": [{
+					"name": "Menu Container Row",
+					"direction": "vertical",
+					"class": "menu-container",
+					"cells": [{
+							"alias": "page-static-image",
+							"name": "Logo",
+							"state": {
+								"title": "%{Logo}",
+								"height": "6rem",
+								"size": "contain",
+								"imagePath": "images/branding"
+							},
+							"target": "page",
+							"class": "page-logo",
+							"width": "0"
+						},
+						{
+							"alias": "page-actions",
+							"state": {
+								"class": "apollo-menu",
+								"autoActions": true
+							}
+						},
+						{
+							"alias": "page-actions",
+							"state": {
+								"actions": [
+									{
+										"label": "%{Logout}",
+										"route": "logout",
+										"name": "logout",
+										"icon": "icon fa-power-off"
+									}
+								],
+								"useButtons": false
+							},
+							"target": "page",
+							"class": "logout-container",
+							"width": "0"
+						},
+						{
+							"alias": "page-actions",
+							"state": {
+								"actions": [
+									{
+										"actions": [
+											{
+												"label": "%{Logout}",
+												"route": "logout",
+												"icon": "icon fa-power-off"
+											}
+										],
+										"icon": "fa fa-ellipsis-v"
+									}
+								],
+								"clickBased": true,
+								"showOnlyOne": true
+							},
+							"target": "page",
+							"class": "mobile-overflow-container",
+							"width": 1
+						}
+					
+					]
+				}]
+			}, {
+				"name": "Main Content",
+				"customId": "main"
+			}]
+		}
+	}
+}
+

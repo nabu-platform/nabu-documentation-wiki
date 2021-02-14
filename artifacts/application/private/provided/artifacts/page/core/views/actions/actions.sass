@@ -1,0 +1,139 @@
+.page.edit {
+	.page-actions {
+		li:hover {
+			> .fa-cog {
+				display: inline-block !important;
+			}
+		}
+	}
+}
+li.page-placeholder {
+	text-align: center;
+}
+button.page-placeholder {
+	border: dashed 2px #ccc;
+	background-color: #fafafa;
+	color: #333;
+	font-size: 0.7rem;
+	.fa {
+		margin-right: 0.3rem;
+	}
+	+ button {
+		margin-left: 0.3rem;
+	}
+}
+.page-actions {
+	li {
+		position: relative;
+		list-style: none;
+		.fa-cog {
+			cursor: pointer;
+			left: 0;
+			display: none !important;
+			position: absolute;
+			padding: 0.5rem;
+			background-color: rgba(50,50,50,0.7);
+			color: #fff;
+		}
+		&.click-based {
+			> span {
+				cursor: pointer;
+			}
+		}
+	}
+	.settings, .page-settings {
+		.n-input-combo-input-container {
+			li {
+				display: block !important;
+				color: #333 !important;
+			}
+		}
+		.n-ace {
+			min-height: 10rem;
+		}
+	}
+}
+
+
+// menu 1
+.menu1 {
+	margin: 0;
+	padding: 0;
+	position: relative;
+	background-color: $alpha-accent-color;
+	border: $alpha-border solid 1px;
+	border-style: none none solid none;
+	.icon {
+		margin-right: 0.3rem;
+	}
+	.page-actions {
+		z-index: 10;
+		position: absolute;
+		left: 0;
+		top: 100%;
+		.page-actions {
+			left: 100%;
+			top: 0;
+		}
+	}
+	li.page-action {
+		white-space: nowrap;
+		color: $alpha-accent-contrast;
+		font-size: 0.8rem;
+		display: inline-block;
+		cursor: pointer;
+		position: relative;
+		list-style: none;
+		padding: 0.7rem;
+		&:hover {
+			background-color: lighten($alpha-accent-color, 10%);
+		}
+		> span, > a {
+			color: $alpha-accent-contrast;
+			white-space: nowrap;
+			display: inline-block;
+		}
+		li {
+			display: block;
+		}
+	}
+}
+
+// menu 2
+.menu2 {
+	margin: 0;
+	padding: 0;
+	position: relative;
+	display: flex;
+	.right {
+		margin-left: auto;
+	}
+	li.page-action {
+		list-style: none;
+		white-space: nowrap;
+	}
+	.page-actions {
+		z-index: 10;
+		position: absolute;
+		right: 0;
+		top: 100%;
+		.page-actions {
+			left: 100%;
+			top: 0;
+		}
+	}
+}
+
+// choices 1
+.choices1 {
+	margin: 0;
+	padding: 0;
+	position: relative;
+	li.page-action {
+		display: inline-block;
+		list-style: none;
+		white-space: nowrap;
+		margin: 0.5rem;
+		padding: 2rem;
+	}
+}

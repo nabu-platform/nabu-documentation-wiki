@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<webApplication>
+    <virtualHost>nabu.documentation.wiki.artifacts.host</virtualHost>
+    <realm>wiki</realm>
+    <addCacheHeaders>true</addCacheHeaders>
+    <allowJwtBearer>false</allowJwtBearer>
+    <allowContentEncoding>true</allowContentEncoding>
+    <webFragments>nabu.web.core.components</webFragments>
+    <webFragments>nabu.web.page.core.component</webFragments>
+    <webFragments>nabu.web.page.data.component</webFragments>
+    <webFragments>nabu.documentation.wiki.component</webFragments>
+    <webFragments>nabu.documentation.wiki.artifacts.swagger</webFragments>
+    <html5Mode>true</html5Mode>
+    <forceRequestLanguage>false</forceRequestLanguage>
+    <ignoreLanguageCookie>false</ignoreLanguageCookie>
+    <testRole>tester</testRole>
+    <testRole>editor</testRole>
+</webApplication>

@@ -1,0 +1,11 @@
+<structure name="pipeline">
+    <structure name="input">
+        <field name="luceneId" type="java.lang.String"/>
+        <field minOccurs="0" name="query" type="java.lang.String"/>
+        <field minOccurs="0" name="limit" type="java.lang.Integer"/>
+        <field minOccurs="0" name="minimumScore" type="java.lang.Double"/>
+    </structure>
+    <structure name="output">
+        <structure definition="nabu.documentation.wiki.types.luceneArticle" maxOccurs="unbounded" minOccurs="0" name="articles"/>
+    </structure>
+</structure>

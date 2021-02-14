@@ -1,0 +1,39 @@
+{
+	"name": "theme-gg",
+	"version": "1.0",
+	"resources": {
+		"overrides": {
+			"variables.scss": {
+				"url": "variables.scss"
+			}
+		},
+		"web-plato-dashboard.json": {
+			"type": "bundle",
+			"url": "https://raw.githubusercontent.com/nabu-platform/web-plato-dashboard/master/bundle.json"
+		},
+		"templates": {
+			"layouts": {
+				"basic-top.npt": {
+					"url": "templates/layouts/basic-top.npt"
+				},
+				"basic-left.npt": {
+					"url": "templates/layouts/basic-left.npt"
+				},
+				"style.scss": {
+					"url": "templates/layouts/style.scss"
+				},
+				"menu-left.png": {
+					"url": "templates/layouts/menu-left.png"
+				},
+				"menu-top.png": {
+					"url": "templates/layouts/menu-top.png"
+				}
+			}
+		},
+		"extensions": {
+			"additional.scss": {
+				"url": "extensions/additional.scss"
+			}
+		}
+	}
+}

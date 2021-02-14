@@ -1,0 +1,24 @@
+.pages-offline {
+	display: flex;
+	height: 100vh;
+	align-items: center;
+	justify-content: center;
+	background-color: white;
+	.pages-offline-message {
+		margin: auto;
+		border: solid 1px #ccc;
+		background-color: #efefef;
+		padding: 2rem;
+		border-radius: 3px;
+		h1 {
+			color: #333333;
+			font-size: 1.2rem;
+			font-weight: bold;
+		}
+		h3 {
+			font-size: 0.9rem;
+			font-weight: normal;
+			color: #666666;
+		}
+	}
+}

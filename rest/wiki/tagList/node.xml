@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<node artifactManager="be.nabu.eai.module.types.structure.StructureManager" created="2020-04-20T08:57:28.560+02:00" lastModified="2021-02-14T14:29:23.895+01:00" leaf="true" version="5">
+    <environmentId>apollo</environmentId>
+    <hidden>false</hidden>
+    <properties/>
+    <references>nabu.documentation.wiki.rest.wiki.tag</references>
+</node>

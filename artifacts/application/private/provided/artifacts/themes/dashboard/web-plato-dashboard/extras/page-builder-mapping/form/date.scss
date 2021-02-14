@@ -1,0 +1,56 @@
+// date wrapper
+
+.n-form {
+	.n-form-date-input {
+		@include plato-form_date-component;
+		.n-form-input-wrapper {
+			@include plato-form_component_field-wrapper;
+			.field {
+				@include plato-form_component_field;
+			}
+			.n-form-date-icon {
+				@include plato-form_date-component_field_date-icon;
+			}
+			.n-input-result {
+				display: none;
+			}
+		}
+	}
+}
+
+.n-form-date-input.n-form-valid {
+	@include plato-form_date-component_valid;
+}
+.n-form-date-input.n-form-invalid {
+	@include plato-form_date-component_invalid;
+}
+
+.n-form {
+	.n-input-date {
+		@include plato-form_date-picker;
+		.table {
+			@include plato-form_date-picker_table;
+			caption {
+				@include plato-form_date-picker_table_caption;
+			}
+			head {
+				@include plato-form_date-picker_table_head;
+			}
+			body {
+				@include plato-form_date-picker_table_body;
+				.n-input-date-label {
+					@include plato-form_date-picker_day;
+				}
+			}
+		}
+		.n-input-date-legend {
+			@include plato-form_date-picker_legend;
+		}
+	}
+}
+
+.n-form {
+	.n-form-date-input + .n-input-date {
+		margin-top: -2rem;
+	}
+}

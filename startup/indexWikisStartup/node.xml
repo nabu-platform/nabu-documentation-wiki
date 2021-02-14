@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<node artifactManager="be.nabu.eai.module.startup.StartupServiceManager" created="2021-02-14T14:21:49.317+01:00" lastModified="2021-02-14T14:22:01.658+01:00" leaf="true" version="3">
+    <environmentId>apollo</environmentId>
+    <hidden>false</hidden>
+    <properties/>
+    <references>nabu.documentation.wiki.startup.indexWikis</references>
+</node>

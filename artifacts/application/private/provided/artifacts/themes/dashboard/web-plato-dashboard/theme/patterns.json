@@ -1,0 +1,19 @@
+{
+    "name": "web-plato-dashboard--theme--patterns",
+    "resources": {
+        "menu-top.scss": {
+            "url": "menu-top.scss"
+        },
+        "card.scss": {
+            "url": "card.scss"
+        },
+        "table.scss": {
+            "url": "table.scss"
+        },
+        "auth": {
+            "login.scss": {
+                "url": "auth/login.scss"
+            }
+        }
+    }
+}

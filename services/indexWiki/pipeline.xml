@@ -1,0 +1,10 @@
+<structure name="pipeline">
+    <structure name="input">
+        <field name="wikiId" type="java.lang.String"/>
+        <field name="luceneId" type="java.lang.String"/>
+    </structure>
+    <structure name="output"/>
+    <structure definition="nabu.documentation.wiki.types.luceneArticle" name="luceneArticle"/>
+    <structure definition="nabu.documentation.wiki.types.luceneArticle" maxOccurs="unbounded" minOccurs="0" name="luceneArticles"/>
+    <structure definition="nabu.web.wiki.types.WikiArticle" maxOccurs="unbounded" minOccurs="0" name="articles"/>
+</structure>

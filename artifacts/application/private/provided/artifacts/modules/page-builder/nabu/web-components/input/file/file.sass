@@ -1,0 +1,30 @@
+.n-input-file {
+	align-items: center;
+	border: $beta-border solid 1px;
+	display: flex;
+	height: 6rem;
+	justify-content: center;
+	flex-direction: column;
+	max-width: 30rem;
+	margin: auto;
+
+	&.drag-drop {
+		border: 4px dashed #0097FF;
+	}
+
+	&.drag-over {
+		background-color: #ADDEFF;
+	}
+
+	input {
+		height: 0.1px;
+		opacity: 0;
+		overflow: hidden;
+		position: absolute;
+		width: 0.1px;
+		z-index: -1;
+	}
+	&.n-input-file[disabled="disabled"] {
+		pointer-events: none;
+	}
+}
