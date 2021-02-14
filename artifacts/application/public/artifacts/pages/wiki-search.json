@@ -1,0 +1,170 @@
+{
+	"label": "Wiki Search",
+	"rows": [
+		{
+			"id": 3,
+			"cells": [
+				{
+					"id": 4,
+					"rows": [],
+					"alias": "data-table-list",
+					"bindings": {
+						"q": null,
+						"limit": null,
+						"properties": null
+					},
+					"name": null,
+					"state": {
+						"autoRefresh": null,
+						"orderBy": [],
+						"filterPlaceHolder": null,
+						"filterType": "data-filter-default",
+						"title": null,
+						"limit": 10,
+						"actions": [
+							{
+								"name": "openArticle",
+								"icon": "fa-chevron-right",
+								"class": null,
+								"label": null,
+								"condition": null,
+								"refresh": false,
+								"global": false,
+								"close": false,
+								"type": "button",
+								"useSelection": false
+							}
+						],
+						"filters": [
+							{
+								"arbitrary": false,
+								"name": "q",
+								"label": "Search",
+								"description": null,
+								"type": "text",
+								"enumerations": [],
+								"value": null,
+								"group": null,
+								"joinGroup": false,
+								"validationSuccessEvent": {
+									"eventFields": [],
+									"name": null
+								},
+								"textType": null,
+								"bindings": {}
+							}
+						],
+						"fields": [
+							{
+								"label": "%{Path}",
+								"fragments": [
+									{
+										"type": "data",
+										"key": "path",
+										"content": null,
+										"format": null,
+										"javascript": null,
+										"template": null,
+										"class": null,
+										"form": {}
+									}
+								],
+								"styles": [],
+								"hidden": null
+							}
+						],
+						"updateOperation": null,
+						"updateBindings": {},
+						"multiselect": false,
+						"styles": [],
+						"refreshOn": [],
+						"showRefresh": false,
+						"result": {
+							"content": {
+								"label": null,
+								"format": null,
+								"custom": null,
+								"styles": []
+							},
+							"name": {
+								"label": null,
+								"format": null,
+								"custom": null,
+								"styles": []
+							},
+							"path": {
+								"label": null,
+								"format": null,
+								"custom": null,
+								"styles": []
+							},
+							"tag": {
+								"label": null,
+								"format": null,
+								"custom": null,
+								"styles": []
+							}
+						},
+						"operation": "nabu.documentation.wiki.rest.wiki.search",
+						"useNativeTable": true,
+						"defaultFilter": {
+							"displayOpenOnly": true
+						}
+					},
+					"target": "page",
+					"on": null,
+					"class": null,
+					"customId": null,
+					"width": 1,
+					"height": null,
+					"instances": {},
+					"condition": null,
+					"devices": [],
+					"clickEvent": null,
+					"result": {}
+				}
+			],
+			"class": null,
+			"customId": null,
+			"instances": {},
+			"condition": null,
+			"direction": null,
+			"align": null,
+			"on": null,
+			"collapsed": false,
+			"name": null
+		}
+	],
+	"path": "/wiki-search",
+	"counter": 5,
+	"variables": [],
+	"query": [],
+	"actions": [
+		{
+			"name": "Open Article",
+			"on": "openArticle",
+			"confirmation": null,
+			"operation": null,
+			"route": "wiki-article",
+			"event": null,
+			"anchor": null,
+			"bindings": {
+				"path": "openArticle.path"
+			},
+			"expandBindings": true,
+			"chainEvent": {
+				"eventFields": [],
+				"name": null
+			}
+		}
+	],
+	"class": null,
+	"initial": false,
+	"menuX": 0,
+	"menuY": 0,
+	"states": [],
+	"category": "Application",
+	"slow": false,
+	"name": "wiki-search",
+	"pageParent": "wiki-menu"
+}

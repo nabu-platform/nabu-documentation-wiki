@@ -107,7 +107,7 @@
 							mask="false"
 							optional="false"
 							fixedValue="true">
-						<from>nabu.documentation.wiki.artifacts.configuration</from>
+						<from>nabu.documentation.wiki.types.configuration</from>
 						<to>typeId</to>
 					</steps>
 				</steps>
@@ -221,6 +221,6 @@
 				</steps>
 			</steps>
 		</steps>
-		<query>dependencies</query>
+		<query>dependencies[artifactClass = "be.nabu.eai.module.web.application.WebApplication"]</query>
 	</steps>
 </sequence>

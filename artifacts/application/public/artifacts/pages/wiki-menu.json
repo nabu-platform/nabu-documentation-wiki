@@ -1,0 +1,91 @@
+{
+	"label": "Wiki Menu",
+	"rows": [
+		{
+			"id": 1,
+			"cells": [
+				{
+					"id": 2,
+					"rows": [],
+					"alias": "wiki-menu-root",
+					"bindings": {
+						"path": "page.path"
+					},
+					"name": null,
+					"state": {},
+					"target": "page",
+					"on": null,
+					"class": null,
+					"customId": null,
+					"width": "0",
+					"height": null,
+					"instances": {},
+					"condition": null,
+					"devices": [],
+					"clickEvent": null
+				},
+				{
+					"id": 3,
+					"rows": [],
+					"alias": null,
+					"bindings": {},
+					"name": null,
+					"state": {},
+					"target": "page",
+					"on": null,
+					"class": null,
+					"customId": "wiki-content",
+					"width": 1,
+					"height": null,
+					"instances": {},
+					"condition": null,
+					"devices": [],
+					"clickEvent": null
+				}
+			],
+			"class": "wiki-container",
+			"customId": null,
+			"instances": {},
+			"condition": null,
+			"direction": null,
+			"align": null,
+			"on": null,
+			"collapsed": false,
+			"name": null
+		}
+	],
+	"path": null,
+	"counter": 4,
+	"variables": [],
+	"query": [
+		"path"
+	],
+	"actions": [
+		{
+			"name": null,
+			"on": "selectedArticle",
+			"confirmation": null,
+			"operation": null,
+			"route": "wiki-article",
+			"event": null,
+			"anchor": null,
+			"bindings": {
+				"path": "selectedArticle.path"
+			},
+			"expandBindings": true,
+			"chainEvent": {
+				"eventFields": [],
+				"name": null
+			}
+		}
+	],
+	"class": null,
+	"initial": false,
+	"menuX": 0,
+	"menuY": 0,
+	"states": [],
+	"category": "Application",
+	"slow": false,
+	"name": "wiki-menu",
+	"defaultAnchor": "wiki-content"
+}

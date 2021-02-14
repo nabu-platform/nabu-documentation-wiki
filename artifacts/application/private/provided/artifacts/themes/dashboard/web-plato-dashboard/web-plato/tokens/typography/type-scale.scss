@@ -44,9 +44,10 @@ $font-weight-copy: $font-weight !default;
 	}
 }
 
-body, * {
+html:root, body {
 	font-size: $font-size-base;
 }
+
 
 %font-base {
 	@include font-base;

@@ -741,7 +741,7 @@
 					<n-collapsible title="Styling">
 						<div class="padded-content">
 							<n-form-text label="Class" v-model="row.class" v-if="false"/>
-							<n-form-combo label="Class" v-model="row.class" :filter="suggesPageRowClasses"/>
+							<n-form-combo label="Class" v-model="row.class" :filter="suggesPageRowClasses" :timeout="600"/>
 						</div>
 						<div class="list-actions">
 							<button @click="row.styles == null ? $window.Vue.set(row, 'styles', [{class:null,condition:null}]) : row.styles.push({class:null,condition:null})">Add Style</button>

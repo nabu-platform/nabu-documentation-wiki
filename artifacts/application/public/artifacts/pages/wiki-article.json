@@ -1,0 +1,58 @@
+{
+	"label": "Wiki Article",
+	"rows": [
+		{
+			"id": 1,
+			"cells": [
+				{
+					"id": 2,
+					"rows": [],
+					"alias": "wiki-article-container",
+					"bindings": {
+						"path": "page.path"
+					},
+					"name": null,
+					"state": {},
+					"target": "page",
+					"on": null,
+					"class": null,
+					"customId": null,
+					"width": 1,
+					"height": null,
+					"instances": {},
+					"condition": null,
+					"devices": [],
+					"clickEvent": {
+						"eventFields": [],
+						"name": null
+					}
+				}
+			],
+			"class": null,
+			"customId": null,
+			"instances": {},
+			"condition": null,
+			"direction": null,
+			"align": null,
+			"on": null,
+			"collapsed": false,
+			"name": null
+		}
+	],
+	"path": "/wiki-article",
+	"counter": 3,
+	"variables": [],
+	"query": [
+		"path"
+	],
+	"actions": [],
+	"class": null,
+	"initial": false,
+	"menuX": 0,
+	"menuY": 0,
+	"states": [],
+	"category": "Application",
+	"slow": false,
+	"name": "wiki-article",
+	"pageParent": "wiki-menu"
+}
