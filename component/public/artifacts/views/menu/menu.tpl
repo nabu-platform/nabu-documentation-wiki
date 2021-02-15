@@ -1,7 +1,7 @@
 <template id="wiki-menu">
 	<ul class="wiki-menu">
 		<template v-if="root.directories">
-			<li v-for="directory in root.directories" class="directory" :class="{'open': isOpen(directory), 'closed': !isOpen(directory)}">
+			<li v-for="directory in root.directories" class="directory" :class="{'open': isOpen(directory), 'closed': !isOpen(directory)}" v-if="directory.name != 'attachments'">
 				<span class="title" @click="toggle(directory)"><span class="fa" :class="{'fa-chevron-right': !isOpen(directory), 'fa-chevron-down': isOpen(directory) }"></span><span class="name">{{directory.name}}</span></span>
 				<wiki-menu ref="directories" :initial-open="initialChildrenOpen" v-bubble:select v-show="isOpen(directory)" :root="directory"></wiki-menu>
 			</li>

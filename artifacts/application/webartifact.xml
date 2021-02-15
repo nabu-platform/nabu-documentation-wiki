@@ -2,6 +2,7 @@
 <webApplication>
     <virtualHost>nabu.documentation.wiki.artifacts.host</virtualHost>
     <realm>wiki</realm>
+    <path>/wiki</path>
     <addCacheHeaders>true</addCacheHeaders>
     <allowJwtBearer>false</allowJwtBearer>
     <allowContentEncoding>true</allowContentEncoding>

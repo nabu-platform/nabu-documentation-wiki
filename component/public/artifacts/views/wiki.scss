@@ -380,6 +380,9 @@ $toc-width: 350px !default;
 		//text-decoration: underline;
 		border-bottom: solid 2px $primary-wiki-color;
 	}
+	h2 {
+		color: #333;
+	}
 	video {
 		max-height: 400px !important;
 	}
@@ -416,9 +419,12 @@ $toc-width: 350px !default;
 		display: none;
 	}
 	.wiki-article {
-		overflow: visible;
+		overflow: visible !important;
 		width: 100%;
 		max-width: 100% !important;
+	}
+	h1 {
+		page-break-before: always;
 	}
 	[page="wiki-index"] .page-row {
 		display: block;
