@@ -1,5 +1,4 @@
 Vue.view("wiki-menu-root", {
-	template: "<wiki-menu ref='menu' class='wiki-menu-root' :class=\"{'small': small}\" v-swipe.left='function() { small = true }' v-swipe.right='function() { small = false }' :root='$services.wiki.root' @select='trigger' :initial-open='path ? [path] : []'/>",
 	category: "Wiki",
 	name: "Wiki Menu",
 	description: "A menu that contains the wiki articles",
@@ -18,7 +17,8 @@ Vue.view("wiki-menu-root", {
 	},
 	data: function() {
 		return {
-			small: null
+			small: null,
+			search: null
 		}
 	},
 	created: function() {

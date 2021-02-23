@@ -54,5 +54,5 @@
 	"category": "Application",
 	"slow": false,
 	"name": "wiki-article",
-	"pageParent": "wiki-menu"
+	"pageParent": "wiki-skeleton"
 }

@@ -166,5 +166,5 @@
 	"category": "Application",
 	"slow": false,
 	"name": "wiki-search",
-	"pageParent": "wiki-menu"
+	"pageParent": "wiki-skeleton"
 }

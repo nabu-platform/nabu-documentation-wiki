@@ -1,8 +1,41 @@
-$primary-wiki-color: #1976d2 !default;
-$wiki-background-color: white !default;
+// nabu theme
+$theme-primary: #D1D5DB !default;
+$theme-primary-light: #F4F5F6 !default;
+$theme-primary-medium: #E9E9ED !default;
+$theme-primary-dark: #636D7E !default;
+$theme-primary-text: #000000 !default;
+$theme-primary-prompt: #aaaaaa !default;
+$theme-primary-text-unfocused: #666666 !default;
+$theme-primary-filler: #ffffff !default;
+
+$theme-secondary: #40474F !default;
+$theme-secondary-light: #636D7E !default;
+$theme-secondary-dark: #1C1E22 !default;
+$theme-secondary-text: #F4F4F6 !default;
+$theme-secondary-text-unfocused: #C7CAD1 !default;
+
+$theme-filler: #ffffff !default;
+$theme-background: #f5f5f6 !default;
+
+
+
+$primary-wiki-color: $theme-primary;
+$wiki-background-color: $theme-filler;
 $menu-height: 100vh !default;
-$menu-width: 350px !default;
+$menu-width: 20vw !default;
+$menu-min-width: 300px !default;
 $toc-width: 350px !default;
+
+// the background color of the menu itself
+$wiki-menu-main-background: $theme-primary-medium;
+// the border color of the menu
+$wiki-menu-main-border: $theme-primary;
+// the background color of (main) titles
+$wiki-menu-title-background: $theme-secondary-light;
+$wiki-menu-title-color: white;
+// the background of the article titles
+$wiki-menu-title-background-article: $theme-primary-light;
+$wiki-menu-title-color-article: $theme-secondary;
 
 [route="home"] {
 	.search, .results {
@@ -22,6 +55,9 @@ $toc-width: 350px !default;
 		}
 	}
 }
+
+// unset default dashboard styling?
+// could also just start from plato without dashboard...
 .page-row.wiki-container {
 	padding: 0;
 	margin: 0;
@@ -31,23 +67,39 @@ $toc-width: 350px !default;
 		background-color: transparent !important;
 	}
 }
-[route="wiki-menu-root"] {
-	height: 100%;
+
+// the container for the menu
+.wiki-menu-container {
 	width: $menu-width;
+	border-right: solid 2px $wiki-menu-main-border;
+	
+	.wiki-menu-search {
+		height: 2rem;
+		margin: 0.5rem 1rem;
+		width: calc(100% - 2rem);
+		input {
+			height: 2rem;
+			line-height: 2rem;
+			margin: 0;
+			width: 100%;
+		}
+	}
+	
 	> .wiki-menu {
 		padding: 0;
-		height: $menu-height;
+		margin: 0;
+		height: calc(#{$menu-height} - 3rem);
 		-ms-overflow-style: none;  /* Internet Explorer 10+ */
 	    scrollbar-width: none;  /* Firefox */
 		&::-webkit-scrollbar { 
 		    display: none;  /* Safari and Chrome */
 		}
+		
 		overflow: auto;
 		> .directory {
 			> .title {
 				padding: 1rem;
-				//background-color: #333;
-				background-color: darken($primary-wiki-color, 10%);
+				background-color: $wiki-menu-title-background;
 				display: block;
 				.fa {
 					margin-right: 0.7rem;
@@ -114,16 +166,12 @@ $toc-width: 350px !default;
 	}
 }
 .page-actions.menu {
-	background-color: #1e1e1e !important;
-}
-.wiki-menu-root {
-	min-width: 300px;
+	background-color: #333 !important;
 }
 .wiki-menu {
 	margin: 0;
 	padding-left: 1.3rem;
-	//background-color: #444;
-	background-color: $primary-wiki-color;
+	background-color: $wiki-menu-main-background;
 	color: white;
 	list-style-type: none;
 	.article {
@@ -135,8 +183,9 @@ $toc-width: 350px !default;
 				//color: #aaa;
 			}
 			border-left: solid 7px darken($primary-wiki-color, 10%);
-			background-color: darken($primary-wiki-color, 3%);
+			background-color: $wiki-menu-title-background-article;
 			padding-left: 0.7rem !important;
+			color: $wiki-menu-title-color-article;
 			//font-weight: bold;
 		}
 		&:last-child {
@@ -148,7 +197,7 @@ $toc-width: 350px !default;
 		+.article {
 			> .title {
 				// margin-top: 0.2rem;
-				border-top: solid 1px lighten($primary-wiki-color, 10%);
+				border-top: solid 2px lighten($primary-wiki-color, 10%);
 			}
 		}
 	}
@@ -164,7 +213,7 @@ $toc-width: 350px !default;
 		&::-webkit-scrollbar { 
 		    display: none;  /* Safari and Chrome */
 		}
-		max-height: 100%;
+		max-height: $menu-height;
 		overflow: auto;
 	}
 	
@@ -378,7 +427,7 @@ $toc-width: 350px !default;
 	h1 {
 		color: $primary-wiki-color;
 		//text-decoration: underline;
-		border-bottom: solid 2px $primary-wiki-color;
+		border-bottom: solid 1px $primary-wiki-color;
 	}
 	h2 {
 		color: #333;

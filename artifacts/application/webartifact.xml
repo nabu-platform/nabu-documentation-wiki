@@ -11,6 +11,7 @@
     <webFragments>nabu.web.page.data.component</webFragments>
     <webFragments>nabu.documentation.wiki.component</webFragments>
     <webFragments>nabu.documentation.wiki.artifacts.swagger</webFragments>
+    <webFragments>nabu.documentation.wiki.artifacts.styling</webFragments>
     <html5Mode>true</html5Mode>
     <forceRequestLanguage>false</forceRequestLanguage>
     <ignoreLanguageCookie>false</ignoreLanguageCookie>

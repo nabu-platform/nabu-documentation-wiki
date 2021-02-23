@@ -62,7 +62,7 @@
 				mask="false"
 				optional="false"
 				fixedValue="true">
-			<from>wiki/resource</from>
+			<from>wiki/api/otr/resource</from>
 			<to>downloadPath/value</to>
 		</steps>
 		<steps xsi:type="be.nabu.libs.services.vm.step.Link"

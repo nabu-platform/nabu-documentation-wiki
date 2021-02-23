@@ -13,3 +13,16 @@
 		</template>
 	</ul>
 </template>
+
+
+<template id="wiki-menu-root">
+	<div class="wiki-menu-container">
+		<n-form-text v-model="search" placeholder="Search Menu" class="wiki-menu-search"/>
+		<wiki-menu class="wiki-menu-root" ref='menu' :class="{'small': small}" 
+			v-swipe.left='function() { small = true }' 
+			v-swipe.right='function() { small = false }' 
+			:root='$services.wiki.root' 
+			@select='trigger' 
+			:initial-open='path ? [path] : []'/>
+	</div>
+</template>
