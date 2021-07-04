@@ -1,5 +1,7 @@
 Vue.component("page-form-input-switch-configure", {
-	template: "<div/>",
+	template: "<div>"
+		+ "	<n-form-switch v-model='field.invert' label='Invert Boolean'/>"
+		+ "</div>",
 	props: {
 		cell: {
 			type: Object,
@@ -24,6 +26,7 @@ Vue.component("page-form-input-switch", {
 			+ "		:label='label'"
 			+ "		:value='value'"
 			+ "		:timeout='timeout'"
+			+ "		:invert='!!field.invert'"
 			+ "		:disabled='disabled'/>",
 	props: {
 		cell: {

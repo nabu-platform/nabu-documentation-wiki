@@ -1,6 +1,7 @@
 Vue.component("page-form-input-checkbox-configure", {
 	template: "<div><n-form-switch v-model='field.mustCheck' label='Must Check'/>"
 			+ "<n-form-text v-model='field.info' label='Info Content'/>" 
+			+ "<n-form-switch v-model='field.invert' label='Invert Boolean'/>" 
 			+ "<n-form-text v-model='field.infoIcon' label='Info Icon'/></div>",
 	props: {
 		cell: {
@@ -29,6 +30,7 @@ Vue.component("page-form-input-checkbox", {
 			+ "		:label='label'"
 			+ "		:value='value'"
 			+ "		:timeout='timeout'"
+			+ "		:invert='!!field.invert'"
 			+ "		:disabled='disabled'/>",
 	props: {
 		cell: {

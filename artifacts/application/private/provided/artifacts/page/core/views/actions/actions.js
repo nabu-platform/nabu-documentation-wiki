@@ -148,6 +148,12 @@ nabu.page.views.PageActionsGenerator = function(name) {
 			});
 		},
 		methods: {
+			paste: function() {
+				var action = this.$services.page.pasteItem("page-action");	
+				if (action) {
+					this.getActions().push(action);
+				}
+			},
 			getPagesFor: function(category) {
 				return this.$services.page.pages.filter(function(x) {
 					return (!category && !x.content.category) || x.content.category == category;
@@ -579,10 +585,16 @@ nabu.page.views.PageActionsGenerator = function(name) {
 			},
 			validateSingle: function(element) {
 				if (element && element.__vue__ && element.__vue__.validate) {
+					var filterResults = function(results) {
+						return results.filter(function(x) {
+							return x.severity == "error";
+						})
+					};
 					var result = element.__vue__.validate();
 					var promise = this.$services.q.defer();
 					if (result.then) {
 						result.then(function(x) {
+							x = filterResults(x);
 							if (x && x.length) {
 								promise.reject(x);
 							}
@@ -592,6 +604,7 @@ nabu.page.views.PageActionsGenerator = function(name) {
 						});
 					}
 					else {
+						result = filterResults(result);
 						if (result.length) {
 							promise.reject(result);
 						}
@@ -787,7 +800,7 @@ nabu.page.views.PageActionsGenerator = function(name) {
 				var pageInstance = self.$services.page.getPageInstance(self.page, self);
 				actions.map(function(action) {
 					if (action.event) {
-						pageInstance.reset(action.event);
+						pageInstance.reset(typeof(action.event) == "string" ? action.event : nabu.page.event.getName(action, "event"));
 					}
 					if (action.actions) {
 						self.unsetEvent(action.actions);

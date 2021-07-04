@@ -18,7 +18,7 @@ Vue.component("page-field-fragment-data-configure", {
 });
 
 Vue.component("page-field-fragment-data", {
-	template: "<page-formatted :value='value' :fragment='fragment' :cell='cell' :page='page'/>",
+	template: "<page-formatted :value='value' :fragment='fragment' :cell='cell' :page='page' :state='data'/>",
 	props: {
 		cell: {
 			type: Object,

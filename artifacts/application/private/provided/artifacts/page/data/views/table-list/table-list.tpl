@@ -164,7 +164,7 @@
 					<button v-if="!action.condition || $services.page.isCondition(action.condition, {record:record}, $self)" 
 						v-for="action in recordActions" 
 						@click="trigger(action, record)"
-						:class="[action.class, {'has-icon': action.icon}, {'inline': !action.class }]"><span class="fa" v-if="action.icon" :class="action.icon"></span><label v-if="action.label">{{$services.page.translate(action.label)}}</label></button>
+						:class="[action.class, {'has-icon': action.icon && action.label }, {'inline': !action.class }]"><span class="fa" v-if="action.icon" :class="action.icon"></span><label v-if="action.label">{{$services.page.translate(action.label)}}</label></button>
 				</div>
 			</li>
 		</ul>
@@ -204,7 +204,7 @@
 						<button v-if="!action.condition || $services.page.isCondition(action.condition, {record:record}, $self)" 
 							v-for="action in recordActions" 
 							@click="trigger(action, record)"
-							:class="[action.class, {'has-icon': action.icon}, {'inline': !action.class }]"><span class="fa" v-if="action.icon" :class="action.icon"></span><label v-if="action.label">{{$services.page.translate(action.label)}}</label></button>
+							:class="[action.class, {'has-icon': action.icon && action.label }, {'inline': !action.class }]"><span class="fa" v-if="action.icon" :class="action.icon"></span><label v-if="action.label">{{$services.page.translate(action.label)}}</label></button>
 					</td>
 				</tr>
 			</tbody>

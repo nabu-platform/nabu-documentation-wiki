@@ -19,7 +19,7 @@ Vue.component("page-form-input-text-configure", {
 		+ "		<div v-if='field.codes'>"
 		+ "			<div class='list-row' v-for='code in field.codes' :timeout='600'>"
 		+ "				<n-form-text v-model='code.code' label='Code' :timeout='600'/>"
-		+ "				<n-form-text v-model='code.title' label='Title'/>"
+		+ "				<n-form-text v-model='code.title' label='Title' :timeout='600'/>"
 		+ "				<span @click='field.codes.splice(field.codes.indexOf(code), 1)' class='fa fa-times'></span>"
 		+ "			</div>"
 		+ "		</div>"

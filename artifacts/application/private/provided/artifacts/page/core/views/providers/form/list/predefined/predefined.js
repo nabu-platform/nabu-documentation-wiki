@@ -183,20 +183,24 @@ Vue.component("page-form-list-input-predefined", {
 								if (self.field.valueField) {
 									value = x[self.field.valueField];
 								}
-								else if (self.value && self.value[self.field.name]) {
-									var keyField = self.field.resultKeyField;
-									if (keyField == null) {
-										keyField = "key";
-									}
-									var current = self.value[self.field.name].filter(function(y) {
-										return y[keyField] == name;
-									})[0];
-									if (current) {
-										var valueField = self.field.resultValueField;
-										if (valueField == null) {
-											valueField = "value";
+								else if (self.value) {
+									var array = self.$services.page.getValue(self.value, self.field.name);
+									console.log("value is", self.value, JSON.stringify(self.value, null, 2), self.field.name, array,self.value[self.field.name.trim()]);
+									if (array) {
+										var keyField = self.field.resultKeyField;
+										if (keyField == null) {
+											keyField = "key";
 										}
-										value = current[valueField];
+										var current = array.filter(function(y) {
+											return y[keyField] == name;
+										})[0];
+										if (current) {
+											var valueField = self.field.resultValueField;
+											if (valueField == null) {
+												valueField = "value";
+											}
+											value = current[valueField];
+										}
 									}
 								}
 								var optional = self.field.optionalField ? x[self.field.optionalField] : true;

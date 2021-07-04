@@ -423,6 +423,21 @@ nabu.page.formComponentConstructer = function(name) {
 			isDisabled: function(field) {
 				return !!field.disabled && this.$services.page.isCondition(field.disabled, this.createResult(), this);
 			},
+			pasteField: function(page) {
+				var field = this.$services.page.pasteItem("page-form-field");	
+				if (field) {
+					if (!page.fields) {
+						Vue.set(page, "fields", []);
+					}
+					page.fields.push(field);
+				}
+			},
+			pastePage: function() {
+				var page = this.$services.page.pasteItem("page-form-page");		
+				if (page) {
+					this.cell.state.pages.push(page);
+				}
+			},
 			getGroupedFields: function(page) {
 				var groupedFields = [];
 				page.fields.map(function(field) {
@@ -1838,9 +1853,12 @@ Vue.component("page-arbitrary", {
 		},
 		mounted: function(instance) {
 			this.instance = instance;
+			var self = this;
+			var pageInstance = self.$services.page.getPageInstance(self.page, self);
+			// make sure we register the instance so it is correctly picked up
+			pageInstance.mounted(this.cell, null, null, instance);
+			// if we have events, reset the page ones
 			if (this.instance.getEvents) {
-				var self = this;
-				var pageInstance = self.$services.page.getPageInstance(self.page, self);
 				pageInstance.resetEvents();
 			}
 		},

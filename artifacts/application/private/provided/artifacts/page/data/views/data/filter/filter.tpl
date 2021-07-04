@@ -1,6 +1,6 @@
 <template id="data-filter-default">
 	<div :class="{'always-open': cell.state.defaultFilter.displayOpenOnly}" class="data-filter-default" v-auto-close.filter="function() { cell.state.defaultFilter.displayOpenOnly ? showFilter = true : showFilter = false }">
-		<span v-if="showRefresh" class="fa fa-sync" @click="$emit('refresh')"></span>
+		<span v-if="showRefresh" class="fa fa-sync refresh-button" @click="$emit('refresh')"></span>
 		<span class="fa fa-search" @click="showFilter = !showFilter" v-if="filters.length && !cell.state.defaultFilter.displayOpenOnly"></span>
 		<n-form class="layout2 filter" v-if="showFilter">
 			<span v-if="!!cell.state.defaultFilter.textBefore" class="data-filter-text-before">{{$services.page.translate(cell.state.defaultFilter.textBefore)}}</span>

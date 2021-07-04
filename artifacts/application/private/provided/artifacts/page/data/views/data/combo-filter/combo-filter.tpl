@@ -1,7 +1,7 @@
 <template id="data-combo-filter">
 	<form v-on:submit.prevent class="data-combo-filter n-form">
 		<div class="combo-filter n-input-combo n-component" v-if="filters.length || showRefresh">
-			<div class="n-input-combo-label-container" v-auto-close="function() { showLabels = false }" v-if="filters">
+			<div class="n-input-combo-label-container" v-auto-close="function() { showLabels = false }" v-if="filters && filters.length">
 				<div class="n-component-label n-input-combo-label" @click="showLabels = !showLabels" v-if="activeFilter">
 					<span>{{ activeFilter.label ? $services.page.translate(activeFilter.label) : activeFilter.name }}</span><span v-if="filters.length > 1" class="n-icon n-icon-arrow-down fa fa-chevron-down"></span>
 				</div>
@@ -23,7 +23,7 @@
 					:cell="cell"
 					@input="function(newValue) { setFilter(activeFilter, newValue) }"/>
 			</div>
-			<button class="primary" v-if="showRefresh" @click="$emit('refresh')"><span class="fa fa-sync"></span></button>
+			<button class="primary refresh-button" v-if="showRefresh" @click="$emit('refresh')"><span class="fa fa-sync"></span></button>
 		</div>
 		<div class="combo-filter-tags" v-if="cell.state.comboFilter && cell.state.comboFilter.useTags">
 			<div class="combo-filter-tag" v-for="tag in tags">

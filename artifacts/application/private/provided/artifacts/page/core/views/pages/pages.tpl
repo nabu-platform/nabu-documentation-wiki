@@ -186,7 +186,7 @@
 							<n-form-text v-model="lastColor[style.name]" :timeout="600" label="Color Code"/>
 						</div>
 					</div>
-					<n-ace v-model="style.content" :timeout="600" @input="$services.page.saveStyle(style)" :ref="'editors_' + style.name"/>
+					<n-ace v-model="style.content" :timeout="1000" @input="$services.page.saveStyle(style)" :ref="'editors_' + style.name"/>
 				</n-collapsible>
 			</div>
 			
@@ -275,7 +275,7 @@
 						</div>
 						<div class="pane">
 							<h4 class="category">Imports</h4>
-							<p class="subscript category-subscript">Import scripts from external providers like google maps. If you made an application variable called for example 'myApiKey', you can use it in your import url with this syntax: <code v-pre>https://example.com?apikey={{ $value("application.myApiKey") }}</code></p>
+							<p class="subscript category-subscript">Import scripts from external providers like google maps. If you made an application variable called for example 'myApiKey', you can use it in your import url with this syntax: <code v-pre>https://example.com?apikey={{ application.myApiKey }}</code></p>
 							<div class="padded-content">
 								<div class="list-actions">
 									<button @click="$services.page.imports.push({link:null, type: 'javascript', async: true})"><span class="fa fa-plus"></span>Import</button>

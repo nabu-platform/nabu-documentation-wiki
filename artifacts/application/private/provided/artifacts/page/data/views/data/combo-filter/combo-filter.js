@@ -40,7 +40,6 @@ Vue.component("data-combo-filter", {
 	computed: {
 		tags: function() {
 			var self = this;
-			console.log("state is", this.state);
 			return this.filters.filter(function(filter) {
 				return self.state[filter.name] != null;
 			}).map(function(filter) {

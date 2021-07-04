@@ -86,7 +86,9 @@ nabu.services.VueService(Vue.extend({
 			branding: {},
 			// the current branding can be a combination of core branding and localized branding
 			currentBranding: {},
-			defaultLocale: null
+			defaultLocale: null,
+			copiedType: null,
+			copiedContent: null
 		}
 	},
 	activate: function(done) {
@@ -105,6 +107,10 @@ nabu.services.VueService(Vue.extend({
 						}
 						else if (parsed && parsed.type == "page-cell") {
 							self.copiedCell = parsed.content;
+						}
+						else if (parsed.type && parsed.content) {
+							self.copiedType = parsed.type;
+							self.copiedContent = parsed.content;
 						}
 					}
 					catch (exception) {
@@ -161,6 +167,28 @@ nabu.services.VueService(Vue.extend({
 		});
 	},
 	methods: {
+		pasteItem: function(item) {
+			var content = null;
+			if (this.isCopied(item)) {
+				content = this.copiedContent;
+				this.copiedContent = null;
+				this.copiedType = null;
+			}	
+			return content;
+		},
+		// whether or not this type of item is in the "clipboard"
+		isCopied: function(item) {
+			return this.copiedType == item;
+		},
+		// copy it to the clipboard
+		copyItem: function(item, content) {
+			nabu.utils.objects.copy({
+				type: item,
+				content: content
+			});
+			this.copiedType = item;
+			this.copiedContent = content;
+		},
 		suggestDevices: function(value) {
 			var devices = this.devices.map(function(x) { return x.name }); 
 			if (value && value.match(/[0-9]+/)) { 
@@ -797,6 +825,12 @@ nabu.services.VueService(Vue.extend({
 			return entity;
 		},
 		saveStyle: function(style) {
+			// we don't want to see any changes done by reference to the style content while the validation occurs
+			// or we might include unvalidated changes
+			// there is still the edge cases of for example a second validation following pretty soon after the first one, race conditioning it to return faster and the older saving later
+			// effectively wiping out the last changes
+			// we combat this a bit by increasing the timeout to 1s, reducing the chance of such a race
+			style = nabu.utils.objects.clone(style);
 			var self = this;
 			this.$services.swagger.execute("nabu.page.scss.compile", {body:{content:style.content}}).then(function() {
 				self.cssError = null;
@@ -909,11 +943,14 @@ nabu.services.VueService(Vue.extend({
 				delete nabu.page.instances[page.name];
 			}
 		},
+		// this may no longer be in use, there was a call from the page instance to this which reverted to the page instance, this has been optimized away
+		// it is not clear if anyone else is using it atm, so it now points to the page method call
 		destroy: function(component) {
 			if (component.page && component.cell) {
 				var pageInstance = this.$services.page.getPageInstance(component.page, component);
-				Vue.delete(pageInstance.components, component.cell.id, null);
-			}	
+				//Vue.delete(pageInstance.components, component.cell.id, null);
+				pageInstance.destroyComponent(component, component.cell);
+			}
 		},
 		reloadSwagger: function() {
 			if (!this.disableReload) {
@@ -1113,6 +1150,10 @@ nabu.services.VueService(Vue.extend({
 			var enumerators = this.enumerators;
 			// allow for fixed values
 			var value = bindingValue.indexOf("fixed") == 0 ? this.translate(bindingValue.substring("fixed.".length)) : (pageInstance ? pageInstance.get(bindingValue) : null);
+			// if we have a fixed value that starts with a "=", interpret it
+			if (bindingValue.indexOf("fixed.=") == 0) {
+				value = this.interpret(value, pageInstance);
+			}
 			var key = bindingValue.split(".")[0];
 			// allow for enumerated values, if there is a provider with that name, check it
 			if (!value && enumerators[key]) {
@@ -1214,19 +1255,29 @@ nabu.services.VueService(Vue.extend({
 						if (end >= index) {
 							var rule = value.substring(index + 2, end);
 							var result = null;
-							var stateOwner = component;
-							while (!stateOwner.localState && stateOwner.$parent) {
-								stateOwner = stateOwner.$parent;
+							if (component) {
+								var stateOwner = component;
+								while (!stateOwner.localState && stateOwner.$parent) {
+									stateOwner = stateOwner.$parent;
+								}
+								if (stateOwner && stateOwner.localState) {
+									result = this.eval(rule, stateOwner.localState, component);
+								}
+								if (result == null && stateOwner && stateOwner.state) {
+									result = this.eval(rule, stateOwner.state, component);
+								}
+								if (result == null && component.page) {
+									var pageInstance = this.getPageInstance(component.page, component);
+									result = this.getBindingValue(pageInstance, rule);
+								}
 							}
-							if (stateOwner && stateOwner.localState) {
-								result = this.eval(rule, stateOwner.localState, component);
-							}
-							if (result == null && stateOwner && stateOwner.state) {
-								result = this.eval(rule, stateOwner.state, component);
-							}
-							if (result == null && component.page) {
-								var pageInstance = this.getPageInstance(component.page, component);
-								result = this.getBindingValue(pageInstance, rule);
+							// when loading variables in the initial things like api keys in imports
+							// there is no component yet
+							// you can basically only use application level variables then
+							else if (rule.trim().indexOf("application.") == 0) {
+								var variable = rule.trim().substring("application.".length);
+								variable = this.properties.filter(function(x) { return x.key == variable })[0];
+								result = variable ? variable.value : null;
 							}
 							value = value.substring(0, index) + (result == null ? "" : result) + value.substring(end + 2);
 							changed = true;
@@ -1238,9 +1289,12 @@ nabu.services.VueService(Vue.extend({
 		},
 		getValue: function(data, field) {
 			if (field) {
+				if (data && data.hasOwnProperty(field)) {
+					return data[field];
+				}
 				var parts = field.split(".");
 				var value = data;
-				parts.map(function(part) {
+				parts.forEach(function(part) {
 					// skip $all, you just want the entire value
 					if (value && part != "$all") {
 						value = value[part];

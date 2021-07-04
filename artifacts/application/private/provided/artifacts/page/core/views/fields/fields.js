@@ -51,6 +51,11 @@ nabu.page.views.PageFieldsEdit = Vue.component("page-fields-edit", {
 			default: true
 		}
 	},
+	data: function() {
+		return {
+			addAllSelector: null
+		}
+	},
 	created: function() {
 		if (!this.cell.state[this.fieldsName]) {
 			Vue.set(this.cell.state, this.fieldsName, []);
@@ -75,6 +80,21 @@ nabu.page.views.PageFieldsEdit = Vue.component("page-fields-edit", {
 		}
 	},
 	methods: {
+		addAll: function() {
+			if (this.addAllSelector) {
+				var self = this;
+				this.getKeys(this.addAllSelector).forEach(function(x) {
+					var field = self.addField(false);
+					// set the key
+					field.fragments[0].key = x;
+					var parts = x.split(".");
+					var name = parts[parts.length - 1];
+					field.label = "%" + "{" + name.substring(0, 1).toUpperCase() + name.substring(1).replace(/([A-Z])/g, " $1") + "}";
+				})
+				// unset
+				this.addAllSelector = null;
+			}
+		},
 		getProvidedConfiguration: function(fragmentType) {
 			var provided = nabu.page.providers("page-field-fragment").filter(function(x) {
 				 return x.name == fragmentType;
@@ -176,7 +196,7 @@ nabu.page.views.PageFieldsEdit = Vue.component("page-fields-edit", {
 			}
 		},
 		addField: function(arbitrary) {
-			this.cell.state[this.fieldsName].push({
+			var field = {
 				label: null,
 				info: null,
 				infoIcon: null,
@@ -184,13 +204,15 @@ nabu.page.views.PageFieldsEdit = Vue.component("page-fields-edit", {
 				hidden: null,
 				styles: [],
 				arbitrary: !!arbitrary
-			});
+			};
+			this.cell.state[this.fieldsName].push(field);
 			// already add a fragment, a field is generally useless without it...
-			this.addFragment(this.cell.state[this.fieldsName][this.cell.state[this.fieldsName].length - 1]);
+			this.addFragment(field);
+			return field;
 		},
 		addFragment: function(field) {
 			// default to a data fragment (generally the case)
-			field.fragments.push({
+			var fragment = {
 				type: "data",
 				content: null,
 				format: null,
@@ -201,7 +223,9 @@ nabu.page.views.PageFieldsEdit = Vue.component("page-fields-edit", {
 				disabled: null,
 				hidden: null,
 				form: {}
-			});
+			};
+			field.fragments.push(fragment);
+			return fragment;
 		},
 		getKeys: function(value) {
 			var keys;
@@ -212,7 +236,7 @@ nabu.page.views.PageFieldsEdit = Vue.component("page-fields-edit", {
 			else {
 				// otherwise we just try to get the default ones available to you
 				var parameters = this.$services.page.getAvailableParameters(this.page, this.cell, true);
-				keys = this.$services.page.getSimpleKeysFor({properties:parameters});
+				keys = this.$services.page.getSimpleKeysFor({properties:parameters}, true);
 			}
 			return value ? keys.filter(function(x) { return x.toLowerCase().indexOf(value.toLowerCase()) >= 0 }) : keys;
 		}
@@ -654,6 +678,12 @@ Vue.component("page-formatted", {
 		fragment: {
 			type: Object,
 			required: true
+		},
+		state: {
+			required: false,
+			default: function() {
+				return {};
+			}
 		}
 	},
 	computed: {
@@ -725,7 +755,11 @@ Vue.component("page-formatted", {
 			}
 			// if it is native, format it that way
 			else if (this.nativeTypes.indexOf(this.fragment.format) >= 0) {
-				return this.$services.formatter.format(this.value, this.fragment);
+				// did some retrofitting magic to get the state into the javascript object
+				// this allows us to evaluate against the actual record state in a data list
+				var fraggy = this.fragment ? nabu.utils.objects.clone(this.fragment) : {};
+				fraggy.state = this.state;
+				return this.$services.formatter.format(this.value, fraggy);
 			}
 			// otherwise we are using a provider
 			else {

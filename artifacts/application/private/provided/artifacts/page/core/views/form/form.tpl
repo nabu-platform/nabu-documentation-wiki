@@ -105,16 +105,19 @@
 				:dark="true"/>
 			<div class="list-actions">
 				<span>Page Actions: </span>
+				<button v-if="$services.page.isCopied('page-form-field')" @click="function() { pasteField(cellPage) }"><span class="fa fa-paste"></span></button>
+				<button @click="$services.page.copyItem('page-form-page', cellPage)"><span class="fa fa-copy"></span></button>
 				<button v-if="cell.state.pages.length > 1" @click="upAllPage(cellPage)"><span class="fa fa-chevron-circle-left"></span></button>
 				<button v-if="cell.state.pages.length > 1" @click="upPage(cellPage)"><span class="fa fa-chevron-circle-up"></span></button>
 				<button v-if="cell.state.pages.length > 1" @click="downPage(cellPage)"><span class="fa fa-chevron-circle-down"></span></button>
 				<button v-if="cell.state.pages.length > 1" @click="downAllPage(cellPage)"><span class="fa fa-chevron-circle-right"></span></button>
-				<button @click="copyPage(cellPage)"><span class="fa fa-copy"></span></button>
-				<button v-if="cell.state.pages.length > 1" @click="deletePage(cellPage)">Delete {{cellPage.name}}</button>
+				<button v-if="false" @click="copyPage(cellPage)"><span class="fa fa-copy"></span></button>
+				<button v-if="cell.state.pages.length > 1" @click="deletePage(cellPage)">Delete Page '{{cellPage.name}}'</button>
 			</div>
 		</div>
 		<div class="list-actions">
-			<button @click="addPage">Add Form Page</button>
+			<button v-if="$services.page.isCopied('page-form-page')" @click="pastePage"><span class="fa fa-paste"></span></button>
+			<button @click="addPage"><span class="fa fa-plus"></span>Form Page</button>
 		</div>
 	</n-form>
 </template>
@@ -234,6 +237,7 @@
 		</div>
 		<n-collapsible v-for="field in fields" :title="field.label ? field.label : field.name" :class="{'dark': dark}">
 			<div slot="buttons">
+				<button @click="$services.page.copyItem('page-form-field', field)"><span class="fa fa-copy"></span></button>
 				<button @click="upAll(field)" v-if="false"><span class="fa fa-chevron-circle-left"></span></button>
 				<button @click="up(field)"><span class="fa fa-chevron-circle-up"></span></button>
 				<button @click="down(field)"><span class="fa fa-chevron-circle-down"></span></button>

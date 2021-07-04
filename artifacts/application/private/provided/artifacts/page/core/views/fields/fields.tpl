@@ -1,8 +1,12 @@
 <template id="page-fields-edit">
 	<div>
 		<div class="list-actions" v-if="allowMultiple">
+			<n-form-combo :filter="getKeys" v-model="addAllSelector" label="Add all"/>
+		</div>
+		<div class="list-actions" v-if="allowMultiple">
+			<button @click="addAll" v-if="addAllSelector"><span class="fa fa-plus"></span>All</button>
 			<button @click="addField(false)"><span class="fa fa-plus"></span>Field</button>
-			<button @click="addField(true)"><span class="fa fa-plus"></span> Content</button>
+			<button @click="addField(true)"><span class="fa fa-plus"></span>Content</button>
 		</div>
 		<n-collapsible class="list-item dark" :title="field.label ? field.label : 'Unlabeled'" v-for="field in cell.state[fieldsName]" :after="field.arbitrary ? 'content' : 'field'">
 			<div slot="buttons">

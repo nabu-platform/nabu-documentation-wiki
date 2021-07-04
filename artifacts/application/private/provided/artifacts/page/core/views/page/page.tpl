@@ -350,6 +350,8 @@
 						<n-form-switch v-if="action.operation || action.function" v-model="action.isSlow" label="Is slow operation?"/>
 						<n-form-text v-if="action.operation && !isBinaryDownload(action.operation)" v-model="action.event" label="Success Event" @input="resetEvents()" :timeout="600"/>
 						<n-form-text v-if="action.operation && !isBinaryDownload(action.operation)" v-model="action.errorEvent" label="Error Event" @input="resetEvents()" :timeout="600"/>
+						<n-form-combo v-if="action.operation && action.event && getOperationArrays(action.operation).length > 0" v-model="action.singlify" label="Limit to array element" info="If you have an array, you can scope the event to only the first element of it"
+							:filter="getOperationArrays.bind($self, action.operation)"/>
 						<n-form-switch v-if="action.operation" v-model="action.expandBindings" label="Field level bindings"/>
 						<div class="simple-row" v-if="action.operation && !action.route && action.expandBindings">
 							<n-form-combo 
