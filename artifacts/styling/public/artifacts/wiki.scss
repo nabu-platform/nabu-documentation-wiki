@@ -20,6 +20,7 @@ $theme-background: #f5f5f6 !default;
 
 
 $primary-wiki-color: $theme-primary;
+$primary-wiki-color-dark: $theme-primary-dark;
 $wiki-background-color: $theme-filler;
 $menu-height: 100vh !default;
 $menu-width: 20vw !default;
@@ -37,7 +38,8 @@ $wiki-menu-title-color: white;
 $wiki-menu-title-background-article: $theme-primary-light;
 $wiki-menu-title-color-article: $theme-secondary;
 
-[route="home"] {
+[route="wiki-search"] {
+	padding: 2rem;
 	.search, .results {
 		padding: 0 2rem;
 		.small {
@@ -54,6 +56,33 @@ $wiki-menu-title-color-article: $theme-secondary;
 			margin-top: 10vh;
 		}
 	}
+	.search-results {
+		th {
+			text-align: left;
+		}
+		.search-results-path {
+			display: block;
+			color: #aaa;
+		}
+		.search-results-tags {
+			display: block;
+			margin-top: 0.3rem;
+			span {
+				display: inline-block;
+				padding: 0.3rem 0.7rem;
+				color: $theme-secondary-text;
+				background-color: $theme-secondary-light;
+				font-size: 0.7rem;
+				border-radius: 5px;
+				+span {
+					margin-left: 0.3rem;
+				}
+			}
+		}
+		.search-results-title {
+			color: #333;
+		}
+	}
 }
 
 // unset default dashboard styling?
@@ -68,20 +97,43 @@ $wiki-menu-title-color-article: $theme-secondary;
 	}
 }
 
+// make sure it overflows correctly
+#wiki-content {
+	margin-left: $menu-width;
+}
+.wiki-menu-container {
+	position: fixed;
+}
+
 // the container for the menu
 .wiki-menu-container {
 	width: $menu-width;
 	border-right: solid 2px $wiki-menu-main-border;
 	
+	.search-container {
+		display: flex;
+		padding: 0.7rem;
+		button {
+			border: none;
+			padding: 0.3rem 0.7rem;
+			background-color: $theme-secondary-dark;
+			color: $theme-secondary-text;
+			border-radius: 5px;
+			font-size: 0.9rem;
+			text-transform: lowercase;
+			margin-left: 0.3rem;
+		}
+	}
 	.wiki-menu-search {
 		height: 2rem;
-		margin: 0.5rem 1rem;
 		width: calc(100% - 2rem);
 		input {
 			height: 2rem;
 			line-height: 2rem;
 			margin: 0;
 			width: 100%;
+			border: solid 1px $theme-primary;
+			padding: 0.7rem;
 		}
 	}
 	
@@ -98,7 +150,7 @@ $wiki-menu-title-color-article: $theme-secondary;
 		overflow: auto;
 		> .directory {
 			> .title {
-				padding: 1rem;
+				padding: 0.7rem;
 				background-color: $wiki-menu-title-background;
 				display: block;
 				.fa {
@@ -109,12 +161,13 @@ $wiki-menu-title-color-article: $theme-secondary;
 		.wiki-menu {
 			.directory {
 				.title {
-					padding: 0.3rem;
+					color: $theme-secondary-dark;
+					padding: 0.5rem;
 					display: block;
 					.fa {
 						margin-right: 0.7rem;
 						//color: #aaa;
-						color: white;
+						color: $theme-secondary-light;
 					}
 				}
 			}
@@ -222,7 +275,7 @@ $wiki-menu-title-color-article: $theme-secondary;
 		font-family: Monospace;
 		padding: 0 0.5rem;
 		background-color: #eaeaea;
-		border: dashed 1px #ccc;
+		border: solid 1px #ccc;
 		margin: 0 0.2rem;
 		border-radius: 5px;
 	}
@@ -271,13 +324,23 @@ $wiki-menu-title-color-article: $theme-secondary;
 		> :last-child {
 			margin-bottom: 10rem;
 		}
+		p {
+			font-size: 1.1rem;
+			color: $primary-wiki-color-dark;
+		}
 		em {
 			font-weight: bold;
 			font-style: normal;
 		}
+		li {
+			+li {
+				margin-top: 0.3rem;
+			}
+		}
 		flex-grow: 1;
 		padding: 2rem 5rem;
-		max-width: calc(100% - #{$toc-width});
+		max-width: calc(100vw - #{$menu-width} - #{$toc-width});
+		overflow-wrap: break-word;
 		strong {
 			background-color: #fcf8e3;
 			color: #8a6d3b;
@@ -299,15 +362,29 @@ $wiki-menu-title-color-article: $theme-secondary;
 		
 		blockquote {
 			background-color: #fafafa;
-			border: dashed 1px #ccc;
+			border: solid 1px #ccc;
+			border-radius: 5px;
 			margin: 1rem;
-			padding: 1rem;
-			font-family: Monospace;
-			font-size: 0.8rem;
+			padding: 0.3rem 1rem;
+			* {
+				font-family: Monospace;
+				font-size: 0.9rem;
+			}
+			.fa:before {
+				font-family: 'Font Awesome 5 Free';
+				color: red;
+			}
+		}
+		h1 {
+			margin-top: 4rem;
 		}
 		h2 {
 			font-size: 1.6rem;
 			border: none;
+			margin-top: 3rem;
+		}
+		h3 {
+			margin-top: 2rem;
 		}
 		/* highlighting */
 		.code-keyword {
@@ -425,7 +502,7 @@ $wiki-menu-title-color-article: $theme-secondary;
 		}
 	}
 	h1 {
-		color: $primary-wiki-color;
+		color: $primary-wiki-color-dark;
 		//text-decoration: underline;
 		border-bottom: solid 1px $primary-wiki-color;
 	}

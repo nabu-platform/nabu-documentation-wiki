@@ -3,7 +3,9 @@ Vue.component("page-field-fragment-text-configure", {
 		+ "		<n-form-switch label='Multiline' v-model='fragment.multiline'/>"
 		+ "		<n-form-switch label='Compile' v-model='fragment.compile'/>"
 		+ "		<n-form-combo label='Type' v-model='fragment.tag' :items=\"['span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div']\"/>"
-		+ "		<n-form-text label='Text' :type=\"fragment.multiline ? 'area' : 'text'\" v-model='fragment.content'/>"
+		+ "		<n-form-switch label='Html' v-model='fragment.html'/>"
+		+ "		<n-form-text label='Text' v-if='!fragment.html' :type=\"fragment.multiline ? 'area' : 'text'\" v-model='fragment.content' :timeout='600'/>"
+		+ "		<n-form-ace label='Text' mode='html' v-else :type=\"fragment.multiline ? 'area' : 'text'\" v-model='fragment.content' :timeout='600'/>"
 		+ "</n-form-section>",
 	props: {
 		cell: {
@@ -34,7 +36,7 @@ Vue.component("page-field-fragment-text-configure", {
 });
 
 Vue.component("page-field-fragment-text", {
-	template: "<component :is='tag' v-content.parameterized='{value:$services.page.translate(fragment.content), compile:fragment.compile, plain:true}'/>",
+	template: "<component :is='tag' v-content.parameterized='{value:$services.page.translate(fragment.content), compile:fragment.compile, plain:!fragment.html}'/>",
 	props: {
 		cell: {
 			type: Object,

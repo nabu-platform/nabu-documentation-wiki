@@ -1,7 +1,7 @@
 // TODO: for simple lists: generate a new page-form-configure-single entity but with isList not filled in
 
 Vue.component("page-form-list-input-dynamic-configure", {
-	template: "<div/>",
+	template: "<div><n-form-text v-model='field.buttonAddClass' label='Button Add Class'/><n-form-text v-model='field.buttonRemoveClass' label='Button Remove Class'/></div>",
 	props: {
 		cell: {
 			type: Object,
@@ -20,10 +20,10 @@ Vue.component("page-form-list-input-dynamic-configure", {
 });
 
 Vue.component("page-form-list-input-dynamic", {
-	template: "<n-form-section ref='form'>"
-					+ "		<n-form-section v-if='value[name ? name : field.name]'>"
-					+ "			<n-form-section v-for='i in Object.keys(value[name ? name : field.name])'>"
-					+ "				<n-form-section v-if='isSimpleList()'>"
+	template: "<n-form-section ref='form' class='dynamic-input'>"
+					+ "		<template v-if='value[name ? name : field.name]'>"
+					+ "			<div v-for='i in Object.keys(value[name ? name : field.name])' class='dynamic-input-iteration'>"
+					+ "				<template v-if='isSimpleList()'>"
 					+ "					<page-form-field :key=\"field.name + '_value' + i\" :field='getSimpleField()'"
 					+ "						v-model='value[name ? name : field.name][i]'"
 					+ "						:schema='getSchemaFor()'"
@@ -31,9 +31,10 @@ Vue.component("page-form-list-input-dynamic", {
 					+ "						:timeout='timeout'"
 					+ "						:page='page'"
 					+ "						:cell='cell'/>"
-					+ "				</n-form-section><n-form-section v-else :class='field.group'>"
+					+ "				</template>"
+					+ "				<template v-else>"
 					//+ "					<n-form-section v-for='key in Object.keys(value[name ? name : field.name][i])' "
-					+ "					<n-form-section v-for='key in getChildren()' "
+					+ "					<div v-for='key in getChildren()' "
 					+ "							v-if=\"getField(field.name + '.' + key)\" >"
 					+ "						<component v-if=\"getProvidedListComponent(field.name + '.' + key) != null\""
 					+ "							:is=\"getProvidedListComponent(field.name + '.' + key)\""
@@ -46,18 +47,21 @@ Vue.component("page-form-list-input-dynamic", {
 					+ "							:field=\"getField(field.name + '.' + key)\""
 					+ "							@changed=\"$emit('changed')\""
 					+ "							:timeout='cell.state.immediate ? 600 : 0'"
-					+ "							:schema=\"getSchemaFor(key)\"/>"
+					+ "							:schema=\"getSchemaFor(key)\""
+					+ "							:class=\"getField(field.name + '.' + key).group\"/>"
 					+ "						<page-form-field v-else :key=\"field.name + '_value' + i + '_' + key\" :field=\"getField(field.name + '.' + key)\"" 
 					+ "							:schema=\"getSchemaFor(key)\" v-model='value[name ? name : field.name][i][key]'"
 					+ "							@input=\"$emit('changed')\""
 					+ "							:timeout='timeout'"
 					+ "							:page='page'"
-					+ "							:cell='cell'/>"
-					+ "			</n-form-section></n-form-section>"
-					+ "		<button @click='value[name ? name : field.name].splice(i, 1)'>%{Remove} {{field.label ? field.label : field.name}}</button>"
-					+ "	</n-form-section>"
-					+ "</n-form-section>"
-					+ "		<button @click='addInstanceOfField'>%{Add} {{field.label ? field.label : field.name}}</button>"
+					+ "							:cell='cell'"
+					+ "							:class=\"getField(field.name + '.' + key).group\"/>"
+					+ "					</div>"
+					+ "				</template>"
+					+ "		<button :class='field.buttonRemoveClass' @click='value[name ? name : field.name].splice(i, 1)'>%{Remove} {{field.label ? field.label : field.name}}</button>"
+					+ "	</div>"
+					+ "</template>"
+					+ "		<button :class='field.buttonAddClass' @click='addInstanceOfField'>%{Add} {{field.label ? field.label : field.name}}</button>"
 				+ "</n-form-section>",
 	props: {
 		cell: {

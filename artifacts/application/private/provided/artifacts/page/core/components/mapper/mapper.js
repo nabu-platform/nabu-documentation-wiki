@@ -147,7 +147,7 @@ Vue.component("n-page-mapper", {
 			}
 			return this.value[field]
 				? this.value[field].split(".")[0]
-				: null;
+				: (this.sources.indexOf("fixed") >= 0 ? "fixed" : null);
 		},
 		isLambdable: function(field) {
 			return this.value[field] && this.value[field].lambdable;

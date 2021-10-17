@@ -587,7 +587,8 @@ nabu.page.views.PageActionsGenerator = function(name) {
 				if (element && element.__vue__ && element.__vue__.validate) {
 					var filterResults = function(results) {
 						return results.filter(function(x) {
-							return x.severity == "error";
+							// the backend sends back uppercase
+							return x.severity != null && x.severity.toLowerCase() == "error";
 						})
 					};
 					var result = element.__vue__.validate();

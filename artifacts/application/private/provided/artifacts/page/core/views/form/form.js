@@ -11,6 +11,10 @@ if (!nabu.page.views) { nabu.page.views = {} }
 
 // the synchronize generally triggers a rerender of the form which in turn means we lose focus
 
+// TODO: resetOnUpdate: currently you can only reset on a single field and only reset to null
+// in the to-be we want to be able to reset on multiple fields (so an array instead of a string)
+// and the reset should be to the actual initial value which can be null but can also be a bound value
+
 nabu.page.formComponentConstructer = function(name) {
 	return Vue.component(name, {
 		template: "#" + name,
@@ -317,8 +321,10 @@ nabu.page.formComponentConstructer = function(name) {
 				});*/
 				// we _need_ to take a serialized copy of the state, otherwise the createResult will always update the state when trying to create a result object
 				var page = this.$services.page.getPageParameterValues(self.page, pageInstance);
-				// take a cloned copy
-				Vue.set(this, "result", JSON.parse(JSON.stringify(page)));
+				// we do need a newly referenced object because we want to enrich it
+				// the reason we want to bypass serialization when relevant is for files...
+				// we can't use stringification cloning because of objects like file, blob,...
+				Vue.set(this, "result", this.$services.page.cloneByReference(page));
 				// must recreate the "." separated values, necessary for "complex" multifield form components like address
 				// other components get a correct initial value because we get the field from the result (getCurrentValue)
 				//this.$services.page.explode(reference, this.result);
@@ -326,12 +332,33 @@ nabu.page.formComponentConstructer = function(name) {
 				this.$services.page.explode(this.result, this.result);
 				//Vue.set(this, "reference", JSON.parse(JSON.stringify(reference)));
 				//Vue.set(this, "reference", reference);
-				Vue.set(this, "reference", JSON.parse(JSON.stringify(this.result)));
+				//Vue.set(this, "reference", JSON.parse(JSON.stringify(this.result)));
+				// use the same strategy for cloning the reference, otherwise this might have serialized versions of actual objects, which fail in "hasChanged"
+				Vue.set(this, "reference", this.$services.page.cloneByReference(this.result));
 			},
 			hasChanged: function(path, value) {
 				if (this.cell.state.pageForm) {
 					var originalValue = this.reference[path];
 					//var originalValue = this.$services.page.getValue(this.reference, path);
+					
+					// for arrays we do a separate check for each item
+					if (value instanceof Array && originalValue instanceof Array) {
+						var changed = false;
+						if (value.length != originalValue.length) {
+							changed = true;
+						}
+						else {
+							for (var i = 0; i < value.length; i++) {
+								if (value[i] !== originalValue[i]) {
+									// check if it contains the same data
+									if (JSON.stringify(value[i]) !== JSON.stringify(originalValue[i])) {
+										changed = true;
+									}
+								}
+							}
+						}
+						return changed;
+					}
 					return value !== originalValue;
 				}
 				// for now...
@@ -474,7 +501,16 @@ nabu.page.formComponentConstructer = function(name) {
 					}
 				}
 				else {
+					this.showMessages(messages);
 					this.scrollToException(messages);
+				}
+			},
+			showMessages: function(messages) {
+				if (this.cell.state.formValidationMessages && parseInt(this.cell.state.formValidationMessages) > 0) {
+					this.messages.splice(0);
+					nabu.utils.arrays.merge(this.messages, messages.filter(function(x) {
+						return !x.handled;
+					}).splice(0, Math.min(messages.length, parseInt(this.cell.state.formValidationMessages))));
 				}
 			},
 			scrollToException: function(messages) {
@@ -977,12 +1013,15 @@ nabu.page.formComponentConstructer = function(name) {
 						}
 						tmp = tmp[parts[i]];
 					}
-					// merge them, note that typeof(null) == "object"...
-					if (tmp[parts[parts.length - 1]] != null && typeof(tmp[parts[parts.length - 1]]) == "object") {
-						nabu.utils.objects.merge(tmp[parts[parts.length - 1]], result[name]);
-					}
-					else {
-						Vue.set(tmp, parts[parts.length - 1], result[name]);
+					// if they are already the same object, no action is needed
+					if (tmp[parts[parts.length - 1]] !== result[name]) {
+						// merge them, note that typeof(null) == "object"...
+						if (tmp[parts[parts.length - 1]] != null && typeof(tmp[parts[parts.length - 1]]) == "object") {
+							nabu.utils.objects.merge(tmp[parts[parts.length - 1]], result[name]);
+						}
+						else {
+							Vue.set(tmp, parts[parts.length - 1], result[name]);
+						}
 					}
 					// if it is a complex field, set the string value as well
 					// this makes it easier to check later on if it has been set or not
@@ -1011,12 +1050,25 @@ nabu.page.formComponentConstructer = function(name) {
 				});
 				return transformed;
 			},
-			changed: function() {
+			changed: function(fieldName) {
+				// reset any values that should be reset...
+				if (fieldName && this.cell.state.pages) {
+					var self = this;
+					this.cell.state.pages.forEach(function(page) {
+						page.fields.forEach(function(x) {
+							if (x.resetOnUpdate == fieldName || (x.resetOnUpdate instanceof Array && x.resetOnUpdate.indexOf(fieldName) >= 0)) {
+								Vue.set(self.result, x.name, null);
+							}
+						})
+					})
+				}
 				if (this.cell.state.immediate) {
 					this.doIt();
 				}
-				// update local state to reflect the change
-				Vue.set(this.localState, "form", this.createResult());
+				if (this.localState) {
+					// update local state to reflect the change
+					Vue.set(this.localState, "form", this.createResult());
+				}
 			},
 			doIt: function() {
 				var self = this;
@@ -1065,8 +1117,8 @@ nabu.page.formComponentConstructer = function(name) {
 							var parameters = this.$services.page.getPageParameters(self.page);
 							Object.keys(result).forEach(function(x) {
 								// we have both the object-based notation and the . separated notation in the result
-								// in this case, for correct merging, we want to use the . separated, never the object in its entirety
-								if (result[x] == null || (result != null && (Object(result[x]) !== result[x] || result[x] instanceof Date || result[x] instanceof File))) {
+								// in this case, for correct merging, we want to use the . separated, never the object in its entirety, unless it is an array!
+								if (result[x] == null || result[x] instanceof Array || (result != null && (Object(result[x]) !== result[x] || result[x] instanceof Date || result[x] instanceof File || result[x] instanceof Blob))) {
 									// only set if changed, otherwise we might overwrite external changes to the page state
 									if (self.hasChanged(x, result[x])) {
 										pageInstance.set("page." + x, result[x]);
@@ -1242,6 +1294,7 @@ nabu.page.formComponentConstructer = function(name) {
 					}
 					else {
 						self.doingIt = false;
+						this.showMessages(messages);
 						this.scrollToException(messages);
 					}
 				}
@@ -1364,7 +1417,6 @@ Vue.component("page-form-field", {
 			var self = this;
 			var pageInstance = self.$services.page.getPageInstance(self.page, self);
 			this.field.listeners.forEach(function(x) {
-				console.log("subscribing", x);
 				self.subscriptions.push(pageInstance.subscribe(x.to.replace(/^([^.]+).*/, "$1"), function(value) {
 					// this was initially added to fill in filter fields in a data component
 					// for some reason, this bit was triggered with the correct value but then immediately retriggered with the incorrect value
@@ -1376,6 +1428,10 @@ Vue.component("page-form-field", {
 					// it seems to immediately trigger to null?
 					if (result != null) {
 						self.$emit("input", result);
+						// currently we reuse this one, but maybe we should always validate at that point?
+						if (self.validateOnBlur) {
+							setTimeout(self.validate, 1);
+						}
 					}
 				}));
 			});
@@ -1742,15 +1798,43 @@ Vue.component("page-configure-arbitrary", {
 			default: function() { return [] }
 		}
 	},
+	data: function() {
+		return {
+			hasConfigurator: false
+		}
+	},
 	created: function() {
+		if (!this.target.arbitraryId) {
+			Vue.set(this.target, "arbitraryId", Math.random());
+		}
 		if (this.target.bindings == null) {
 			this.target.bindings = {}
+		}
+		var self = this;
+		// we want to find the rendered instance
+		var pageInstance = this.$services.page.getPageInstance(this.page, this);
+		var components = pageInstance.components[this.cell.id];
+		this.instance = null;
+		if (components) {
+			if (components.$$arbitraryCellId == this.cell.id) {
+				this.instance = components;
+			}
+			else if (components instanceof Array) {
+				components.forEach(function(x) {
+					if (x.$$arbitraryCellId == self.cell.id && x.$$arbitraryId == self.target.arbitraryId) {
+						self.instance = x;
+					}
+				});
+			}
+			this.hasConfigurator = this.instance != null && this.instance.configurator;
 		}
 	},
 	computed: {
 		availableParameters: function() {
 			var available = this.$services.page.getAvailableParameters(this.page, this.cell, true);
-			if (this.keys.length) {
+			// to allow for simple types as well, we don't check for keys
+			// this means we will get a "record.$all"
+			if (this.keys instanceof Array) {
 				available.record = {properties:{}};
 				this.keys.forEach(function(key) {
 					available.record.properties[key] = {
@@ -1782,8 +1866,28 @@ Vue.component("page-configure-arbitrary", {
 			});
 			return routes.map(function(x) { return x.alias });
 		},
+		getCellConfigurator: function(cell) {
+			return this.instance ? this.instance.configurator() : "div";
+		},
+		getCellConfiguratorInput: function(cell) {
+			var result = {};
+			if (this.instance) {
+				var self = this;
+				if (this.instance.$options.props) {
+					Object.keys(this.instance.$options.props).forEach(function(prop) {
+						result[prop] = self.instance[prop];
+					});
+				}
+			}
+			return result;
+		}
 	}
 });
+
+/**
+ * The wrapper div in the template is unfortunately _necessary_
+ * Otherwise page-arbitrary is no longer reactive and will not rerender when its bound input parameters change
+ */
 
 Vue.component("page-arbitrary", {
 	template: "#page-arbitrary",
@@ -1851,16 +1955,24 @@ Vue.component("page-arbitrary", {
 			}
 			return parameters;
 		},
+		created: function(result) {
+			this.$services.page.rendering++;	
+		},
 		mounted: function(instance) {
 			this.instance = instance;
 			var self = this;
 			var pageInstance = self.$services.page.getPageInstance(self.page, self);
 			// make sure we register the instance so it is correctly picked up
+			// this will allow for example events to bubble up etc (presumably)
 			pageInstance.mounted(this.cell, null, null, instance);
 			// if we have events, reset the page ones
 			if (this.instance.getEvents) {
 				pageInstance.resetEvents();
 			}
+			// we use this to look up the correct component during configuration
+			instance.$$arbitraryCellId = this.cell.id;
+			// if we have multiple arbitrary in a single cell (e.g. in page-actions), we want to be able to differentiate them
+			instance.$$arbitraryId = this.target.arbitraryId;
 		},
 		validate: function(soft) {
 			if (this.instance && this.instance.validate) {

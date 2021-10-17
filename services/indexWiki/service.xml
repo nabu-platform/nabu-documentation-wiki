@@ -146,20 +146,11 @@
 					serviceId="nabu.utils.String.split"
 					resultName="result100bdb69ae49494097bf1bfafc91ae5d"
 					temporaryMapping="true"
-					x="71"
-					y="338"
-					invocationOrder="0"
+					x="263"
+					y="354"
+					invocationOrder="1"
 					asynchronous="false"
 					recache="false">
-				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
-						disabled="false"
-						id="322d5ff7-d4cf-48dd-a395-9b8cb583cf73"
-						mask="false"
-						optional="false"
-						fixedValue="false">
-					<from>article/path</from>
-					<to>string</to>
-				</steps>
 				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
 						disabled="false"
 						id="960cfb7d-a5fb-4d54-b295-a849a9a1afdd"
@@ -168,6 +159,15 @@
 						fixedValue="true">
 					<from>/</from>
 					<to>separator</to>
+				</steps>
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="a1e7bc10-ab0a-4df4-8f8f-61d529fcfaa1"
+						mask="false"
+						optional="false"
+						fixedValue="false">
+					<from>result8498ae80506b4596a5bec8aef5e5c5e3/content</from>
+					<to>string</to>
 				</steps>
 			</steps>
 			<steps xsi:type="be.nabu.libs.services.vm.step.Link"
@@ -178,6 +178,54 @@
 					fixedValue="false">
 				<from>result100bdb69ae49494097bf1bfafc91ae5d/parts</from>
 				<to>luceneArticle/tag</to>
+			</steps>
+			<steps xsi:type="be.nabu.libs.services.vm.step.Invoke"
+					disabled="false"
+					id="c8e746d7-478d-4e7a-9cda-20a400085409"
+					serviceId="nabu.utils.String.replace"
+					resultName="result8498ae80506b4596a5bec8aef5e5c5e3"
+					temporaryMapping="true"
+					x="19"
+					y="397"
+					invocationOrder="0"
+					asynchronous="false"
+					recache="false">
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="6d610b74-fe83-4aed-87de-2d75c652b78a"
+						mask="false"
+						optional="false"
+						fixedValue="false">
+					<from>article/path</from>
+					<to>content</to>
+				</steps>
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="86a7e742-5a27-4bd2-ad33-dc05107bd8d9"
+						mask="false"
+						optional="false"
+						fixedValue="true">
+					<from>^(.*)\.[^.]+$</from>
+					<to>match</to>
+				</steps>
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="7194d966-38b0-4869-b030-2adcb967eb9e"
+						mask="false"
+						optional="false"
+						fixedValue="true">
+					<from>$1</from>
+					<to>replace</to>
+				</steps>
+				<steps xsi:type="be.nabu.libs.services.vm.step.Link"
+						disabled="false"
+						id="a0106012-e64f-4a34-ae96-6c8d3162336e"
+						mask="false"
+						optional="false"
+						fixedValue="true">
+					<from>true</from>
+					<to>useRegex</to>
+				</steps>
 			</steps>
 		</steps>
 		<steps xsi:type="be.nabu.libs.services.vm.step.Map"

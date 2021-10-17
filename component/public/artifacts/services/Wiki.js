@@ -3,7 +3,8 @@ Vue.service("wiki", {
 	data: function() {
 		return {
 			root: null,
-			selected: null
+			selected: null,
+			hierarchySearch: null
 		}
 	},
 	activate: function(done) {
@@ -69,6 +70,29 @@ Vue.service("wiki", {
 		}
 	},
 	methods: {
+		getArticle: function(path) {
+			var dir = this.root;
+			var parts = path.replace(/^[/]*(.*)/, "$1").split("/");
+			for (var i = 0; i < parts.length; i++) {
+				// we are at the latest, check articles
+				if (i == parts.length - 1) {
+					if (dir.articles) {
+						return dir.articles.filter(function(x) {
+							return x.name == parts[i];
+						})[0];
+					}
+				}
+				else if (dir.directories) {
+					dir = dir.directories.filter(function(x) {
+						return x.name == parts[i];
+					})[0];
+					if (!dir) {
+						break;
+					}
+				}
+			}
+			return null;
+		},
 		searchByTags: function() {
 			var tags = arguments;
 			return this.articles.filter(function(x) {

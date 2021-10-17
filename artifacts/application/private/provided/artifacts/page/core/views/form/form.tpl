@@ -14,21 +14,21 @@
 			<div class="list-actions">
 				<button @click="generateForm"><span>Generate form</span></button>
 			</div>
-			<n-form-text v-model="cell.state.title" label="Title"/>
-			<n-form-text v-model="cell.state.formId" label="Form Id"/>
-			<n-form-text v-model="cell.state.componentGroup" label="Component Group"/>
-			<n-form-text v-model="cell.state.analysisId" label="Analysis Id" info="You can set an explicit name for this form for analysis purposes"/>
-			<n-form-text v-model="cell.state.class" label="Form Class"/>
+			<n-form-text v-model="cell.state.title" label="Title" :timeout="600"/>
+			<n-form-text v-model="cell.state.formId" label="Form Id" :timeout="600"/>
+			<n-form-text v-model="cell.state.componentGroup" label="Component Group" :timeout="600"/>
+			<n-form-text v-model="cell.state.analysisId" label="Analysis Id" info="You can set an explicit name for this form for analysis purposes" :timeout="600"/>
+			<n-form-text v-model="cell.state.class" label="Form Class" :timeout="600"/>
 			<n-form-switch v-model="cell.state.immediate" label="Save On Change"/>
-			<n-form-text v-model="cell.state.cancel" v-if="!cell.state.immediate" label="Cancel Label"/>
-			<n-form-text v-model="cell.state.ok" v-if="!cell.state.immediate" label="Ok Label"/>
-			<n-form-text v-model="cell.state.next" v-if="!cell.state.immediate && cell.state.pages.length > 1" label="Next Label"/>
-			<n-form-text v-model="cell.state.previous" v-if="!cell.state.immediate && cell.state.pages.length > 1" label="Previous Label"/>
-			<n-form-text v-model="cell.state.event" label="Success Event" :timeout="600" @input="$emit('updatedEvents')"/>
-			<n-form-text v-model="cell.state.cancelEvent" label="Cancel Event" :timeout="600" @input="$emit('updatedEvents')"/>
-			<n-form-text v-if="cell.state.event" v-model="cell.state.submitEvent" label="Submit Event" :timeout="600" @input="$emit('updatedEvents')"/>
-			<n-form-text v-if="cell.state.operation || cell.state.functionForm" v-model="cell.state.errorEvent" label="Error Event" :timeout="600" @input="$emit('updatedEvents')"/>
-			<n-form-text v-model="cell.state.errorEventCodes" label="Error Event Codes" v-if="cell.state.errorEvent"/>
+			<n-form-text v-model="cell.state.cancel" v-if="!cell.state.immediate" label="Cancel Label" :timeout="600"/>
+			<n-form-text v-model="cell.state.ok" v-if="!cell.state.immediate" label="Ok Label" :timeout="600"/>
+			<n-form-text v-model="cell.state.next" v-if="!cell.state.immediate && cell.state.pages.length > 1" label="Next Label" :timeout="600"/>
+			<n-form-text v-model="cell.state.previous" v-if="!cell.state.immediate && cell.state.pages.length > 1" label="Previous Label" :timeout="600"/>
+			<n-form-text v-model="cell.state.event" label="Success Event" :timeout="600" @input="$updateEvents()"/>
+			<n-form-text v-model="cell.state.cancelEvent" label="Cancel Event" :timeout="600" @input="$updateEvents()"/>
+			<n-form-text v-if="cell.state.event" v-model="cell.state.submitEvent" label="Submit Event" @input="$updateEvents()" :timeout="600"/>
+			<n-form-text v-if="cell.state.operation || cell.state.functionForm" v-model="cell.state.errorEvent" label="Error Event" :timeout="600" @input="$updateEvents()" :timeout="600"/>
+			<n-form-text v-model="cell.state.errorEventCodes" label="Error Event Codes" v-if="cell.state.errorEvent" :timeout="600"/>
 			<n-form-switch v-if="!cell.state.pageForm && !cell.state.functionForm" v-model="cell.state.synchronize" label="Synchronize Changes"/>
 			<n-form-switch v-model="cell.state.autofocus" label="Autofocus"/>
 			<n-form-switch v-model="cell.state.autoclose" label="Autoclose"/>
@@ -37,10 +37,11 @@
 			<n-form-switch v-model="cell.state.allowReadOnly" label="Allow read only mode"/>
 			<n-form-switch v-if="cell.state.allowReadOnly" v-model="cell.state.startAsReadOnly" label="Start in read only mode"/>
 			<n-form-switch v-if="cell.state.allowReadOnly" v-model="cell.state.onlyOneEdit" label="Allow only one in edit mode"/>
-			<n-form-text v-if="cell.state.allowReadOnly" v-model="cell.state.edit" label="Edit Label"/>
-			<n-form-text v-if="cell.state.allowReadOnly" v-model="cell.state.editIcon" label="Edit Icon"/>
-			<n-form-text v-model="cell.state.mode" label="Message Mode (the literal 'component' or a number)"/>
-			<n-form-text v-model="cell.state.validationTimeout" label="Validation Timeout"/>
+			<n-form-text v-if="cell.state.allowReadOnly" v-model="cell.state.edit" label="Edit Label" :timeout="600"/>
+			<n-form-text v-if="cell.state.allowReadOnly" v-model="cell.state.editIcon" label="Edit Icon" :timeout="600"/>
+			<n-form-text v-model="cell.state.mode" label="Message Mode (the literal 'component' or a number)" :timeout="600"/>
+			<n-form-text v-model="cell.state.formValidationMessages" label="Amount of validation messages to show at form level" placeholder="0"/>
+			<n-form-text v-model="cell.state.validationTimeout" label="Validation Timeout" :timeout="600"/>
 			<n-form-switch v-model="cell.state.validateOnBlur" label="Validate on blur"/>
 			
 			<div class="list-actions">
@@ -106,7 +107,7 @@
 			<div class="list-actions">
 				<span>Page Actions: </span>
 				<button v-if="$services.page.isCopied('page-form-field')" @click="function() { pasteField(cellPage) }"><span class="fa fa-paste"></span></button>
-				<button @click="$services.page.copyItem('page-form-page', cellPage)"><span class="fa fa-copy"></span></button>
+				<button @click="$services.page.copyItem('page-form-page', cellPage, true)"><span class="fa fa-copy"></span></button>
 				<button v-if="cell.state.pages.length > 1" @click="upAllPage(cellPage)"><span class="fa fa-chevron-circle-left"></span></button>
 				<button v-if="cell.state.pages.length > 1" @click="upPage(cellPage)"><span class="fa fa-chevron-circle-up"></span></button>
 				<button v-if="cell.state.pages.length > 1" @click="downPage(cellPage)"><span class="fa fa-chevron-circle-down"></span></button>
@@ -139,6 +140,7 @@
 				<n-form-section v-for="group in getGroupedFields(currentPage)" :class="group.group">
 					<n-form-section v-for="field in group.fields" :key="field.name + '_section'" v-if="!isPartOfList(field.name) && !isHidden(field) && (!readOnly || !field.hideInReadOnly)">
 						<component v-if="isList(field.name)"
+							:read-only="readOnly"
 							:is="getProvidedListComponent(field.type)"
 							:value="result"
 							:page="page"
@@ -153,7 +155,7 @@
 							:parent-value="result"
 							:schema-resolver="getSchemaFor"
 							@changed="changed"
-							@input="function(newValue, otherField) { $window.Vue.set(result, otherField ? otherField : field.name, newValue); changed(); }"    
+							@input="function(newValue, otherField) { $window.Vue.set(result, otherField ? otherField : field.name, newValue); changed(field.name); }"    
 							:timeout="600"
 							:page="page"
 							:read-only="readOnly"
@@ -237,7 +239,7 @@
 		</div>
 		<n-collapsible v-for="field in fields" :title="field.label ? field.label : field.name" :class="{'dark': dark}">
 			<div slot="buttons">
-				<button @click="$services.page.copyItem('page-form-field', field)"><span class="fa fa-copy"></span></button>
+				<button @click="$services.page.copyItem('page-form-field', field, true)"><span class="fa fa-copy"></span></button>
 				<button @click="upAll(field)" v-if="false"><span class="fa fa-chevron-circle-left"></span></button>
 				<button @click="up(field)"><span class="fa fa-chevron-circle-up"></span></button>
 				<button @click="down(field)"><span class="fa fa-chevron-circle-down"></span></button>
@@ -260,6 +262,7 @@
 					:cell="cell"/>
 					
 				<n-form-switch v-model="field.hideInReadOnly" v-if="allowReadOnly" label="Hide In Read Only Mode"/>
+				<n-form-combo :filter="function(x) { return possibleFields }" v-model="field.resetOnUpdate" label="Reset on update"/>
 			</div>
 		</n-collapsible>
 	</component>
@@ -288,7 +291,7 @@
 			:schema="schema"
 			:field="field"/>
 			
-		<page-event-value class="no-more-padding" :page="page" :container="field" title="Validation Success Event" name="validationSuccessEvent" @resetEvents="$emit('resetEvents')" :inline="true"/>
+		<page-event-value class="no-more-padding" :page="page" :container="field" title="Validation Success Event" name="validationSuccessEvent" @resetEvents="$updateEvents()" :inline="true"/>
 		
 		<div class="list-actions">
 			<button @click="field.styles == null ? $window.Vue.set(field, 'styles', [{class:null,condition:null}]) : field.styles.push({class:null,condition:null})"><span class="fa fa-plus"></span>Style</button>
@@ -325,14 +328,12 @@
 			:from="availableParameters" 
 			v-model="target.bindings"/>
 		<n-form-ace v-model="target.hidden" label="Hide If"/>
+		<component v-if="hasConfigurator" :is="getCellConfigurator(cell)" v-bind="getCellConfiguratorInput(cell)"/>
 	</div>
 </template>
 
 <template id="page-arbitrary">
 	<div class="page-arbitrary">
-		<div v-if="instance && instance.configure && edit" class="page-arbitrary-menu">
-			<button @click="function($event) { instance.configure(); $event.stopPropagation(); return false }"><span class="fa fa-cog"></span></button>
-		</div>
-		<div v-if="target.route" @click.native="handle" :class="target.class" v-route-render="{ alias: target.route, parameters: getParameters(), mounted: mounted }"></div>
+		<div @click.native="handle" :class="target.class" v-route-render="{ alias: target.route, parameters: getParameters(), mounted: mounted, created:created }"></div>
 	</div>
 </template> 

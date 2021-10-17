@@ -75,6 +75,7 @@
 		<n-ace v-if="fragment.format == 'javascript'" mode="javascript" v-model="fragment.javascript"/>
 		<n-ace v-if="fragment.format == 'html'" mode="html" v-model="fragment.html"/>
 		<n-form-text v-if="fragment.format == 'number'" v-model="fragment.amountOfDecimals" label="Amount of decimals"/>
+		<n-form-switch v-if="fragment.format == 'number'" v-model="fragment.retainTrailing" label="Retain trailing 0"/>
 		<n-form-combo label="Date Format" v-if="fragment.format == 'date'" v-model="fragment.dateFormat" :filter="function(value) { return [value, 'date', 'dateTime', '\'yy MMM dd', '\'yy MMM dd HH:mm', 'MMMM dd, yyyy'] }"/>
 		<n-form-switch label="Is timestamp in milliseconds?" v-model="fragment.isTimestamp" v-if="fragment.format == 'date' && !fragment.isSecondsTimestamp"/>
 		<n-form-switch label="Is timestamp in seconds?" v-model="fragment.isSecondsTimestamp" v-if="fragment.format == 'date' && !fragment.isTimestamp"/>
@@ -176,8 +177,8 @@
 				<page-fields-edit :cell="cell" :allow-multiple="true" :page="page" :data="data" :should-style="shouldStyle"/>
 			</n-form>
 		</n-sidebar>
-		<page-field v-for="field in cell.state[fieldsName]" :field="field" :data="data ? data : state" :label="label == null ? !cell.state.hideLabel : label"
-			v-if="!field.hidden || !$services.page.isCondition(field.hidden, data ? data : state, $self)"
+		<page-field v-for="field in cell.state[fieldsName]" :field="field" :data="data ? data : $services.page.getPageInstance(page, $self).variables" :label="label == null ? !cell.state.hideLabel : label"
+			v-if="!field.hidden || !$services.page.isCondition(field.hidden, data ? data : $services.page.getPageInstance(page, $self).variables, $self)"
 			:edit="edit"
 			:page="page"
 			:cell="cell"

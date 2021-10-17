@@ -102,7 +102,13 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			loadTimer: null,
 			lazyPromise: null,
 			wizard: "step1",
-			offset: 0
+			offset: 0,
+			// a dynamic limit set by the user
+			dynamicLimit: null,
+			// doing certain actions (like drag drop) you may want to halt refreshing
+			blockRefresh: false,
+			// keep track when the update is working
+			updating: false
 		}
 	},
 	ready: function() {
@@ -118,9 +124,20 @@ nabu.page.views.data.DataCommon = Vue.extend({
 				nabu.utils.arrays.merge(this.allRecords, newValue);
 			}
 			this.load(this.paging && this.paging.current ? this.paging.current : 0, false);
+		},
+		records: function(newValue) {
+			if (this.cell.state.recordsUpdatedEvent) {
+				var self = this;
+				var pageInstance = self.$services.page.getPageInstance(self.page, self);
+				pageInstance.emit(this.cell.state.recordsUpdatedEvent, this.records);
+			}
 		}
 	},
 	computed: {
+		allSelected: function() {
+			// double should not be selected...otherwise we need to check deeper
+			return this.records.length == this.selected.length;	
+		},
 		filterConfiguration: function() {
 			var self = this;
 			if (this.cell.state.filterType) {
@@ -214,12 +231,22 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			}
 			else if (this.cell.state.array) {
 				var available = this.$services.page.getAvailableParameters(this.page, this.cell, true);
-				var variable = this.cell.state.array.substring(0, this.cell.state.array.indexOf("."));
-				var rest = this.cell.state.array.substring(this.cell.state.array.indexOf(".") + 1);
+				var indexOfDot = this.cell.state.array.indexOf(".");
+				var variable = indexOfDot < 0 ? this.cell.state.array : this.cell.state.array.substring(0, indexOfDot);
+				var rest = indexOfDot < 0 ? null : this.cell.state.array.substring(indexOfDot + 1);
 				if (available[variable]) {
-					var childDefinition = this.$services.page.getChildDefinition(available[variable], rest);
-					if (childDefinition) {
-						nabu.utils.objects.merge(properties, childDefinition.items.properties);
+					// we can have root arrays rather than part of something else
+					// for example from a multiselect event
+					if (!rest) {
+						if (available[variable].items && available[variable].items.properties) {
+							nabu.utils.objects.merge(properties, available[variable].items.properties);
+						}
+					}
+					else {
+						var childDefinition = this.$services.page.getChildDefinition(available[variable], rest);
+						if (childDefinition) {
+							nabu.utils.objects.merge(properties, childDefinition.items.properties);
+						}
 					}
 				}
 			}
@@ -307,6 +334,40 @@ nabu.page.views.data.DataCommon = Vue.extend({
 		}	
 	},
 	methods: {
+		// TODO: allow the user to choose their own key in the record
+		getKey: function(record) {
+			if (record && record.id) {
+				return record.id;
+			}
+			// sometimes we have arrays of uuids
+			else if (record && typeof(record) == "string") {
+				return record;
+			}
+			else if (record && record.hasOwnProperty("$position")) {
+				return record["$position"];
+			}
+			else {
+				return this.records.indexOf(record);
+			}
+		},
+		// allows to load selected items
+		loadSelected: function(selected) {
+			if (selected instanceof Array) {
+				selected.forEach(this.loadSelected);
+			}
+			else if (selected) {
+				var self = this;
+				this.records.forEach(function(record) {
+					// if we have an "id" field, we will try to match on this
+					if (selected.id && selected.id == record.id) {
+						self.selected.push(record);
+					}
+					else if (!selected.id && JSON.stringify(selected) == JSON.stringify(record)) {
+						self.selected.push(record);
+					}
+				});
+			}
+		},
 		getLimitName: function() {
 			var self = this;
 			var limit = !this.operation || !this.operation.parameters ? null : this.operation.parameters.filter(function(x) {
@@ -447,7 +508,7 @@ nabu.page.views.data.DataCommon = Vue.extend({
 					});
 				}
 				
-				this.cell.state.refreshOn.map(function(x) {
+				this.cell.state.refreshOn.forEach(function(x) {
 					self.subscriptions.push(pageInstance.subscribe(x, function() {
 						// mimic the frontend configuration logic
 						if (self.operation != null) {
@@ -459,9 +520,26 @@ nabu.page.views.data.DataCommon = Vue.extend({
 					}));
 				});
 				if (this.cell.state.downloadOn) {
-					this.cell.state.downloadOn.map(function(x) {
+					this.cell.state.downloadOn.forEach(function(x) {
 						self.subscriptions.push(pageInstance.subscribe(x.event, function() {
 							self.download(x);
+						}));
+					});
+				}
+				if (this.cell.state.updateLimitListeners) {
+					this.cell.state.updateLimitListeners.forEach(function(x) {
+						var index = x.indexOf(".");
+						var eventName = index >= 0 ? x.substring(0, index) : x;
+						self.subscriptions.push(pageInstance.subscribe(eventName, function(a) {
+							// we want a subpart of it
+							if (a && index >= 0) {
+								a = self.$services.page.getValue(a, x.substring(index + 1));
+							}
+							if (a != null) {
+								a = parseInt(a);
+							}
+							self.dynamicLimit = a;
+							self.load();
 						}));
 					});
 				}
@@ -469,6 +547,12 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			else {
 				done();
 			}
+		},
+		addLimitUpdateListener: function() {
+			if (!this.cell.state.updateLimitListeners) {
+				Vue.set(this.cell.state, "updateLimitListeners", []);
+			}	
+			this.cell.state.updateLimitListeners.push(null);
 		},
 		download: function(definition) {
 			var fileName = definition.fileName;
@@ -535,7 +619,7 @@ nabu.page.views.data.DataCommon = Vue.extend({
 					if (!found) {
 						definition = null;
 					}
-					this.cell.state.actions.map(function(action) {
+					this.cell.state.actions.forEach(function(action) {
 						result[action.name] = action.global && (!action.useSelection && !action.useAll)
 							//? (self.cell.on ? self.$services.page.instances[self.page.name].getEvents()[self.cell.on] : [])
 							? (self.cell.on ? self.cell.on : {})
@@ -544,11 +628,18 @@ nabu.page.views.data.DataCommon = Vue.extend({
 				}
 			}
 			else {
-				this.cell.state.actions.map(function(action) {
-					result[action.name] = action.global && (!action.useSelection && !action.useAll)
+				this.cell.state.actions.forEach(function(action) {
+					result[action.name] = action.global && (!action.useSelection && !action.useAll) 
 						? (self.cell.on ? self.cell.on : {})
 						: {properties:self.definition};
 				});
+			}
+			// add the event!
+			if (this.cell.state.inlineUpdateEvent) {
+				result[this.cell.state.inlineUpdateEvent] = {properties:self.definition};
+			}
+			if (this.cell.state.recordsUpdatedEvent) {
+				result[this.cell.state.recordsUpdatedEvent] = {type: "array", items: {properties: this.definition, type: "object"}};
 			}
 			if (this.getCustomEvents) {
 				var custom = this.getCustomEvents();
@@ -733,7 +824,7 @@ nabu.page.views.data.DataCommon = Vue.extend({
 		select: function(record, skipTrigger, $event) {
 			// if you are hovering over an action, you are most likely triggering that, not selecting
 			if ((!$event || this.$services.page.isClickable($event.target)) && (!this.actionHovering || skipTrigger)) {
-				if (!this.multiselect || !this.cell.state.multiselect) {
+				if (!this.cell.state.multiselect) {
 					this.selected.splice(0, this.selected.length);
 				}
 				var index = this.selected.indexOf(record);
@@ -749,7 +840,10 @@ nabu.page.views.data.DataCommon = Vue.extend({
 				}
 			}
 		},
-		trigger: function(action, data) {
+		isSelectionAction: function(action) {
+			return !action.icon && !action.label && !action.global && action.field == null;
+		},
+		trigger: function(action, data, skipSelect) {
 			if (!action) {
 				this.lastTriggered = data;
 			}
@@ -757,15 +851,15 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			// this is expected behavior as you are clicking on the item
 			else if (!action.global && data) {
 				this.lastTriggered = data;
-				this.select(data, true);
+				if (!skipSelect) {
+					this.select(data, true);
+				}
 			}
 			// if no action is specified, it is the one without the icon and label (and not global)
 			// this is row specific (not global) but does not have an actual presence (no icon & label)
 			if (!action && !this.actionHovering) {
 				// selected events must not be linked to fields
-				action = this.cell.state.actions.filter(function(x) {
-					return !x.icon && !x.label && !x.global && x.field == null;
-				})[0];
+				action = this.cell.state.actions.filter(this.isSelectionAction)[0];
 				if (action && action.condition) {
 					// we do want to change the event, just with a null value
 					if (!this.$services.page.isCondition(action.condition, {record:data}, this)) {
@@ -779,7 +873,7 @@ nabu.page.views.data.DataCommon = Vue.extend({
 				// if there is no data (for a global event) 
 				if (action.global) {
 					if (action.useSelection) {
-						data = this.multiselect && this.cell.state.multiselect && this.selected.length > 1 
+						data = this.cell.state.multiselect && this.selected.length > 1 
 							? this.selected
 							: (this.selected.length ? this.selected[0] : null);
 					}
@@ -1202,18 +1296,31 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			var parameters = {};
 			var self = this;
 			var pageInstance = self.$services.page.getPageInstance(self.page, self);
-			Object.keys(this.cell.state.updateBindings).map(function(key) {
-				if (self.cell.state.updateBindings[key]) {
-					if (self.cell.state.updateBindings[key].indexOf("record.") == 0) {
-						parameters[key] = record[self.cell.state.updateBindings[key].substring("record.".length)];
+			if (this.cell.state.updateOperation) {
+				Object.keys(this.cell.state.updateBindings).map(function(key) {
+					if (self.cell.state.updateBindings[key]) {
+						if (self.cell.state.updateBindings[key].indexOf("record.") == 0) {
+							parameters[key] = record[self.cell.state.updateBindings[key].substring("record.".length)];
+						}
+						else {
+							parameters[key] = self.$services.page.getBindingValue(pageInstance, self.cell.state.updateBindings[key], self);
+						}
 					}
-					else {
-						parameters[key] = self.$services.page.getBindingValue(pageInstance, self.cell.state.updateBindings[key], self);
+				});
+				parameters.body = record;
+				this.updating = true;
+				return this.$services.swagger.execute(this.cell.state.updateOperation, parameters).then(function() {
+					if (self.cell.state.inlineUpdateEvent) {
+						pageInstance.emit(self.cell.state.inlineUpdateEvent, record);
 					}
-				}
-			});
-			parameters.body = record;
-			return this.$services.swagger.execute(this.cell.state.updateOperation, parameters);
+					self.updating = false;
+				}, function() {
+					self.updating = false;
+				});
+			}
+			else if (self.cell.state.inlineUpdateEvent) {
+				pageInstance.emit(self.cell.state.inlineUpdateEvent, record);
+			}
 		},
 		isHidden: function(key) {
 			return this.cell.state.result[key] && this.cell.state.result[key].format == "hidden";	
@@ -1307,6 +1414,9 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			// we put a best effort limit & offset on there, but the operation might not support it
 			// at this point the parameter is simply ignored
 			var limit = this.cell.state.limit != null ? parseInt(this.cell.state.limit) : 20;
+			if (this.dynamicLimit != null) {
+				limit = this.dynamicLimit;
+			}
 			
 			var limitName = this.getLimitName();
 			var offsetName = this.getOffsetName();
@@ -1362,6 +1472,20 @@ nabu.page.views.data.DataCommon = Vue.extend({
 		},
 		loadPrevious: function() {
 			this.load(this.paging.current != null ? this.paging.current - 1 : 0);
+		},
+		reload: function(page) {
+			var self = this;
+			if (self.cell.state.autoRefresh) {
+				self.refreshTimer = setTimeout(function() {
+					// don't refresh if explicitly blocked or if updating
+					if (!self.blockRefresh && !self.updating) {
+						self.load(page);
+					}
+					else {
+						self.reload(page);
+					}
+				}, self.cell.state.autoRefresh);
+			}
 		},
 		// how much to increment by
 		load: function(page, append, increment) {
@@ -1421,9 +1545,7 @@ nabu.page.views.data.DataCommon = Vue.extend({
 						}
 						self.last = new Date();
 						if (self.cell.state.autoRefresh) {
-							self.refreshTimer = setTimeout(function() {
-								self.load(page);
-							}, self.cell.state.autoRefresh);
+							self.reload(page);
 						}
 						promise.resolve();
 					}, function(error) {
@@ -1468,6 +1590,17 @@ nabu.page.views.data.DataCommon = Vue.extend({
 					else {
 						nabu.utils.arrays.merge(this.records, this.allRecords);
 					}
+					var highest = this.records.reduce(function(previousValue, currentValue) {
+						return currentValue.hasOwnProperty("$position") && currentValue["$position"] > previousValue ? currentValue["$position"] : previousValue;
+					}, 0);
+					this.records.forEach(function(x, i) {
+						// this is obviously not an exact science, we will be skipping some indexes but it doesn't matter, as long as it's unique
+						// we are very unlikely to overflow...
+						// otherwise, may need to optimize this
+						if (!x.hasOwnProperty("$position")) {
+							x.$position = highest + i;
+						}
+					});
 					promise.resolve();
 					//nabu.utils.arrays.merge(this.records, current);
 				}

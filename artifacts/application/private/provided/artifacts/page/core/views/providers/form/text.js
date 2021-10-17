@@ -1,19 +1,21 @@
 Vue.component("page-form-input-text-configure", {
 	template: "<n-form-section><n-form-combo v-model='field.textType' label='Text Type' :items=\"['text', 'area', 'range', 'number', 'color', 'email', 'password']\"/>"
-		+ "	<n-form-text v-model='field.regexLabel' label='Regex Label'/>"
-		+ "	<n-form-text v-model='field.maxLength' label='Max Length'/>"
+		+ "	<n-form-text v-model='field.regexLabel' label='Regex Label' :timeout='600'/>"
+		+ "	<n-form-text v-model='field.regex' label='Regex' :timeout='600'/>"
+		+ "	<n-form-text v-model='field.minLength' label='Min Length' :timeout='600'/>"
+		+ "	<n-form-text v-model='field.maxLength' label='Max Length' :timeout='600'/>"
 		+ "	<n-form-switch v-model='field.showLength' label='Show Length' v-if='field.maxLength'/>"
 		+ "	<n-form-combo v-model='field.required' label='Required' :items=\"[true,false]\" />"
-		+ "	<n-form-text v-model='field.info' label='Info Content'/>"
-		+ "	<n-form-text v-model='field.before' label='Before Content'/>"
-		+ "	<n-form-text v-model='field.beforeIcon' label='Before Icon' v-if='field.before'/>"
-		+ "	<n-form-text v-model='field.after' label='After Content'/>"
-		+ "	<n-form-text v-model='field.afterIcon' label='After Icon' v-if='field.after'/>"
-		+ "	<n-form-text v-model='field.suffix' label='Suffix' v-if='!field.suffixIcon'/>"
-		+ "	<n-form-text v-model='field.suffixIcon' label='Suffix Icon' v-if='!field.suffix'/>"
-		+ "	<n-form-text v-model='field.minimum' label='Minimum' v-if=\"field.textType == 'range'\"/>"
-		+ "	<n-form-text v-model='field.maximum' label='Maximum' v-if=\"field.textType == 'range'\"/>"
-		+ "	<n-form-text v-model='field.step' label='Step' v-if=\"field.textType == 'range'\"/>"
+		+ "	<n-form-text v-model='field.info' label='Info Content' :timeout='600'/>"
+		+ "	<n-form-text v-model='field.before' label='Before Content' :timeout='600'/>"
+		+ "	<n-form-text v-model='field.beforeIcon' label='Before Icon' v-if='field.before' :timeout='600'/>"
+		+ "	<n-form-text v-model='field.after' label='After Content' :timeout='600'/>"
+		+ "	<n-form-text v-model='field.afterIcon' label='After Icon' v-if='field.after' :timeout='600'/>"
+		+ "	<n-form-text v-model='field.suffix' label='Suffix' v-if='!field.suffixIcon' :timeout='600'/>"
+		+ "	<n-form-text v-model='field.suffixIcon' label='Suffix Icon' v-if='!field.suffix' :timeout='600'/>"
+		+ "	<n-form-text v-model='field.minimum' label='Minimum' v-if=\"field.textType == 'range' || field.textType == 'number'\" :timeout='600'/>"
+		+ "	<n-form-text v-model='field.maximum' label='Maximum' v-if=\"field.textType == 'range' || field.textType == 'number'\" :timeout='600'/>"
+		+ "	<n-form-text v-model='field.step' label='Step' v-if=\"field.textType == 'range'\" :timeout='600'/>"
 		+ "	<n-page-mapper v-model='field.bindings' :from='availableParameters' :to='[\"validator\"]'/>"
 		+ "	<h2>Validation Codes<span class='subscript'>You can remap validation codes with different messages here</span></h2>"
 		+ "		<div v-if='field.codes'>"
@@ -63,11 +65,13 @@ Vue.component("page-form-input-text", {
 			+ "		:edit='!readOnly'"
 			+ "		:placeholder='placeholder'"
 			+ "		:max-length='field.maxLength ? field.maxLength : null'"
+			+ "		:min-length='field.minLength ? field.minLength : null'"
 			+ "		:schema='schema'"
 			+ "		:pattern-comment='field.regexLabel ? $services.page.translate(field.regexLabel) : null'"
 			+ "		@input=\"function(newValue) { $emit('input', newValue) }\""
 			+ "		:label='label'"
 			+ "		:value='value'"
+			+ "		:pattern='field.regex'"
 			+ "		v-bubble:blur"
 			+ "		:required='field.required'"
 			+ "		:validator='getValidator()'"
@@ -144,7 +148,6 @@ Vue.component("page-form-input-text", {
 			codes.forEach(function(code) {
 				result[code.code] = self.$services.page.translate(code.title);
 			});
-			console.log("all codes are", result);
 			return result;
 		},
 		textType: function() {

@@ -1,3 +1,34 @@
+// make sure it doesn't overflow the screen
+pre.hljs {
+	white-space: pre-wrap;
+}
+
+.page-actions.tabs, .form-tabs {
+	display: flex;
+	.page-action {
+		background-color: transparent;
+	}
+	.page-action-entry, button {
+		background-color: transparent;
+		padding: 1rem;
+		border: none;
+		border-bottom: solid 2px $color-neutral-light;
+		&.is-active {
+			border-bottom-color: $color-primary-dark;
+		}
+	}
+}
+.form-tabs {
+	margin-bottom: 1rem;
+}
+
+// if we have data in the sidebar, make it wide enough
+.n-sidebar.content-sidebar {
+	.data-cell {
+		min-width: 30vw;
+	}
+}
+
 pre.hljs {
 	border: solid 1px $color-neutral-light;
 	border-radius: 5px;
@@ -40,6 +71,9 @@ pre.hljs {
 		.value {
 			color: $color-primary-dark;
 		}
+	}
+	.refresh-button {
+		margin-left: auto !important;
 	}
 }
 
@@ -366,3 +400,37 @@ button.inline {
 	}
 }
 
+
+// spinner!
+@keyframes spinner {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.spinner {
+	position: relative;
+}
+.spinner:before {
+	font-family: $icon-family;
+	font-weight: $icon-weight;
+	font-size: $icon-size;
+	content: '';
+	box-sizing: border-box;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 20px;
+	height: 20px;
+	margin-top: -10px;
+	margin-left: -10px;
+	border-radius: 50%;
+	border: 2px solid #ccc;
+	border-top-color: #333;
+	animation: spinner .6s linear infinite;
+}
+
+.n-prompt.n-prompt-wait .n-prompt-container {
+	background-color: transparent;
+	box-shadow: none;
+}

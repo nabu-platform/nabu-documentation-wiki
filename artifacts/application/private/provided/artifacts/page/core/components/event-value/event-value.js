@@ -22,6 +22,10 @@ Vue.component("page-event-value", {
 		inline: {
 			type: Boolean,
 			required: false
+		},
+		nameModifiable: {
+			type: Boolean,
+			default: true
 		}
 	},
 	created: function() {

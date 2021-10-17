@@ -3,8 +3,8 @@
 		<n-collapsible title="Action Settings" v-if="!actions" class="padded">
 			<n-form-combo v-model="cell.state.class" label="Class" 
 				:filter="function(value) { return $services.page.classes('page-actions', value) }"/>
-			<n-form-text v-model="cell.state.activeClass" label="Active Class" info="The class that is set on the active action, this defaults to 'is-active'"/>
-			<n-form-text v-model="cell.state.analysisId" label="Analysis Group" info="For analysis purposes we can group all the actions together" />
+			<n-form-text v-model="cell.state.activeClass" label="Active Class" info="The class that is set on the active action, this defaults to 'is-active'" :timeout="600"/>
+			<n-form-text v-model="cell.state.analysisId" label="Analysis Group" info="For analysis purposes we can group all the actions together" :timeout="600" />
 			<n-form-combo v-model="cell.state.defaultAction" label="Default Action" info="The default action will be activated upon first creation. You must fill in the name of the action to select it."
 				:filter="function() { return cell.state.actions.map(function(x) { return x.name }) }"/>
 			<n-form-switch v-model="cell.state.useButtons" label="Use Buttons"/>
@@ -49,18 +49,18 @@
 						<n-form-switch label="Autotrigger" v-model="action.autotrigger"/>
 					</n-form-section>
 					<n-form-section v-else>
-						<n-form-text v-model="action.label" label="Label" v-if="!action.compileLabel"/>
+						<n-form-text v-model="action.label" label="Label" v-if="!action.compileLabel" :timeout="600"/>
 						<n-form-ace v-model="action.label" label="Label" v-else/>
 						<n-form-switch v-model="action.compileLabel" label="Compile"/>
-						<n-form-text v-model="action.id" label="Id"/>
-						<n-form-text v-model="action.icon" label="Icon"/>
+						<n-form-text v-model="action.id" label="Id" :timeout="600"/>
+						<n-form-text v-model="action.icon" label="Icon" :timeout="600"/>
 					</n-form-section>
 	
 					<n-form-combo v-model="action.class" label="Class" :filter="$services.page.classes.bind($self, 'page-action')" :timeout="600" />
 					<n-form-combo v-model="action.buttonClass" label="Button Class" :filter="$services.page.getSimpleClasses" :timeout="600"/>
 					
 					<n-form-combo v-model="action.event" v-if="false && !action.route && !action.url" label="Event" :filter="function(value) { return value ? [value, '$close'] : ['$close'] }"
-						 @input="$emit('updatedEvents')" :timeout="600"/>
+						 @input="$updateEvents()" :timeout="600"/>
 						 
 					<n-form-switch v-model="action.close" label="Close"/>
 					
@@ -75,7 +75,7 @@
 							:from="$services.page.getAvailableParameters(page, cell)" 
 							v-model="action.bindings"/>
 						<page-event-value :inline="true" class="no-more-padding" :page="page" :container="action" title="Action Event" v-if="!action.dynamic && !action.route && !action.url" name="event" 
-						 	@updatedEvents="$emit('updatedEvents')"/>
+						 	@updatedEvents="$updateEvents()"/>
 						 	
 						<div class="n-form-component n-form-ace">
 							<label class="n-form-label">Disabled if</label>
@@ -86,7 +86,7 @@
 							<n-ace mode="javascript" v-model="action.condition"/>
 						</div>
 						<n-form-combo v-model="action.validate" label="Only if valid" :filter="validatableItems" info="This action is only triggerable if the indicated item or group of items is valid"/>
-						<n-form-text info="The event to send out if we have a validation error" v-if="action.validate" v-model="action.validationErrorEvent" label="Validation Error Event" />
+						<n-form-text info="The event to send out if we have a validation error" v-if="action.validate" v-model="action.validationErrorEvent" label="Validation Error Event" :timeout="600" />
 						<n-form-switch info="Whether we want to scroll to the first exception" v-if="action.validate" v-model="action.validationErrorScroll" label="Scroll to Validation Error" />
 					</n-form-section>
 				</div>
@@ -159,7 +159,7 @@
 					:id="$services.page.interpret(action.id, $self)"
 					@click="handle(action)"
 					v-if="!cell.state.useButtons && (action.route || hasEvent(action) || action.url || action.close)"
-						><span v-if="action.icon" class="icon fa" :class="action.icon"></span
+						><html-fragment v-if="action.icon" :html="$services.page.getIconHtml(action.icon)"></html-fragment
 						><span v-content.parameterized="{value:$services.page.translate($services.page.interpret(action.label, $self)), sanitize:!action.compileLabel, compile: !!action.compileLabel, plain: !action.compileLabel }"></span></a>
 				<button auto-close-actions class="page-action-button page-action-entry"
 					:data-event="action.name"
@@ -169,14 +169,14 @@
 					:id="$services.page.interpret(action.id, $self)"
 					@click="handle(action)" 
 					v-else-if="cell.state.useButtons && (action.route || hasEvent(action) || action.url || action.close)"
-						><span v-if="action.icon" class="icon fa" :class="action.icon"></span
+						><html-fragment v-if="action.icon" :html="$services.page.getIconHtml(action.icon)"></html-fragment
 						><span v-content.parameterized="{value:$services.page.translate($services.page.interpret(action.label, $self)), sanitize:!action.compileLabel, compile: !!action.compileLabel, plain: !action.compileLabel }"></span></button>
 				<span class="page-action-label page-action-entry" 
 					@click="toggle(action)"
 					v-else
 					:class="getDynamicClasses(action)"
 					:sequence="(edit ? getActions() : resolvedActions).indexOf(action) + 1"
-						><span v-if="action.icon" class="icon fa" :class="action.icon"></span
+						><html-fragment v-if="action.icon" :html="$services.page.getIconHtml(action.icon)"></html-fragment
 						><span v-content.parameterized="{value:$services.page.translate($services.page.interpret(action.label, $self)), sanitize:!action.compileLabel, compile: !!action.compileLabel, plain: !action.compileLabel }"></span></span>
 				<page-actions :ref="'action_' + (edit ? getActions() : resolvedActions).indexOf(action)"
 					v-if="(action.actions && action.actions.length) || configuringAction == action"

@@ -9,7 +9,7 @@
 					"rows": [],
 					"alias": "data-table-list",
 					"bindings": {
-						"q": null,
+						"q": "page.q",
 						"limit": null,
 						"properties": null
 					},
@@ -24,7 +24,7 @@
 						"actions": [
 							{
 								"name": "openArticle",
-								"icon": "fa-chevron-right",
+								"icon": null,
 								"class": null,
 								"label": null,
 								"condition": null,
@@ -41,7 +41,7 @@
 								"name": "q",
 								"label": "Search",
 								"description": null,
-								"type": "text",
+								"type": "hidden",
 								"enumerations": [],
 								"value": null,
 								"group": null,
@@ -56,21 +56,63 @@
 						],
 						"fields": [
 							{
-								"label": "%{Path}",
+								"label": "%{Results}",
+								"info": null,
+								"infoIcon": null,
 								"fragments": [
 									{
 										"type": "data",
+										"content": null,
+										"format": "javascript",
+										"javascript": "function() {\n\tvar article = $services.wiki.getArticle(value);\n\tif (article && article.meta) {\n\t\tvar title = article.meta.filter(function(x) { return x.key == \"title\" })[0];\n\t\tif (title) {\n\t\t\treturn title.value;\n\t\t}\n\t}\n\treturn value.replace(/.*\\/([^/]+)$/, \"$1\");\t\n}",
+										"template": null,
+										"class": "search-results-title",
 										"key": "path",
+										"disabled": null,
+										"hidden": null,
+										"form": {},
+										"dateFormat": null,
+										"tag": "h3",
+										"html": null,
+										"amountOfDecimals": null
+									},
+									{
+										"type": "data",
 										"content": null,
 										"format": null,
 										"javascript": null,
 										"template": null,
-										"class": null,
-										"form": {}
+										"class": "search-results-path",
+										"key": "path",
+										"disabled": null,
+										"hidden": null,
+										"form": {},
+										"dateFormat": null,
+										"tag": null,
+										"html": null,
+										"amountOfDecimals": null
+									},
+									{
+										"type": "data",
+										"content": null,
+										"format": "javascript",
+										"javascript": "function() {\n\tvar html = \"\";\n\tvalue.forEach(function(x) {\n\t\thtml += \"<span>\" + x + \"</span>\";\n\t});\n\treturn html;\n}",
+										"template": null,
+										"class": "search-results-tags",
+										"key": "tag",
+										"disabled": null,
+										"hidden": null,
+										"form": {},
+										"dateFormat": null,
+										"tag": null,
+										"html": null,
+										"amountOfDecimals": null,
+										"compile": false
 									}
 								],
+								"hidden": null,
 								"styles": [],
-								"hidden": null
+								"arbitrary": false
 							}
 						],
 						"updateOperation": null,
@@ -109,7 +151,8 @@
 						"useNativeTable": true,
 						"defaultFilter": {
 							"displayOpenOnly": true
-						}
+						},
+						"class": "search-results"
 					},
 					"target": "page",
 					"on": null,
@@ -138,7 +181,9 @@
 	"path": "/search",
 	"counter": 5,
 	"variables": [],
-	"query": [],
+	"query": [
+		"q"
+	],
 	"actions": [
 		{
 			"name": "Open Article",

@@ -17,7 +17,10 @@
 
 <template id="wiki-menu-root">
 	<div class="wiki-menu-container">
-		<n-form-text v-model="search" placeholder="Search Menu" class="wiki-menu-search"/>
+		<div class="search-container">
+			<n-form-text v-model="search" placeholder="Search" @keyup='checkKey' class="wiki-menu-search" />
+			<button @click="searchFull">Search</button>
+		</div>
 		<wiki-menu class="wiki-menu-root" ref='menu' :class="{'small': small}" 
 			v-swipe.left='function() { small = true }' 
 			v-swipe.right='function() { small = false }' 

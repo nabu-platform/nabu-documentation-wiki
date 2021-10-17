@@ -21,6 +21,7 @@
 					@label="function(label) { setLabel(activeFilter, label) }"
 					:page="page"
 					:cell="cell"
+					v-if="!isHidden(activeFilter)"
 					@input="function(newValue) { setFilter(activeFilter, newValue) }"/>
 			</div>
 			<button class="primary refresh-button" v-if="showRefresh" @click="$emit('refresh')"><span class="fa fa-sync"></span></button>

@@ -1,3 +1,23 @@
+// https://jsfiddle.net/Linusborg/mfqjk5hm/
+// https://github.com/vuejs/vue/issues/7431
+// try to avoid wrapper elements when inserting html
+// not entirely sure if this is still responsive?
+Vue.component('html-fragment', {
+	functional: true,
+	props: {
+		html: {
+			type: String, 
+			required: true
+		}
+	},
+	render: function(h, ctx) {
+		return new Vue({
+			beforeCreate: function() { this.$createElement = h }, // not necessary, but cleaner imho
+			template: "<div>" + ctx.props.html + "</div>"
+		}).$mount()._vnode.children;
+	}
+});
+
 window.addEventListener("load", function() {
 	application.bootstrap(function($services) {
 		
@@ -443,6 +463,12 @@ window.addEventListener("load", function() {
 			namespace: "nabu.page"
 		});
 		nabu.page.provide("page-form-input", { 
+			component: "page-form-input-enumeration-array",
+			configure: "page-form-input-enumeration-array-configure", 
+			name: "enumeration-array",
+			namespace: "nabu.page"
+		});
+		nabu.page.provide("page-form-input", { 
 			component: "page-form-input-static-image", 
 			configure: "page-form-input-static-image-configure", 
 			name: "static-image",
@@ -500,8 +526,11 @@ window.addEventListener("load", function() {
 		
 		nabu.page.provide("page-icon", {
 			name: "Font Awesome",
-			html: function(icon) {
-				return "<span class='icon fa " + icon + "'></span>";
+			html: function(icon, additionalCss) {
+				// if you don't include the fa-prefix (of any kind, like fas etc)
+				// we assume you want to remain agnostic of the fa prefix and readd it
+				// the chance for collission is low and can still be addressed using css
+				return "<span class='icon fa " + icon + (additionalCss ? " " + additionalCss : "") + (icon.indexOf("fa") != 0 ? " fa-" + icon : "") + "'></span>";
 			},
 			priority: -1,
 			allowOther: true,
@@ -564,7 +593,7 @@ window.addEventListener("load", function() {
 			html: true,
 			configure: "page-format-resolver",
 			name: "resolve",
-			namespace: "nabu.cms"
+			namespace: "nabu.page"
 		});
 		
 		nabu.page.provide("page-format", {
@@ -588,16 +617,72 @@ window.addEventListener("load", function() {
 			html: true,
 			skipCompile: true,
 			name: "page",
-			namespace: "nabu.cms"
+			namespace: "nabu.page"
 		});
 		
 		nabu.page.provide("page-format", {
 			format: function(value) {
-				return "<n-form-text :disabled='true' type='range' :value='" + (value * 100) + "' :minimum='0' :step='1' :maximum='100'/>";
+				return "<a ref='noopener noreferrer nofollow' href='tel:" + value + "'>" + value + "</a>";
+			},
+			html: true,
+			skipCompile: true,
+			name: "phone",
+			namespace: "nabu.page"
+		});
+		
+		nabu.page.provide("page-format", {
+			format: function(value) {
+				return "<a ref='noopener noreferrer nofollow' href='mailto:" + value + "'>" + value + "</a>";
+			},
+			html: true,
+			skipCompile: true,
+			name: "email",
+			namespace: "nabu.page"
+		});
+		
+		Vue.component("page-percentage-slider-configurator", {
+			props: {
+				page: {
+					type: Object,
+					required: true
+				},
+				cell: {
+					type: Object,
+					required: true
+				},
+				fragment: {
+					type: Object,
+					required: true
+				}
+			},
+			template: "<div><n-form-switch v-model='fragment.percentageReverse' label='Reverse percentage'/><n-form-switch v-model='fragment.percentageSmallRange' label='Is [0-1] range' /><n-form-text v-model='fragment.round' label='Round Number'/></div>"
+		});
+			
+		nabu.page.provide("page-format", {
+			format: function(value, fragment, page, cell) {
+				if (fragment && fragment.percentageSmallRange && value) {
+					value *= 100;
+				}
+				if (fragment && fragment.percentageReverse && value != null) {
+					value = 100 - value;
+				}
+				if (fragment && fragment.round && value != null) {
+					value = parseFloat($services.formatter.number(value, parseInt(fragment.round)));
+				}
+				// make sure it ends up within the range, otherwise we can't display it well
+				// it seems that if you set a negative number, it just takes Math.abs()?
+				if (value < 0) {
+					value = 0;
+				}
+				if (value > 100) {
+					value = 100;
+				}
+				return "<input disabled='true' type='range' value='" + value + "' minimum='0' step='1' maximum='100' :value='" + value + "'/>";
 			},
 			html: true,
 			skipCompile: false,
 			name: "percentage-slider",
+			configure: "page-percentage-slider-configurator",
 			namespace: "nabu.page"
 		});
 		
@@ -650,7 +735,7 @@ window.addEventListener("load", function() {
 			html: true,
 			skipCompile: true,
 			name: "highlight",
-			namespace: "nabu.cms"
+			namespace: "nabu.page"
 		});
 		
 		var markdownToParse = [];
@@ -693,7 +778,7 @@ window.addEventListener("load", function() {
 			html: true,
 			skipCompile: true,
 			name: "markdown",
-			namespace: "nabu.cms"
+			namespace: "nabu.page"
 		});
 		
 		return $services.$register({

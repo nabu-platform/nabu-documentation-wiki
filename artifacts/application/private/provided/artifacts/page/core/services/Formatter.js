@@ -34,7 +34,7 @@ nabu.services.VueService(Vue.extend({
 				return this.date(value, "dateTime");
 			}
 			else if (properties.format == "number") {
-				return this.number(value, properties.amountOfDecimals);
+				return this.number(value, properties.amountOfDecimals, properties.retainTrailing);
 			}
 			else if (properties.format == "masterdata") {
 				return this.masterdata(value);
@@ -131,12 +131,16 @@ nabu.services.VueService(Vue.extend({
 			}
 			return this.$services.masterdata.resolve(id);
 		},
-		number: function(input, amountOfDecimals) {
+		number: function(input, amountOfDecimals, retainTrailing) {
 			amountOfDecimals = amountOfDecimals == null ? 2 : parseInt(amountOfDecimals);
 			if (typeof(input) != "number") {
 				input = parseFloat(input);
 			}
-            return Number(input.toFixed(amountOfDecimals)).toLocaleString(this.$services.page.getLocale());
+            var options = {};
+            // we used to use toFixed, but it does do rounding, it just cuts off
+            options.minimumFractionDigits = retainTrailing ? amountOfDecimals : 0;
+            options.maximumFractionDigits = amountOfDecimals;
+            return Number(input).toLocaleString(this.$services.page.getLocale(), options);
 		},
 		conventionize: function(value) {
 			// we currently assume from lower camelcase to word

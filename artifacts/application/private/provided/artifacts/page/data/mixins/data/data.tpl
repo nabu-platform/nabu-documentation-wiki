@@ -16,7 +16,20 @@
 					v-if="false && !cell.state.operation && !cell.state.array"
 					@input="updateCollect"/>
 				<n-form-text v-if="cell.state.operation" v-model="cell.state.autoRefresh" label="Auto-refresh" info="If you want to automatically refresh the data, fill in the number of ms after which it will be refreshed"/>
-				<n-form-text v-model="cell.state.limit" v-if="hasLimit" label="Limit" :timeout="600" @input="load()" info="How many items do you want to load at once?"/>
+				<div v-if="hasLimit">
+					<h4>Limit</h4>
+					<n-form-text v-model="cell.state.limit" label="Limit" :timeout="600" @input="load()" info="How many items do you want to load at once?"/>
+					<p class="subscript">Whenever an event is emitted, you can capture a value from it by configuring a listener.</p>
+					<div class="list-item-actions">
+						<button @click="addLimitUpdateListener"><span class="fa fa-plus"></span>Limit Update Listener</button>
+					</div>
+					<div v-if="cell.state.updateLimitListeners">
+						<div class="list-row" v-for="i in Object.keys(cell.state.updateLimitListeners)">
+							<n-form-combo v-model="cell.state.updateLimitListeners[i]" :filter="function(value) { return $services.page.getAllAvailableKeys(page, true, value) }" />
+							<span @click="cell.state.updateLimitListeners.splice(i, 1)" class="fa fa-times"></span>
+						</div>
+					</div>
+				</div>
 				<n-form-text v-model="cell.state.windowIncrement" label="Window Increment" :timeout="600" @input="load()" info="For windowed data lists, the limit determines how many items are on screen while the window increment determines how much you move by each time"/>   
 				<n-form-switch v-if="!cell.state.loadMore && !cell.state.loadPrevNext && hasLimit" v-model="cell.state.loadLazy" label="Lazy Loading"/> 
 				<n-form-switch v-if="!cell.state.loadLazy && !cell.state.loadPrevNext && hasLimit" v-model="cell.state.loadMore" label="Load more button"/>
@@ -28,6 +41,9 @@
 				<n-form-text v-model="cell.state.title" label="Title" info="The title for this data component"/>
 				<n-form-text v-model="cell.state.emptyPlaceholder" label="Empty Place Holder"/>
 				<n-form-switch v-if="multiselect" v-model="cell.state.multiselect" label="Allow Multiselect"/>
+				
+				<n-form-text v-model="cell.state.inlineUpdateEvent" label="Successful Inline Record Update Event" @input="$updateEvents()" :timeout="600"/>
+				<n-form-text v-model="cell.state.recordsUpdatedEvent" label="Records updated event" info="This event is emitted every time the records array is updated" @input="$updateEvents()" :timeout="600"/>
 				
 				<n-form-combo label="Update Operation" :value="cell.state.updateOperation"
 					v-if="updatable"
@@ -109,14 +125,14 @@
 					<button @click="addAction"><span class="fa fa-plus"></span>Event</button>
 				</div>
 				<n-collapsible class="list-item" :title="action.name ? action.name : 'Unnamed'" v-for="action in cell.state.actions">
-					<n-form-text v-model="action.name" label="Name" @input="$emit('updatedEvents')"/>
+					<n-form-text v-model="action.name" label="Name" @input="$updateEvents()" :timeout="600"/>
 					<n-form-combo v-model="action.class" :filter="$services.page.getSimpleClasses" label="Class"/>
 					<n-form-switch v-model="action.global" label="Global" v-if="!action.field" />
 					<n-form-switch v-model="action.useSelection" v-if="action.global && !action.useAll" label="Use Selection" />
 					<n-form-switch v-model="action.useAll" v-if="action.global && !action.useSelection" label="Use All" />
-					<n-form-text v-model="action.icon" label="Icon"/>
-					<n-form-text v-model="action.label" label="Label"/>
-					<n-form-text v-model="action.condition" label="Condition"/>
+					<n-form-text v-model="action.icon" label="Icon" :timeout="600"/>
+					<n-form-text v-model="action.label" label="Label" :timeout="600"/>
+					<n-form-text v-model="action.condition" label="Condition" :timeout="600"/>
 					<n-form-switch v-model="action.refresh" label="Reload"/>
 					<n-form-switch v-model="action.close" label="Close"/>
 					<n-form-switch v-model="action.delete" label="Delete" v-if="!pageable && (!action.global || action.useSelection)"/>
@@ -132,7 +148,7 @@
 					</div>
 				</n-collapsible>
 			</n-collapsible>
-			<page-fields-edit :cell="cell" :page="page" :keys="keys" :allow-editable="!!cell.state.updateOperation" :allow-events="false" v-if="supportsFields"/>
+			<page-fields-edit :cell="cell" :page="page" :keys="keys" :allow-editable="true || !!cell.state.updateOperation" :allow-events="false" v-if="supportsFields"/>
 			<n-collapsible title="Formatters" class="list" v-if="false">
 				<n-collapsible class="list-item" :title="cell.state.result[key].label ? cell.state.result[key].label : key" v-for="key in keys">
 					<n-form-text v-model="cell.state.result[key].label" :label="'Label for ' + key" 
@@ -217,7 +233,21 @@
 						v-if="false && !cell.state.operation && !cell.state.array"
 						@input="updateCollect"/>
 					<n-form-text v-if="cell.state.operation" v-model="cell.state.autoRefresh" label="Auto-refresh" info="If you want to automatically refresh the data, fill in the number of ms after which it will be refreshed"/>
-					<n-form-text v-model="cell.state.limit" v-if="hasLimit" label="Limit" :timeout="600" @input="load()" info="How many items do you want to load at once?"/>
+					<div v-if="hasLimit">
+						<h4>Limit</h4>
+						<n-form-text v-model="cell.state.limit" label="Limit" :timeout="600" @input="load()" info="How many items do you want to load at once?"/>
+						<p class="subscript">Whenever an event is emitted, you can capture a value from it by configuring a listener.</p>
+						<div class="list-item-actions">
+							<button @click="addLimitUpdateListener"><span class="fa fa-plus"></span>Limit Update Listener</button>
+						</div>
+						<div v-if="cell.state.updateListeners">
+							<div class="list-row" v-for="i in Object.keys(cell.state.updateListeners)">
+								<n-form-combo v-model="cell.state.updateListeners[i]" :filter="function(value) { return $services.page.getAllAvailableKeys(page, true, value) }" />
+								<span @click="cell.state.updateListeners.splice(i, 1)" class="fa fa-times"></span>
+							</div>
+						</div>
+					</div>
+					<h4>Paging Settings</h4>
 					<n-form-text v-model="cell.state.windowIncrement" label="Window Increment" :timeout="600" @input="load()" info="For windowed data lists, the limit determines how many items are on screen while the window increment determines how much you move by each time"/>   
 					<n-form-switch v-if="!cell.state.loadMore && !cell.state.loadPrevNext && hasLimit" v-model="cell.state.loadLazy" label="Lazy Loading"/> 
 					<n-form-switch v-if="!cell.state.loadLazy && !cell.state.loadPrevNext && hasLimit" v-model="cell.state.loadMore" label="Load more button"/>
@@ -325,7 +355,7 @@
 					:cell="cell"
 					:fields="cell.state.filters" 
 					:possible-fields="filtersToAdd()"/>
-				<page-fields-edit :cell="cell" :page="page" :keys="keys" :allow-editable="!!cell.state.updateOperation" :allow-events="false" v-if="supportsFields"/>
+				<page-fields-edit :cell="cell" :page="page" :keys="keys" :allow-editable="true || !!cell.state.updateOperation" :allow-events="false" v-if="supportsFields"/>
 				<n-collapsible title="Formatters" class="list" v-if="false">
 					<n-collapsible class="list-item" :title="cell.state.result[key].label ? cell.state.result[key].label : key" v-for="key in keys">
 						<n-form-text v-model="cell.state.result[key].label" :label="'Label for ' + key" 

@@ -11,6 +11,7 @@
 				:page="page"
 				@label="function(label) { setLabel(field, label) }"
 				:cell="cell"
+				v-if="!isHidden(field)"
 				@input="function(newValue) { setFilter(field, newValue) }"/>
 		</n-form>
 		<div class="default-filter-tags" v-if="cell.state.defaultFilter && cell.state.defaultFilter.useTags">

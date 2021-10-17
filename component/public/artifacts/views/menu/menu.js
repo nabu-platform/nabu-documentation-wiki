@@ -35,6 +35,17 @@ Vue.view("wiki-menu-root", {
 			instance.emit("selectedArticle", article);
 			this.small = this.initialSmall;
 			this.$services.wiki.selected = article.path;
+		},
+		searchFull: function() {
+			if (this.search) {
+				this.$refs.menu.hasMatch(this.search);
+				this.$services.router.route("wiki-search", {q: this.search});
+			}
+		},
+		checkKey: function(event) {
+			if (event.keyCode === 13) {
+				this.searchFull();
+			}
 		}
 	},
 	events: {
@@ -139,6 +150,37 @@ Vue.component("wiki-menu", {
 			else {
 				this.openDirectories.splice(index, 1);
 			}
+		},
+		hasMatch: function(search) {
+			var matched = false;
+			var self = this;
+			this.root.directories.forEach(function(dir) {
+				if (dir.name.toLowerCase().indexOf(search.toLowerCase()) >= 0) {
+					matched = true;
+				}
+			});
+			if (!matched) {
+				this.root.articles.forEach(function(dir) {
+					if (!matched && dir.name.toLowerCase().indexOf(search.toLowerCase()) >= 0) {
+						matched = true;
+					}
+				});
+			}
+			if (this.$refs.directories && this.$refs.directories.length) {
+				this.$refs.directories.forEach(function(x) {
+					var result = x.hasMatch(search);
+					if (result) {
+						matched = true;
+						if (self.openDirectories.indexOf(x.root.name) < 0) {
+							self.toggle(x.root);	
+						}
+					}
+					else if (self.openDirectories.indexOf(x.root.name) >= 0) {
+						self.toggle(x.root);	
+					}
+				});
+			}
+			return matched;
 		}
 	}
 });

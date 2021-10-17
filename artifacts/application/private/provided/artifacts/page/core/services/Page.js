@@ -88,7 +88,11 @@ nabu.services.VueService(Vue.extend({
 			currentBranding: {},
 			defaultLocale: null,
 			copiedType: null,
-			copiedContent: null
+			copiedContent: null,
+			rendering: 0,
+			// we start off false to mitigate initial faulty stable detection
+			stable: false,
+			stableTimer: null
 		}
 	},
 	activate: function(done) {
@@ -167,6 +171,10 @@ nabu.services.VueService(Vue.extend({
 		});
 	},
 	methods: {
+		// check if a component is in fact a page
+		isPage: function(component) {
+			return component && component.$options && component.$options.template && component.$options.template == "#nabu-page";
+		},
 		pasteItem: function(item) {
 			var content = null;
 			if (this.isCopied(item)) {
@@ -187,7 +195,7 @@ nabu.services.VueService(Vue.extend({
 				content: content
 			});
 			this.copiedType = item;
-			this.copiedContent = content;
+			this.copiedContent = clone ? JSON.parse(JSON.stringify(content)) : content;
 		},
 		suggestDevices: function(value) {
 			var devices = this.devices.map(function(x) { return x.name }); 
@@ -357,13 +365,14 @@ nabu.services.VueService(Vue.extend({
 				this.reports.splice(20);
 			}
 		},
-		getIconHtml: function(icon) {
+		// the additional allows you to easily pass in additional css classes
+		getIconHtml: function(icon, additionalCss) {
 			var providers = nabu.page.providers("page-icon");
 			providers.sort(function(a, b) {
 				return a.priority - b.priority;	
 			});
 			var provider = providers[0];
-			return provider.html(icon);
+			return provider.html(icon, additionalCss);
 		},
 		getNameColor: function(name) {
 			var saturation = 80;
@@ -910,6 +919,18 @@ nabu.services.VueService(Vue.extend({
 			})[0];
 			return page ? this.getPageInstance(page, component) : null;
 		},
+		getParentPageInstance: function(page, component) {
+			var currentInstance = this.getPageInstance(page, component);
+			var parentInstance = null;
+			// let's check through the parents
+			while (!parentInstance && currentInstance && currentInstance.$parent) {
+				currentInstance = currentInstance.$parent;
+				if (currentInstance.page) {
+					parentInstance = this.getPageInstance(currentInstance.page, currentInstance);
+				}
+			}
+			return parentInstance;
+		},
 		getPageInstance: function(page, component) {
 			var pageInstance = null;
 			if (component && component.pageInstanceId != null) {
@@ -960,28 +981,33 @@ nabu.services.VueService(Vue.extend({
 		reloadCss: function() {
 			this.reloadSwagger();
 			var self = this;
-			nabu.utils.ajax({url:"${server.root()}page/v1/api/css-modified"}).then(function(response) {
-				if (response.responseText != null && !self.disableReload) {
-					var date = new Date(response.responseText);
-					if (!self.cssLastModified) {
-						self.cssLastModified = date;
-					}
-					else if (date.getTime() > self.cssLastModified.getTime()) {
-						// actually reload
-						var links = document.head.getElementsByTagName("link");
-						for (var i = 0; i < links.length; i++) {
-							var original = links[i].getAttribute("original");
-							if (!original) {
-								original = links[i].href;
-								links[i].setAttribute("original", original);
-							}
-							links[i].setAttribute("href", original + "&loadTime=" + date.getTime());
+			if (!self.disableReload) {
+				nabu.utils.ajax({url:"${server.root()}page/v1/api/css-modified"}).then(function(response) {
+					if (response.responseText != null && !self.disableReload) {
+						var date = new Date(response.responseText);
+						if (!self.cssLastModified) {
+							self.cssLastModified = date;
 						}
-						self.cssLastModified = date;
+						else if (date.getTime() > self.cssLastModified.getTime()) {
+							// actually reload
+							var links = document.head.getElementsByTagName("link");
+							for (var i = 0; i < links.length; i++) {
+								var original = links[i].getAttribute("original");
+								if (!original) {
+									original = links[i].href;
+									links[i].setAttribute("original", original);
+								}
+								links[i].setAttribute("href", original + "&loadTime=" + date.getTime());
+							}
+							self.cssLastModified = date;
+						}
 					}
-				}
+					setTimeout(self.reloadCss, 5000);
+				});
+			}
+			else {
 				setTimeout(self.reloadCss, 5000);
-			});
+			}
 		},
 		getFunctionDefinition: function(id) {
 			return this.listFunctionDefinitions().filter(function(x) { return x.id == id })[0];
@@ -1173,8 +1199,22 @@ nabu.services.VueService(Vue.extend({
 				if (x.translation == x.name) {
 					return false;
 				}
-				return value.toLowerCase() == x.name.toLowerCase()
-					|| value.match(new RegExp(x.name.replace(/\*/g, ".*")));
+				if (value.toLowerCase() == x.name.toLowerCase()) {
+					return true;
+				}
+				else {
+					// if we try to cast something to a regex that is not meant as a regex, it may error out
+					// we don't care at that point, just ignore it
+					// the backend already allows for generalization through regex, not sure if this is necessary in the translations
+					// might also require for example that a * is present before actually attempting this?
+					try {
+						return value.match(new RegExp(x.name.replace(/\*/g, ".*")));
+					}
+					catch (exception) {
+						// not a regex!
+					}
+				}
+				return false;
 			});
 			var translation = null;
 			if (translations.length > 1) {
@@ -1225,23 +1265,28 @@ nabu.services.VueService(Vue.extend({
 			}
 			return value;
 		},
-		interpret: function(value, component) {
+		interpret: function(value, component, state) {
 			if (typeof(value) == "string" && value.length > 0 && value.substring(0, 1) == "=") {
 				value = value.substring(1);
 				var result = null;
-				var stateOwner = component;
-				while (!stateOwner.localState && stateOwner.$parent) {
-					stateOwner = stateOwner.$parent;
+				if (state) {
+					result = this.eval(value, state, component);
 				}
-				if (stateOwner && stateOwner.localState) {
-					result = this.eval(value, stateOwner.localState, component);
-				}
-				if (result == null && stateOwner && stateOwner.state) {
-					result = this.eval(value, stateOwner.state, component);
-				}
-				if (result == null && component.page) {
-					var pageInstance = this.getPageInstance(component.page, component);
-					result = this.getBindingValue(pageInstance, value);
+				else if (component) {
+					var stateOwner = component;
+					while (!stateOwner.localState && stateOwner.$parent) {
+						stateOwner = stateOwner.$parent;
+					}
+					if (stateOwner && stateOwner.localState) {
+						result = this.eval(value, stateOwner.localState, component);
+					}
+					if (result == null && stateOwner && stateOwner.state) {
+						result = this.eval(value, stateOwner.state, component);
+					}
+					if (result == null && component.page) {
+						var pageInstance = this.getPageInstance(component.page, component);
+						result = this.getBindingValue(pageInstance, value);
+					}
 				}
 				value = result;
 			}
@@ -1255,7 +1300,10 @@ nabu.services.VueService(Vue.extend({
 						if (end >= index) {
 							var rule = value.substring(index + 2, end);
 							var result = null;
-							if (component) {
+							if (state) {
+								result = this.eval(rule, state, component);
+							}
+							else if (component) {
 								var stateOwner = component;
 								while (!stateOwner.localState && stateOwner.$parent) {
 									stateOwner = stateOwner.$parent;
@@ -1325,6 +1373,9 @@ nabu.services.VueService(Vue.extend({
 		getInputBindings: function(operation) {
 			var self = this;
 			var bindings = {};
+			if (typeof(operation) == "string") {
+				operation = this.$services.swagger.operations[operation];
+			}
 			if (operation && operation.parameters) {
 				var self = this;
 				operation.parameters.map(function(parameter) {
@@ -1355,11 +1406,16 @@ nabu.services.VueService(Vue.extend({
 			}
 			return bindings;
 		},
+		filterOperations: function(value, accept) {
+			return this.getOperations(accept).filter(function(x) {
+				return !value || x.id.toLowerCase().indexOf(value.toLowerCase()) >= 0;
+			});
+		},
 		getOperations: function(accept) {
 			var result = [];
 			var operations = this.$services.swagger.operations;
 			Object.keys(operations).map(function(operationId) {
-				if (accept(operations[operationId])) {
+				if (accept == null || accept(operations[operationId])) {
 					result.push(operations[operationId]);
 				}
 			});
@@ -1407,6 +1463,10 @@ nabu.services.VueService(Vue.extend({
 				return self.$services.page.interpret(style.class, instance);
 			});
 		},
+		getRestrictedParameters: function() {
+			// component is mostly for page-arbitrary
+			return ["page", "cell", "edit", "component", "parameters", "localState"];
+		},
 		getPageParameterValues: function(page, pageInstance) {
 			// copy things like query parameters & path parameters
 			var result = pageInstance.variables ? nabu.utils.objects.clone(pageInstance.variables) : {};
@@ -1418,7 +1478,8 @@ nabu.services.VueService(Vue.extend({
 						result[key] = pageInstance.parameters[key];
 					}
 				});*/
-				Object.keys(pageInstance.parameters).forEach(function(key) {
+				var restricted = this.getRestrictedParameters();
+				Object.keys(pageInstance.parameters).filter(function(x) { return restricted.indexOf(x) < 0 }).forEach(function(key) {
 					// runtime values in variables take precedence over static input parameters!
 					if (pageInstance.parameters[key] != null && !result.hasOwnProperty(key)) {
 						result[key] = pageInstance.parameters[key];
@@ -1431,8 +1492,14 @@ nabu.services.VueService(Vue.extend({
 			if (!condition) {
 				return true;
 			}
-			var result = this.eval(condition, state, instance);
-			return !!result;
+			try {
+				var result = this.eval(condition, state, instance);
+				return !!result;
+			}
+			catch (exception) {
+				console.error("Could not evaluate condition", condition, exception);
+				return false;
+			}
 		},
 		getPageState: function(pageInstance) {
 			var state = {};
@@ -1493,6 +1560,17 @@ nabu.services.VueService(Vue.extend({
 			});
 			// replace all the disabled features with false
 			condition = condition.replace(/@\{[^}]+\}/gm, "false");
+			
+			// for a long time, state was meant to incorporate local state from repeats etc, but the use of local state is being reduced, partly because it is not reactive (for anything that is _not_ local) and memory
+			// instead we tend to use data-card etc for actual repeats so it does not appear to be necessary anymore?
+			// anyway, because of that local state, we often put the data (e.G. for a table) in "record", so you needed to type state.record.myField (to prevent unintentional naming collissions)
+			// however, not always, in forms it was directly the form field, for example "state.myField".
+			// this made it hard to predict when you needed record and when you didn't, resulting in a lot of trial and error
+			// so now, if we see state.record, we will expand the data onto state itself
+			// this remains backwards compatible (state.record.myField will keep working) but more predictable going forward (use state.myField)
+			if (state) {
+				
+			}
 			
 			if (this.useEval) {
 				try {
@@ -2043,6 +2121,11 @@ nabu.services.VueService(Vue.extend({
 				if (pagePath && pagePath.indexOf("/") != 0) {
 					pagePath = "/" + pagePath;
 				}
+				// allow for translatable urls
+				// may not work during translation redirects!!
+				if (pagePath) {
+					pagePath = self.translate(pagePath);
+				}
 				var route = {
 					alias: self.alias(page),
 					url: page.content.initial ? "/.*" : pagePath,
@@ -2245,6 +2328,13 @@ nabu.services.VueService(Vue.extend({
 					result.parent = this.getPageParameters(parentPage);
 				}
 			}
+			// if not defined explicitly, we might still have a parent in this context?
+			else {
+				var parentInstance = self.$services.page.getParentPageInstance(page, context);
+				if (parentInstance && parentInstance.page) {
+					result["parent"] = this.getPageParameters(parentInstance.page);
+				}
+			}
 			// and the page itself
 			result.page = this.getPageParameters(page);
 			
@@ -2360,6 +2450,13 @@ nabu.services.VueService(Vue.extend({
 				})[0];
 				if (parentPage != null) {
 					result.parent = this.getPageParameters(parentPage);
+				}
+			}
+			// if not defined explicitly, we might still have a parent in this context?
+			else {
+				var parentInstance = self.$services.page.getParentPageInstance(page, self);
+				if (parentInstance && parentInstance.page) {
+					result["parent"] = this.getPageParameters(parentInstance.page);
 				}
 			}
 			// and the page itself
@@ -2493,6 +2590,26 @@ nabu.services.VueService(Vue.extend({
 			}
 			return null;
 		},
+		cloneByReference: function(object) {
+			var self = this;
+			var result;
+			if (object instanceof Array) {
+				result = [];
+				object.forEach(function(x) {
+					result.push(self.cloneByReference(x));
+				});
+			}
+			else if (self.isObject(object)) {
+				result = {};
+				Object.keys(object).forEach(function(key) {
+					result[key] = self.cloneByReference(object[key]);
+				});
+			}
+			else {
+				result = object;
+			}
+			return result;
+		},
 		explode: function(into, from, path) {
 			var self = this;
 			Object.keys(from).forEach(function(key) {
@@ -2500,7 +2617,11 @@ nabu.services.VueService(Vue.extend({
 					var value = from[key];
 					if (value != null) {
 						var childPath = path ? path + "." + key : key;
-						if (self.isObject(value)) {
+						// if we explode the arrays as well, they are added like myarray.0.myitem etc
+						// in the form engine this can make it hard to manipulate lists as a list item
+						// because the arrays are exploded but the form list items work directly on the actual arrays
+						// when remerging, the array items are overwritten by the exploded version
+						if (self.isObject(value) && !(value instanceof Array)) {
 							if (!value._isVue) {
 								self.explode(into, value, childPath);
 							}
@@ -2516,7 +2637,8 @@ nabu.services.VueService(Vue.extend({
 		isObject: function(object) {
 			return Object(object) === object 
 				&& !(object instanceof Date)
-				&& !(object instanceof File);
+				&& !(object instanceof File)
+				&& !(object instanceof Blob);
 		},
 		isPublicPageParameter: function(page, name) {
 			if (page && page.content && page.content.path) {
@@ -2739,11 +2861,14 @@ nabu.services.VueService(Vue.extend({
 			var self = this;
 			var keys = [];
 			if (operation) {
+				if (typeof(operation) == "string") {
+					operation = this.$services.swagger.operations[operation];
+				}
 				operation.parameters.map(function(parameter) {
 					if (parameter.in == "body") {
 						var type = self.$services.swagger.resolve(parameter);
 						if (type.schema.properties) {
-							nabu.utils.arrays.merge(keys, self.getSimpleKeysFor(type.schema).map(function(x) { return "body." + x }));
+							nabu.utils.arrays.merge(keys, self.getSimpleKeysFor(type.schema, true, true).map(function(x) { return "body." + x }));
 						}
 					}
 					else {
@@ -2998,6 +3123,24 @@ nabu.services.VueService(Vue.extend({
 		}
 	},
 	watch: {
+		rendering: function(newValue) {
+			if (newValue > 0) {
+				if (this.stableTimer) {
+					clearTimeout(this.stableTimer);
+					this.stableTimer = null;
+				}
+				this.stable = false;
+			}
+			else {
+				var self = this;
+				this.stableTimer = setTimeout(function() {
+					self.stable = true;
+				}, 100);
+			}
+		},
+		stable: function(newValue) {
+			console.log("rendering stable", newValue);	
+		},
 		// push the location to the swagger client
 		location: function(newValue) {
 			this.$services.swagger.geoPosition = newValue;
@@ -3065,3 +3208,9 @@ document.addEventListener("mousemove", function(event) {
 });
 
 
+var clearTemplates = function() {
+	var scripts = document.head.getElementsByTagName("script");
+	for (var i = scripts.length - 1; i >= 0; i--) {
+		scripts[i].parentNode.removeChild(scripts[i]);
+	}
+}

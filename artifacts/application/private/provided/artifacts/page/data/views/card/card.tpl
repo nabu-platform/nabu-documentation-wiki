@@ -34,18 +34,19 @@
 		</data-common-header>
 				
 		<div class="data-card-list" :class="dataClass" v-if="edit || records.length" :style="{'flex-direction': cell.state.direction == 'vertical' ? 'column' : 'row-wrapped'}">
-			<dl class="data-card" @click="select(record, false, $event)" v-visible="lazyLoad.bind($self, record)" v-for="record in records" :class="$services.page.getDynamicClasses(cell.state.styles, {record:record}, $self)" :key="record.id ? record.id : record.$position">
+			<dl class="data-card" @click="select(record, false, $event)" v-visible="lazyLoad.bind($self, record)" v-for="record in records" :class="$services.page.getDynamicClasses(cell.state.styles, {record:record}, $self)" :key="getKey(record)">
 				<page-field :field="field" :data="record" :should-style="false" 
 					:edit="edit"
 					class="data-card-field" :class="$services.page.getDynamicClasses(field.styles, {record:record}, $self)" v-for="field in cell.state.fields"
 					v-if="!isFieldHidden(field, record)"
 					:label="cell.state.showLabels"
+					:actions="fieldActions(field)"
 					@updated="update(record)"
 					:page="page"
 					:cell="cell"/>
 				<div class="data-card-actions" v-if="actions.length" @mouseover="actionHovering = true" @mouseout="actionHovering = false">
 					<button v-if="!action.condition || $services.page.isCondition(action.condition, {record:record}, $self)" 
-						v-for="action in actions" 
+						v-for="action in recordActions" 
 						@click="trigger(action, record)"
 						:class="[action.class, {'has-icon': action.icon}]"><span v-if="action.icon" class="fa" :class="action.icon"></span><label v-if="action.label">{{$services.page.translate(action.label)}}</label></button>
 				</div>

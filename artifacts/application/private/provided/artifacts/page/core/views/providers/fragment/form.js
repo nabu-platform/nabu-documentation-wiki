@@ -3,7 +3,8 @@ Vue.component("page-field-fragment-form-configure", {
 					+ "		:allow-label='false'"
 					+ "		:allow-description='false'"
 					+ "		:page='page'"
-					+ "		:cell='cell'/><n-form-text v-model='fragment.disabled' label='Disabled If'/></n-form-section>",
+					+ "		:cell='cell'/><n-form-text v-model='fragment.disabled' label='Disabled If'/><n-form-text v-model='fragment.componentGroup' label='Component Group' :timeout='600'/>"
+					+ "     <n-form-text v-model='fragment.messageMode' label='Message Mode (the literal component or a number)' :timeout='600'/></n-form-section>",
 	props: {
 		cell: {
 			type: Object,
@@ -41,6 +42,8 @@ Vue.component("page-field-fragment-form", {
 				+ "		:label='false'"
 				+ "		:page='page'"
 				+ "		:cell='cell'"
+				+ "		:mode='fragment.mode'"
+				+ "		:component-group='fragment.componentGroup'"
 				+ "		:is-disabled='!!fragment.disabled && $services.page.isCondition(fragment.disabled, {record:data}, $self)'/>",
 	props: {
 		cell: {

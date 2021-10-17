@@ -16,6 +16,9 @@ Vue.component("page-form-input-enumeration-operation-configure", {
 			+ "		<n-form-combo v-if='field.enumerationOperation && field.enumerationOperationValue' :filter='function() { return getEnumerationParameters(field.enumerationOperation) }' v-model='field.enumerationOperationResolve' label='Resolve Field'/>"
 			+ "		<page-fields-edit :allow-multiple='false' fields-name='enumerationFields' v-if='field.enumerationOperation && field.enumerationOperationLabelComplex' :cell='{state:field}' :page='page' :keys='getEnumerationFields(field.enumerationOperation)' :allow-editable='false'/>"
 			+ "		<n-form-text v-model='field.emptyValue' label='Empty Value Text'/>"
+			+ " 	<n-form-switch v-model='field.showRadioView' label='Show radio visualisation'/>"
+			+ " 	<n-form-switch v-model='field.selectFirstIfEmpty' label='Select the first value if none has been selected yet'/>"
+			+ "		<n-form-text v-if='field.showRadioView' v-model='field.mustChoose' label='Must choose' allow-typing='true' />"
 			+ "	<n-form-text v-model='field.info' label='Info Content'/>"
 			+ "	<n-form-text v-model='field.before' label='Before Content'/>"
 			+ "	<n-form-text v-model='field.beforeIcon' label='Before Icon' v-if='field.before'/>"
@@ -25,7 +28,7 @@ Vue.component("page-form-input-enumeration-operation-configure", {
 			+ "	<n-form-text v-model='field.suffixIcon' label='Suffix Icon' v-if='!field.suffix'/>"
 			+ "		<n-page-mapper v-if='field.enumerationOperation && hasMappableEnumerationParameters(field)'"
 			+ "			v-model='field.enumerationOperationBinding'"
-			+ "			:from='$services.page.getAvailableParameters(page, cell, true)'"
+			+ "			:from='availableParameters'"
 			+ "			:to='getMappableEnumerationParameters(field)'/>"
 			+ "		<n-form-combo v-if='field.enumerationOperation' :filter='function() { return getEnumerationFields(field.enumerationOperation) }' v-model='field.enumerationCachingKey' label='Enumeration Caching Key'/>"    
 			+ "		<n-page-mapper v-model='field.bindings' :from='availableParameters' :to='[\"validator\"]'/>"
@@ -43,6 +46,11 @@ Vue.component("page-form-input-enumeration-operation-configure", {
 		field: {
 			type: Object,
 			required: true
+		},
+		possibleFields: {
+			type: Array,
+			required: false,
+			default: function() { return [] }
 		}
 	},
 	created: function() {
@@ -53,7 +61,14 @@ Vue.component("page-form-input-enumeration-operation-configure", {
 	},
 	computed: {
 		availableParameters: function() {
-			return this.$services.page.getAvailableParameters(this.page, this.cell, true);
+			var result = this.$services.page.getAvailableParameters(this.page, this.cell, true);
+			if (this.possibleFields.length > 0) {
+				result["record"] = {properties:{}};
+				this.possibleFields.forEach(function(x) {
+					result.record.properties[x] = {type:"string"};	
+				});
+			}
+			return result;
 		}
 	},
 	methods: {
@@ -153,7 +168,26 @@ Vue.component("page-form-input-enumeration-operation-configure", {
 });
 
 Vue.component("page-form-input-enumeration-operation", {
-	template: "<n-form-combo ref='form' :filter='enumerationFilter' :formatter='enumerationFormatter' :extracter='enumerationExtracter' :resolver='enumerationResolver'"
+	template: "<div>"
+			+ "<n-form-radio v-if='field.showRadioView'"
+			+ "		:items='resolvedItems'"
+			+ "		ref='form'"
+			+ "		:edit='!readOnly'"
+			+ "		:placeholder='placeholder'"
+			+ "		@input=\"function(newValue) { $emit('input', newValue) }\""
+			+ "		:label='label ? $services.page.interpret(label, $self) : null'"
+			+ "		:value='value'"
+			+ "		:description='field.description ? $services.page.translate(field.description) : null'"
+			+ "		:description-type='field.descriptionType'"
+			+ "		:description-icon='field.descriptionIcon'"
+			+ "		:schema='schema'"
+			+ "		v-bubble:label"
+			+ "		:required='field.required'"
+			+ "		:must-choose='field.mustChoose ? $services.page.interpret(field.mustChoose, $self) : null'"
+			+ "		:formatter='enumerationFormatter'"
+			+ "		:extracter='enumerationExtracter'"
+			+ "		:disabled='disabled'/>"
+			+ "<n-form-combo v-else ref='form' :filter='enumerationFilter' :formatter='enumerationFormatter' :extracter='enumerationExtracter' :resolver='enumerationResolver'"
 			+ "		:edit='!readOnly'"
 			+ "		:placeholder='placeholder'"
 			+ "		@input=\"function(newValue) { $emit('input', newValue) }\""
@@ -172,7 +206,7 @@ Vue.component("page-form-input-enumeration-operation", {
 			+ "		:description-type='field.descriptionType'"
 			+ "		:description-icon='field.descriptionIcon'"
 			+ "		:schema='schema'"
-			+ "		:disabled='disabled'/>",
+			+ "		:disabled='disabled'/></div>",
 	props: {
 		cell: {
 			type: Object,
@@ -211,11 +245,24 @@ Vue.component("page-form-input-enumeration-operation", {
 		placeholder: {
 			type: String,
 			required: false
+		},
+		parentValue: {
+			type: Object,
+			required: false
 		}
 	},
 	data: function() {
 		return {
-			provider: null
+			provider: null,
+			resolvedItems: []
+		}
+	},
+	created: function() {
+		if (this.field.showRadioView) {
+			var self = this;
+			this.enumerationFilterAny(null, false).then(function(x) {
+				nabu.utils.arrays.merge(self.resolvedItems, x);
+			});
 		}
 	},
 	methods: {
@@ -244,20 +291,28 @@ Vue.component("page-form-input-enumeration-operation", {
 			else if (asResolve && this.field.enumerationOperationResolve) {
 				parameters[this.field.enumerationOperationResolve] = value;
 			}
+			var self = this;
 			// map any additional bindings
 			if (this.field.enumerationOperationBinding) {
-				var self = this;
 				var pageInstance = self.$services.page.getPageInstance(self.page, self);
 				Object.keys(this.field.enumerationOperationBinding).map(function(key) {
-					var target = parameters;
-					var parts = key.split(".");
-					for (var i = 0; i < parts.length - 1; i++) {
-						if (!target[parts[i]]) {
-							target[parts[i]] = {};
+					// if the binding is not set, we don't want to overwrite any parameters that are already there (e.g. the resolve field)
+					if (self.field.enumerationOperationBinding[key] != null) {
+						var target = parameters;
+						var parts = key.split(".");
+						for (var i = 0; i < parts.length - 1; i++) {
+							if (!target[parts[i]]) {
+								target[parts[i]] = {};
+							}
+							target = target[parts[i]];
 						}
-						target = target[parts[i]];
+						if (self.field.enumerationOperationBinding[key].indexOf("record.") == 0) {
+							target[parts[parts.length - 1]] = self.$services.page.getValue(self.parentValue, self.field.enumerationOperationBinding[key].substring("record.".length));
+						}
+						else {
+							target[parts[parts.length - 1]] = self.$services.page.getBindingValue(pageInstance, self.field.enumerationOperationBinding[key], self);
+						}
 					}
-					target[parts[parts.length - 1]] = self.$services.page.getBindingValue(pageInstance, self.field.enumerationOperationBinding[key], self);
 				});
 			}
 			return this.$services.swagger.execute(this.field.enumerationOperation, parameters, function(response) {
@@ -266,6 +321,9 @@ Vue.component("page-form-input-enumeration-operation", {
 					Object.keys(response).map(function(key) {
 						if (response[key] instanceof Array) {
 							result = response[key];
+							if (self.field.selectFirstIfEmpty && self.value == null && result && result.length > 0) {
+								self.$emit("input", self.enumerationExtracter(result[0]));
+							}
 						}
 					});
 				}

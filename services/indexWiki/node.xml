@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<node artifactManager="be.nabu.eai.module.services.vm.VMServiceManager" created="2021-02-14T14:19:04.428+01:00" lastModified="2021-02-14T14:21:29.135+01:00" leaf="true" version="8">
+<node artifactManager="be.nabu.eai.module.services.vm.VMServiceManager" created="2021-02-14T14:19:04.428+01:00" lastModified="2021-10-17T17:04:12.010+02:00" leaf="true" version="9">
     <environmentId>apollo</environmentId>
     <hidden>false</hidden>
     <properties/>
     <references>nabu.web.wiki.Services.list</references>
     <references>nabu.utils.List.add</references>
+    <references>nabu.utils.String.replace</references>
     <references>nabu.utils.Bytes.toString</references>
     <references>nabu.documentation.wiki.types.luceneArticle</references>
     <references>nabu.misc.lucene.Services.deleteAll</references>
