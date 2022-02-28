@@ -21,14 +21,17 @@ window.addEventListener("load", function () {
 		// for server-side rendering: throw away all the script tags
 		if (initial && initial.then && navigator.userAgent.match(/Nabu-Renderer/)) {
 			initial.then(function() {
-				// break out of the execution
-				setTimeout(function() {
-					var scripts = document.head.getElementsByTagName("script");
-					for (var i = scripts.length - 1; i >= 0; i--) {
-						scripts[i].parentNode.removeChild(scripts[i]);
-					}
-				}, 1);
+				// nothing just yet...
 			});
 		}
 	});
 });
+var clearTemplates = function() {
+	// break out of the execution
+	setTimeout(function() {
+		var scripts = document.head.getElementsByTagName("script");
+		for (var i = scripts.length - 1; i >= 0; i--) {
+			scripts[i].parentNode.removeChild(scripts[i]);
+		}
+	}, 1);
+}

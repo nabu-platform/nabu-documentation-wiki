@@ -8,7 +8,7 @@
 			<page-components-overview/>
 		</n-sidebar>
 		<div class="page-edit" v-else-if="$services.page.canEdit() && $services.page.wantEdit && !embedded && !$services.page.editing" 
-				:draggable="false" 
+				:draggable="true" 
 				@dragstart="dragMenu($event)"
 				:class="{'page-component': !page.content.path}"
 				:style="{'top': page.content.menuY ? page.content.menuY + 'px' : '0px', 'left': page.content.menuX ? page.content.menuX + 'px' : '0px'}">
@@ -92,8 +92,8 @@
 						</div>
 						<div v-if="page.content.styles">
 							<n-form-section class="list-row" v-for="style in page.content.styles">
-								<n-form-text v-model="style.class" label="Class"/>
-								<n-form-text v-model="style.condition" label="Condition" class="vertical"/>
+								<n-form-text v-model="style.class" label="Class" :timeout="600"/>
+								<n-form-text v-model="style.condition" label="Condition" class="vertical" :timeout="600"/>
 								<span @click="page.content.styles.splice(page.content.styles.indexOf(style), 1)" class="fa fa-times"></span>
 							</n-form-section>
 						</div>
@@ -313,7 +313,7 @@
 				<p class="subscript">Eventing allows the user to interact with the page, performing calls to backend, switching to another page...</p>
 				<n-collapsible title="Initial" class="list">
 					<div class="padded-content">
-						<p class="subscript">Initial events are run when the page is first loaded and can be periodically rerun. This allows for long polling or performing some initial checks.</p>
+						<p class="subscript">Initial events are run when the page is first loaded but <i>after</i> the initial state is guaranteed to be there. Initial events can be periodically rerun, this allows for long polling or performing some initial checks.</p>
 					</div>
 					<div class="list-actions">
 						<button @click="addInitialEvent"><span class="fa fa-plus"></span>Initial Event</button>
@@ -490,6 +490,7 @@
 				@mouseout="mouseOut($event, row)"
 				@mouseover="mouseOver($event, row)"
 				@click.ctrl="goto($event, row)"
+				@click.meta="goto($event, row)"
 				@click.alt="$emit('select', row) && $emit('viewComponents')"
 				v-bind="getRendererProperties(row)">
 			<div v-if="false && (edit || $services.page.wantEdit || row.wantVisibleName) && row.name && !row.collapsed" :style="getRowEditStyle(row)" class="row-edit-label"
@@ -513,6 +514,7 @@
 					:cell-key="'page_' + pageInstanceId + '_cell_' + cell.id"
 					@click="clickOnCell(cell)"
 					@click.ctrl="goto($event, row, cell)"
+					@click.meta="goto($event, row, cell)"
 					@mouseout="mouseOut($event, row, cell)"
 					@mouseover="mouseOver($event, row, cell)"
 					v-bind="getRendererProperties(cell)">
@@ -532,6 +534,9 @@
 						<n-form-section>
 							<h1>Cell configuration</h1>
 							<p class="subscript">Here you can configure cell settings that are available to all cells in the grid regardless of the content type.</p>
+							<div class="padded-content">
+								<n-form-text label="Cell Name" v-model="cell.name" info="A descriptive name" :timeout="600"/>
+							</div>
 							<n-collapsible title="Cell Settings" key="cell-settings">
 								<div class="padded-content">
 									<h2>Content</h2>
@@ -540,7 +545,6 @@
 										:key="'page_' + pageInstanceId + '_' + cell.id + '_alias'"
 										:required="true"
 										info="The type of content that should be displayed in this cell"/>
-									<n-form-text label="Cell Name" v-model="cell.name" info="A descriptive name" :timeout="600"/>
 									<n-page-mapper v-if="cell.alias" 
 										:key="'page_' + pageInstanceId + '_' + cell.id + '_mapper'"
 										:to="getRouteParameters(cell)"

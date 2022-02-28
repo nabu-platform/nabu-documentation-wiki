@@ -21,7 +21,7 @@ Vue.mixin({
 			runtimeId: null
 		}
 	},
-	// not ideal, can it be replaced everywhere with $services.page.getBindingValue() ?
+	// not ideal, can it be replaced everywhere liwith $services.page.getBindingValue() ?
 	beforeMount: function() {
 		var self = this;
 		// map any local state
@@ -212,7 +212,7 @@ nabu.page.views.Page = Vue.component("n-page", {
 								}
 								else {
 									self.subscribe(to, function() {
-										self.initializeDefaultParameters(true, [parameter.name]);
+										self.initializeDefaultParameters(true, [parameter.name], true);
 										if (nabu.page.event.getName(parameter, "updatedEvent")) {
 											self.emit(
 												nabu.page.event.getName(parameter, "updatedEvent"),
@@ -288,6 +288,9 @@ nabu.page.views.Page = Vue.component("n-page", {
 				try {
 					// can throw hard errors
 					return self.$services.swagger.execute(state.operation, parameters).then(function(result) {
+						if (result != null) {
+							self.initialStateLoaded.push(state.name);
+						}
 						Vue.set(self.variables, state.name, result ? result : null);
 						self.updatedVariable(state.name);
 					});
@@ -392,7 +395,7 @@ nabu.page.views.Page = Vue.component("n-page", {
 		this.$services.page.rendering++;
 		this.$services.page.setPageInstance(this.page, this);
 		var self = this;
-		// backwards compatibility
+		// it could be possible that you use a parameter here (with default) in your initial state
 		this.initializeDefaultParameters(true);
 		if (this.editable) {
 			this.edit = true;
@@ -511,7 +514,8 @@ nabu.page.views.Page = Vue.component("n-page", {
 			postRender: [],
 			// whether or not we are ready to go
 			rendered: false,
-			oldBodyClasses: []
+			oldBodyClasses: [],
+			initialStateLoaded: []
 		}
 	},
 	methods: {
@@ -641,38 +645,46 @@ nabu.page.views.Page = Vue.component("n-page", {
 				self.timers.push(timer);
 			}
 		},
-		initializeDefaultParameters: function(isInitial, names) {
+		initializeDefaultParameters: function(isInitial, names, force) {
 			var self = this;
 			if (this.page.content.parameters) {
 				this.page.content.parameters.map(function(x) {
 					if (x.name != null && (!names || names.indexOf(x.name) >= 0)) {
-						// if it is not passed in as input, we set the default value
-						if (self.parameters[x.name] == null) {
-							// check if we have a content setting
-							var value = self.$services.page.getContent(x.global ? null : self.page.name, x.name);
-							if (value == null) {
-								if (x.complexDefault) {
-									value = self.calculateVariable(x.defaultScript);
+						// it is entirely possible that someone already set the state for this variable, for example through an initial state with the same name
+						// this "trick" is applied when you want to load initial state _and_ you want to modify it through listeners etc
+						// we then make two variables with the same name
+						// however, if the initial state in this case does not exist, you do want your default to kick in
+						// but not if the state already exists
+						// if we force it however (e.g. through reset), we do want to recompute every time
+						if (self.initialStateLoaded.indexOf(x.name) < 0 || force) {
+							// if it is not passed in as input, we set the default value
+							if (self.parameters[x.name] == null) {
+								// check if we have a content setting
+								var value = self.$services.page.getContent(x.global ? null : self.page.name, x.name);
+								if (value == null) {
+									if (x.complexDefault) {
+										value = self.calculateVariable(x.defaultScript);
+									}
+									else {
+										value = self.$services.page.interpret(x.default, self);
+									}
 								}
 								else {
-									value = self.$services.page.interpret(x.default, self);
+									value = value.content;
+								}
+								// inherit from global state (especially interesting for mails/pdfs...)
+								// basically you inject state in a global parameters application.state and it will be auto-bound
+								if (value == null && application.state && application.state[x.name] != null) {
+									value = application.state[x.name];
+								}
+								if (value != null || isInitial) {
+									Vue.set(self.variables, x.name, value == null ? null : value);
 								}
 							}
-							else {
-								value = value.content;
+							// but you can override the default with an input parameter (only during created, not activate)
+							else if (isInitial) {
+								Vue.set(self.variables, x.name, self.parameters[x.name]);
 							}
-							// inherit from global state (especially interesting for mails/pdfs...)
-							// basically you inject state in a global parameters application.state and it will be auto-bound
-							if (value == null && application.state && application.state[x.name] != null) {
-								value = application.state[x.name];
-							}
-							if (value != null || isInitial) {
-								Vue.set(self.variables, x.name, value == null ? null : value);
-							}
-						}
-						// but you can override the default with an input parameter (only during created, not activate)
-						else if (isInitial) {
-							Vue.set(self.variables, x.name, self.parameters[x.name]);
 						}
 					}
 				});
@@ -732,8 +744,15 @@ nabu.page.views.Page = Vue.component("n-page", {
 			this.page.content.initialEvents.push({condition:null, definition: {}});
 		},
 		listFields: function(type, value) {
-			var type = this.$services.swagger.resolve(type);
-			return this.$services.page.getSimpleKeysFor(type).filter(function(x) { return !value || (x && x.toLowerCase().indexOf(value.toLowerCase()) >= 0) });
+			// added try/catch in case the type is unknown
+			try {
+				var type = this.$services.swagger.resolve(type);
+				return this.$services.page.getSimpleKeysFor(type).filter(function(x) { return !value || (x && x.toLowerCase().indexOf(value.toLowerCase()) >= 0) });
+			}
+			catch (exception) {
+				console.warn("Could not list fields for", type, exception);
+				return [];
+			}
 		},
 		validateStateName: function(name) {
 			var blacklisted = ["page", "application", "record", "state", "localState"];
@@ -2043,7 +2062,7 @@ nabu.page.views.Page = Vue.component("n-page", {
 					else {
 						var parameters = {};
 						Object.keys(state.bindings).map(function(key) {
-							parameters[key] = self.get(state.bindings[key]);
+							parameters[key] = self.$services.page.getBindingValue(self, state.bindings[key]);
 						});
 						try {
 							// can throw hard errors
@@ -2066,7 +2085,7 @@ nabu.page.views.Page = Vue.component("n-page", {
 										var resultKeys = Object.keys(result);
 										Object.keys(self.variables[state.name]).forEach(function(key) {
 											if (resultKeys.indexOf(key) < 0) {
-												self.variables[state.name] = null;
+												self.variables[state.name][key] = null;
 											}
 										});
 										// make sure we use vue.set to trigger other reactivity
@@ -2130,6 +2149,9 @@ nabu.page.views.Page = Vue.component("n-page", {
 			}
 			if (name == "page") {
 				return this.variables;
+			}
+			else if (name == "page.$this") {
+				return this;
 			}
 			else if (name == "parent") {
 				var parentInstance = this.page.content.pageParent ? this.$services.page.getPageInstanceByName(this.page.content.pageParent) : null;
@@ -2213,6 +2235,13 @@ nabu.page.views.Page = Vue.component("n-page", {
 			else if (name.indexOf(".$all") >= 0) {
 				return this.variables[name.substring(0, name.indexOf(".$all"))];
 			}
+			// note: currently this is slightly out of sync with "page." logic
+			// the problem is if you simply do get("queryParameter"), it won't work
+			// because query paramters are not available in variables
+			// solution 1: copy all page parameters to variables (this is likely the best option though it may break reactivity of query parameters?)
+			// solution 2: add resolving here to also check the page parameters.
+			// workaround: use "page.queryParameter" syntax to resolve (currently used until decision is made) for example by page form components
+			// note that set() also suffers from the same problem it seems!
 			else {
 				var parts = name.split(".");
 				if (this.variables[parts[0]]) {
@@ -4135,15 +4164,15 @@ Vue.component("page-sidemenu", {
 });
 
 document.addEventListener("keydown", function(event) {
-	if (event.key == "s" && event.ctrlKey && application.services.page.editing) {
+	if (event.key == "s" && (event.ctrlKey || event.metaKey) && application.services.page.editing) {
 		application.services.page.editing.save(event);
 	}
-	else if (event.key == "d" && event.ctrlKey && application.services.page.editing) {
+	else if (event.key == "d" && (event.ctrlKey || event.metaKey) && application.services.page.editing) {
 		application.services.page.editing.viewComponents = true;
 		event.preventDefault();
 		event.stopPropagation();
 	}
-	else if (event.key == "e" && event.ctrlKey && application.services.page.editing) {
+	else if (event.key == "e" && (event.ctrlKey || event.metaKey) && application.services.page.editing) {
 		application.services.page.editing.stopEdit();
 		event.preventDefault();
 		event.stopPropagation();

@@ -50,7 +50,7 @@ Vue.component("page-form-input-enumeration-array-configure", {
 		enumerationFilter: function(value) {
 			var providers = nabu.page.providers("page-enumerate").map(function(x) { return x.name });
 			if (value) {
-				providers = providers.filter(function(x) { return x.toLowerCase().indeOf(value.toLowerCase()) >= 0 });
+				providers = providers.filter(function(x) { return x.toLowerCase().indexOf(value.toLowerCase()) >= 0 });
 			}
 			providers.sort();
 			return providers;
@@ -63,7 +63,7 @@ Vue.component("page-form-input-enumeration-array-configure", {
 		},
 		getEnumerationFields: function(array) {
 			var properties = {};
-			var available = this.$services.page.getAvailableParameters(this.page, this.cell);
+			var available = this.$services.page.getAllAvailableParameters(this.page, this.cell);
 			var variable = this.field.enumerationArray.substring(0, this.field.enumerationArray.indexOf("."));
 			var rest = this.field.enumerationArray.substring(this.field.enumerationArray.indexOf(".") + 1);
 			if (available[variable]) {
@@ -202,13 +202,13 @@ Vue.component("page-form-input-enumeration-array", {
 					else {
 						return array.filter(function(x) {
 							if (self.field.enumerationArrayLabel != null) {
-								var label = array[self.field.enumerationArrayLabel];
+								var label = x[self.field.enumerationArrayLabel];
 								if (label && label.toLowerCase && label.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
 									return true;
 								}
 							}
 							if (self.field.enumerationArrayValue != null) {
-								var label = array[self.field.enumerationArrayValue];
+								var label = x[self.field.enumerationArrayValue];
 								if (label && label.toLowerCase && label.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
 									return true;
 								}

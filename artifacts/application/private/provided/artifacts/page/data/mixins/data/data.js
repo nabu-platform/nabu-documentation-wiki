@@ -3,6 +3,22 @@ if (!nabu.page) { nabu.page = {} }
 if (!nabu.page.views) { nabu.page.views = {} }
 if (!nabu.page.views.data) { nabu.page.views.data = {} }
 
+// this is a helper component, we want to combine a mixin (datacommon) with reusable templates
+// unfortunately that is pretty hard to do in vue
+// the reusable templates must have the correct methods in some way, shape or form, this currently means they also use the mixin
+// that means, we have in general 3 instances of the data common: the core component (e.g. table), the data header and the data footer
+// we "solve" this (badly) by passing in a lot of state from the outside so the footer and header work on the same dataset even though they have different instances
+// we then encapsulate this in a separate component (this one) so all that binding is done centrally
+// again, we are looking for a better alternative, but this approach should be forwards-compatible and hides the bad solution
+Vue.component("data-common-content", {
+	template: "#data-common-content",
+	props: {
+		data: {
+			type: Object
+		}
+	}
+})
+
 // because we split up the header, footer and they all extend common
 // the first load() is triggered by the main body
 // however any loads triggered through searching come from the header!
@@ -84,6 +100,18 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			type: Boolean,
 			required: false,
 			default: true
+		},
+		supportsDetailFields: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+		dynamicArray: {
+			type: Array,
+			required: false,
+			default: function() {
+				return [];
+			}
 		}
 	},
 	data: function() {
@@ -94,6 +122,7 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			showFilter: false,
 			ready: false,
 			subscriptions: [],
+			streamSubscriptions: [],
 			lastTriggered: null,
 			query: null,
 			// the current order by
@@ -119,10 +148,13 @@ nabu.page.views.data.DataCommon = Vue.extend({
 	},
 	watch: {
 		watchedArray: function(newValue) {
+			//this.allRecords.splice(0);
+			//if (newValue) {
+			//	nabu.utils.arrays.merge(this.allRecords, newValue);
+			//}
+			
+			// if we don't splice it, we get _very_ strange behavior
 			this.allRecords.splice(0);
-			if (newValue) {
-				nabu.utils.arrays.merge(this.allRecords, newValue);
-			}
 			this.load(this.paging && this.paging.current ? this.paging.current : 0, false);
 		},
 		records: function(newValue) {
@@ -134,6 +166,19 @@ nabu.page.views.data.DataCommon = Vue.extend({
 		}
 	},
 	computed: {
+		selectable: function() {
+			// selected events must not be linked to fields
+			return this.cell.state.actions.filter(this.isSelectionAction).length > 0;
+		},
+		hasStreamCreate: function() {
+			var operation = this.operation;
+			console.log("operation is", operation);
+			return operation && operation["x-stream-create"];
+		},
+		hasStreamUpdate: function() {
+			var operation = this.operation;
+			return operation && operation["x-stream-update"];
+		},
 		allSelected: function() {
 			// double should not be selected...otherwise we need to check deeper
 			return this.records.length == this.selected.length;	
@@ -250,6 +295,12 @@ nabu.page.views.data.DataCommon = Vue.extend({
 					}
 				}
 			}
+			else if (this.cell.state.dynamicArrayType) {
+				var schema = this.$services.swagger.swagger.definitions[this.cell.state.dynamicArrayType];
+				if (schema && schema.properties) {
+					nabu.utils.objects.merge(properties, schema.properties);
+				}
+			}
 			return properties;
 		},
 		hasLimit: function() {
@@ -295,7 +346,22 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			return result;
 		},
 		keys: function() {
-			var keys = this.$services.page.getSimpleKeysFor({properties:this.definition});
+			var keys = this.$services.page.getSimpleKeysFor({properties:this.definition}, true, true);
+			var self = this;
+			keys.map(function(key) {
+				if (!self.cell.state.result[key]) {
+					Vue.set(self.cell.state.result, key, {
+						label: null,
+						format: null,
+						custom: null,
+						styles: []
+					});
+				}
+			});
+			return keys;
+		},
+		simpleKeys: function() {
+			var keys = this.$services.page.getSimpleKeysFor({properties:this.definition}, false, false);
 			var self = this;
 			keys.map(function(key) {
 				if (!self.cell.state.result[key]) {
@@ -325,7 +391,11 @@ nabu.page.views.data.DataCommon = Vue.extend({
 		}
 	},
 	beforeDestroy: function() {
+		var self = this;
 		this.subscriptions.map(function(x) {
+			x();
+		});
+		this.streamSubscriptions.forEach(function(x) {
 			x();
 		});
 		if (this.refreshTimer) {
@@ -588,6 +658,9 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			return this.$services.dataUtils.getDataOperations(value).map(function(x) { return x.id });	
 		},
 		getSortKey: function(field) {
+			if (field.orderField) {
+				return field.orderField;
+			}
 			for (var i = 0; i < field.fragments.length; i++) {
 				var fragment = field.fragments[i];
 				if (fragment.type == "data" && fragment.key) {
@@ -956,6 +1029,9 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			if (!state.fields) {
 				Vue.set(state, "fields", []);
 			}
+			if (this.supportsDetailFields && !state.detailFields) {
+				Vue.set(state, "detailFields", []);
+			}
 			if (!state.updateOperation) {
 				Vue.set(state, "updateOperation", null);
 			}
@@ -1091,7 +1167,7 @@ nabu.page.views.data.DataCommon = Vue.extend({
 					this.load();
 				}
 				// do a frontend sort (can't do it if paged)
-				else if (this.cell.state.array || !this.pageable) {
+				else if (this.cell.state.array || this.cell.state.dynamicArrayType || !this.pageable) {
 					var newOrderBy = [];
 					var multiplier = 1;
 					if (this.orderBy.indexOf(key) >= 0) {
@@ -1479,7 +1555,12 @@ nabu.page.views.data.DataCommon = Vue.extend({
 				self.refreshTimer = setTimeout(function() {
 					// don't refresh if explicitly blocked or if updating
 					if (!self.blockRefresh && !self.updating) {
-						self.load(page);
+						try {
+							self.load(page);
+						}
+						catch (exception) {
+							self.reload(page);
+						}
 					}
 					else {
 						self.reload(page);
@@ -1487,8 +1568,102 @@ nabu.page.views.data.DataCommon = Vue.extend({
 				}, self.cell.state.autoRefresh);
 			}
 		},
+		updateRecord: function(oldRecord, newRecord) {
+			var newKeys = Object.keys(newRecord);
+			var oldKeys = Object.keys(oldRecord);
+			// hard override
+			newKeys.forEach(function(key) {
+				oldRecord[key] = newRecord[key];
+			});
+			// any existing keys that do not exist in the new data, we set to null
+			oldKeys.filter(function(x) { return newKeys.indexOf(x) < 0 }).forEach(function(key) {
+				oldRecord[key] = null;	
+			});
+		},
+		// post process the records before we add them
+		postProcess: function(records) {
+			var self = this;
+			if (this.cell.state.aggregations) {
+				// first we perform the group by
+				var groupBy = this.cell.state.aggregations.filter(function(x) { return x.field && x.operation == "group by" });
+				// only proceed if we actually have a group by
+				if (groupBy.length) {
+					// first we group
+					var result = {};
+					records.forEach(function(x) {
+						var key = "";
+						groupBy.forEach(function(g) {
+							if (key != "") {
+								key += "::";
+							}
+							key += self.$services.page.getValue(x, g.field);
+						});
+						if (!result[key]) {
+							result[key] = [];
+						}
+						result[key].push(x);
+					});
+					records = [];
+					// then we aggregate (if any)
+					var aggregations = this.cell.state.aggregations.filter(function(x) { return x.field && x.operation != "group by" });
+					if (aggregations.length) {
+						// for each grouped array
+						Object.keys(result).forEach(function(key) {
+							var start = result[key][0];
+							// we need at least two records to have useful aggregation
+							if (result[key].length >= 2) {
+								for (var i = 1; i < result[key].length; i++) {
+									aggregations.forEach(function(a) {
+										if (a.operation == "sum" || a.operation == "average") {
+											start[a.field] += result[key][i][a.field];
+										}
+										else if (a.operation == "min") {
+											start[a.field] = Math.min(start[a.field], result[key][i][a.field]);
+										}
+										else if (a.operation == "max") {
+											start[a.field] = Math.max(start[a.field], result[key][i][a.field]);
+										}
+									});
+								}
+								aggregations.forEach(function(a) {
+									if (a.operation == "average") {
+										start[a.field] = start[a.field] / result[key].length;
+									}
+								});
+							}
+							records.push(start);
+						});
+						this.doInternalSort(records);
+					}
+					// if there are no actual aggregations, we just take the first record
+					// they should still be in the correct order
+					else {
+						Object.keys(result).forEach(function(key) {
+							var start = result[key][0];
+							records.push(start);
+						});
+					}
+					// use internalSort according to original order by criteria
+				}
+			}
+			console.log("post processed!", records);
+			if (self.cell.state.reverseData) {
+				records.reverse();
+			}
+			return records;
+		},
+		pushAggregation: function() {
+			if (!this.cell.state.aggregations) {
+				Vue.set(this.cell.state, "aggregations", []);
+			}
+			this.cell.state.aggregations.push({});
+		},
 		// how much to increment by
 		load: function(page, append, increment) {
+			// if we are doing a new load, unsubscribe from any stream subscriptions you might have
+			// we'll start a new subscription if relevant
+			this.streamSubscriptions.splice(0).forEach(function(x) { x() });
+			
 			if (this.refreshTimer) {
 				clearTimeout(this.refreshTimer);
 				this.refreshTimer = null;
@@ -1497,6 +1672,104 @@ nabu.page.views.data.DataCommon = Vue.extend({
 			var self = this;
 			if (this.cell.state.operation) {
 				var parameters = this.getRestParameters(page);
+				// allows us to modify the response based on the raw xmlhttprequest
+				// we don't actually want to modify it, but we do want to capture the headers
+				// you need to have the websocket component and an up to date version of the utils that contains the jwt
+				if (self.$services.websocket && nabu.utils.jwt) {
+					parameters.$$rawMapper = function(response, raw) {
+						if (self.cell.state.subscribeStream) {
+							var token = raw.getResponseHeader("Stream-Token");
+							if (token) {
+								var parsed = nabu.utils.jwt.parse(token);
+								self.$services.websocket.send("stream-subscribe", {
+									jwtToken: token
+								});
+								// we want to push an unsubscribe function
+								self.streamSubscriptions.push(function() {
+									self.$services.websocket.send("stream-unsubscribe", {
+										jwtId: parsed.jti
+									});
+								});
+								self.streamSubscriptions.push(self.$services.websocket.subscribe(function(data) {
+									if (data.type == "subscription-data") {
+										// it's for us!
+										if (data.content.subscriptionId == parsed.jti) {
+											var found = false;
+											// if we have a primary key, check if it's an update to something we know
+											if (parsed.p) {
+												var recordsToRemove = [];
+												self.records.forEach(function(record) {
+													// check if we found it!
+													if (record[parsed.p] == data.content.data[parsed.p]) {
+														found = true;
+														// we must evaluate if the updated data still matches the filter
+														if (!parsed.j || self.$services.page.evalInContext(data.content.data, parsed.j)) {
+															if (self.pushUpdate) {
+																self.pushUpdate(record, data.content.data);
+															}
+															else {
+																self.updateRecord(record, data.content.data);
+																//var newKeys = Object.keys(data.content.data);
+																//var oldKeys = Object.keys(record);
+																//// hard override
+																//newKeys.forEach(function(key) {
+																//	record[key] = data.content.data[key];
+																//});
+																//// any existing keys that do not exist in the new data, we set to null
+																//oldKeys.filter(function(x) { return newKeys.indexOf(x) < 0 }).forEach(function(key) {
+																//	record[key] = null;	
+																//});
+															}
+														}
+														else {
+															recordsToRemove.push(record);
+														}
+													}
+												});
+												// we don't do this in the foreach above, deleting while looping is probably not a good idea...
+												recordsToRemove.forEach(function(record) {
+													var index = self.records.indexOf(record);	
+													if (index >= 0) {
+														if (self.pushDelete) {
+															self.pushDelete(record, index);
+														}
+														else {
+															self.records.splice(index, 1);
+														}
+													}
+												});
+											}
+											if (!found) {
+												if (!parsed.j || self.$services.page.evalInContext(data.content.data, parsed.j)) {
+													if (self.pushCreate) {
+														self.pushCreate(data.content.data);
+													}
+													else {
+														self.records.push(data.content.data);
+													}
+													var limit = self.cell.state.limit != null ? parseInt(self.cell.state.limit) : null;
+													if (self.dynamicLimit != null) {
+														limit = self.dynamicLimit;
+													}
+													// if we are over the limit, toss the first record
+													if (limit && self.records.length > limit) {
+														if (self.pushDelete) {
+															self.pushDelete(self.records[0], 0);
+														}
+														else {
+															self.records.splice(0, 1);
+														}
+													}
+												}
+											}
+										}
+									}
+								}));
+							}
+						}
+						return response;
+					}
+				}
 				try {
 					this.$services.swagger.execute(this.cell.state.operation, parameters).then(function(list) {
 						if (!append) {
@@ -1507,6 +1780,7 @@ nabu.page.views.data.DataCommon = Vue.extend({
 							var findArray = function(root) {
 								Object.keys(root).forEach(function(field) {
 									if (root[field] instanceof Array && !arrayFound) {
+										root[field] = self.postProcess(root[field]);
 										root[field].forEach(function(x, i) {
 											x.$position = i;
 										});
@@ -1557,18 +1831,24 @@ nabu.page.views.data.DataCommon = Vue.extend({
 					promise.resolve(error);
 				}
 			}
-			else if (this.cell.state.array) {
-				var current = this.$services.page.getValue(this.localState, this.cell.state.array);
+			else if (this.cell.state.array || this.cell.state.dynamicArrayType) {
+				var current = this.cell.state.dynamicArrayType ? this.dynamicArray : this.$services.page.getValue(this.localState, this.cell.state.array);
 				if (current == null) {
 					current = this.$services.page.getPageInstance(this.page, this).get(this.cell.state.array);
 				}
 				if (current) {
+					current = self.postProcess(current);
 					if (!append) {
 						this.records.splice(0, this.records.length);
 					}
 					// only reload the data if we have no data as of yet
 					// otherwise we might lose state that was added via pushToArray
 					if (!this.allRecords.length) {
+						if (this.cell.state.arrayFilter) {
+							current = current.filter(function(record) {
+								return self.$services.page.isCondition(self.cell.state.arrayFilter, record, self);
+							});
+						}
 						nabu.utils.arrays.merge(this.allRecords, current);
 					}
 					this.doInternalSort(this.allRecords);
@@ -1630,7 +1910,7 @@ Vue.component("data-common-header", {
 	created: function() {
 		this.create();
 	}
-});
+}); 
 
 Vue.component("data-common-footer", {
 	template: "#data-common-footer",
@@ -1641,6 +1921,9 @@ Vue.component("data-common-footer", {
 			required: false
 		}
 	}*/
+	created: function() {
+		this.create();
+	}
 });
 
 Vue.component("data-common-configure", {
@@ -1696,7 +1979,6 @@ Vue.component("data-common-filter", {
 		}
 	}
 })
-
 
 
 

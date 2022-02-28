@@ -2,6 +2,9 @@ Vue.component("page-form-input-enumeration-provider-configure", {
 	template: "<n-form-section><n-form-combo v-model='field.enumerationProvider' :filter='enumerationFilter' label='Enumeration Provider'/>"
 		+ " <n-form-switch v-model='field.showRadioView' label='Show radio visualisation'/>"
 		+ " <n-form-switch v-model='field.required' label='Required'/>"
+		+ "		<n-form-text v-if='!field.showRadioView' v-model='field.emptyValue' label='Empty Value Text'/>"
+		+ "		<n-form-text v-if='!field.showRadioView' v-model='field.resetValue' label='Reset Value Text' info='The text to show to reset the current value'/>"
+		+ " 	<n-form-switch v-if='!field.showRadioView' v-model='field.readOnly' label='Read only' />"
 		+ "	<n-form-combo v-if='valueOptions' :items='valueOptions' v-model='field.enumerationProviderValue' label='Value Field'/>"
 		+ "	<n-form-combo v-if='labelOptions' :items='labelOptions' v-model='field.enumerationProviderLabel' label='Label Field'/>"
 		+ "</n-form-section>",
@@ -53,7 +56,7 @@ Vue.component("page-form-input-enumeration-provider-configure", {
 		enumerationFilter: function(value) {
 			var providers = nabu.page.providers("page-enumerate").map(function(x) { return x.name });
 			if (value) {
-				providers = providers.filter(function(x) { return x.toLowerCase().indeOf(value.toLowerCase()) >= 0 });
+				providers = providers.filter(function(x) { return x.toLowerCase().indexOf(value.toLowerCase()) >= 0 });
 			}
 			providers.sort();
 			return providers;
@@ -90,6 +93,10 @@ Vue.component("page-form-input-enumeration-provider", {
 			+ "		:description-type='field.descriptionType'"
 			+ "		:description-icon='field.descriptionIcon'"
 			+ "		:schema='schema'"
+			+ "		:allow-typing='!field.readOnly'"
+			+ "		:empty-value='field.emptyValue ? $services.page.translate($services.page.interpret(field.emptyValue)) : null'"
+			+ "		:calculating-value='field.calculatingValue ? $services.page.translate($services.page.interpret(field.calculatingValue)) : null'"
+			+ "		:reset-value='field.resetValue ? $services.page.translate($services.page.interpret(field.resetValue)) : null'"
 			+ "		:disabled='disabled'/></div>",
 	props: {
 		cell: {

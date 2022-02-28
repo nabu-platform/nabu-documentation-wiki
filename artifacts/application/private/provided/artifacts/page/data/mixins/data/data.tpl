@@ -6,11 +6,16 @@
 				<n-form-combo label="Operation" :value="cell.state.operation" 
 					:filter="getDataOperations"
 					@input="updateOperation"
-					v-if="!cell.state.array && !cell.state.collect"/>
+					v-if="!cell.state.array && !cell.state.dynamicArrayType && !cell.state.collect"/>
 				<n-form-combo label="Array" :value="cell.state.array"
 					:filter="function(value) { return $services.page.getAllArrays(page, cell.id) }"
-					v-if="!cell.state.operation && !cell.state.collect"
+					v-if="!cell.state.operation && !cell.state.dynamicArrayType && !cell.state.collect"
 					@input="updateArray"/>
+				<n-form-combo label="Dynamic Array Type" v-model="cell.state.dynamicArrayType"
+					:filter="function(value) { return Object.keys($services.swagger.swagger.definitions).filter(function(x) { return !value || x.toLowerCase().indexOf(value.toLowerCase()) >= 0 }) }"
+					v-if="!cell.state.operation && !cell.state.array"
+					info="Use this if you intend to map an array to the input of this data object"
+					/>
 				<n-form-combo label="Collect" :value="cell.state.collect"
 					:filter="function(value) { return $services.page.getAllArrays(page, cell.id) }"
 					v-if="false && !cell.state.operation && !cell.state.array"
@@ -45,6 +50,10 @@
 				<n-form-text v-model="cell.state.inlineUpdateEvent" label="Successful Inline Record Update Event" @input="$updateEvents()" :timeout="600"/>
 				<n-form-text v-model="cell.state.recordsUpdatedEvent" label="Records updated event" info="This event is emitted every time the records array is updated" @input="$updateEvents()" :timeout="600"/>
 				
+				<n-form-switch v-if="cell.state.operation" v-model="cell.state.reverseData" label="Reverse data"/>
+				
+				<n-form-ace v-model="cell.state.arrayFilter" v-if="cell.state.array" label="Array filter"/>
+				
 				<n-form-combo label="Update Operation" :value="cell.state.updateOperation"
 					v-if="updatable"
 					:filter="getFormOperations"
@@ -55,9 +64,28 @@
 					:to="formInputParameters"/>
 				<slot name="additional-settings"></slot>
 			</n-collapsible>
+			<n-collapsible title="Data streaming" v-if="$services.websocket && (hasStreamCreate || hasStreamUpdate)">
+				<div class="padded-content">
+					<n-form-switch v-if="hasStreamCreate && hasStreamUpdate" v-model="cell.state.subscribeStream" label="Subscribe to creates and updates"/>
+					<n-form-switch v-else-if="hasStreamCreate" v-model="cell.state.subscribeStream" label="Subscribe to creates"/>
+					<n-form-switch v-else-if="hasStreamUpdate" v-model="cell.state.subscribeStream" label="Subscribe to updates"/>
+				</div>
+			</n-collapsible>
 			<n-collapsible title="Mapping" class="mapping padded" v-if="Object.keys(inputParameters.properties).length">
 				<n-page-mapper :to="inputParameters" :from="availableParameters" 
 					v-model="cell.bindings"/>
+			</n-collapsible>
+			<n-collapsible title="Aggregation" class="mapping padded">
+				<div class="list-actions">
+					<button @click="pushAggregation"><span class="fa fa-plus"></span>Aggregation</button>
+				</div>
+				<div v-if="cell.state.aggregations">
+					<div class="list-row" v-for="aggregation in cell.state.aggregations">
+						<n-form-combo v-model="aggregation.field" :items="keys" label="Field"/>
+						<n-form-combo v-model="aggregation.operation" :items="['group by', 'sum', 'average', 'max', 'min']" label="Operation" info="You must have at least one group by operation"/>
+						<span @click="cell.state.aggregations.splice(cell.state.aggregations.indexOf(aggregation), 1)" class="fa fa-times"></span>
+					</div>
+				</div>
 			</n-collapsible>
 			<n-collapsible title="Filters" v-if="cell.state.filters.length || filtersToAdd().length">
 				<div class="padded-content">
@@ -74,7 +102,8 @@
 					:page="page"
 					:cell="cell"
 					:fields="cell.state.filters" 
-					:possible-fields="filtersToAdd()"/>
+					:possible-fields="filtersToAdd()"
+					:allow-paste="true"/>
 			</n-collapsible>
 			<n-collapsible title="Refresh" v-if="operation != null">
 				<div class="list-actions">
@@ -149,6 +178,14 @@
 				</n-collapsible>
 			</n-collapsible>
 			<page-fields-edit :cell="cell" :page="page" :keys="keys" :allow-editable="true || !!cell.state.updateOperation" :allow-events="false" v-if="supportsFields"/>
+			
+			<div v-if="supportsFields">
+				<div class="padded-content">
+					<h2>Detail fields</h2>
+				</div>
+				<page-fields-edit :cell="cell" :page="page" :keys="keys" :allow-editable="false" :allow-events="false" fields-name="detailFields"/>
+			</div>
+			
 			<n-collapsible title="Formatters" class="list" v-if="false">
 				<n-collapsible class="list-item" :title="cell.state.result[key].label ? cell.state.result[key].label : key" v-for="key in keys">
 					<n-form-text v-model="cell.state.result[key].label" :label="'Label for ' + key" 
@@ -185,7 +222,7 @@
 					</div>
 				</div>
 			</n-collapsible>
-			<n-collapsible title="Order By" v-if="orderable">
+			<n-collapsible title="Order By" v-if="orderable || cell.state.array">
 				<div class="list-item-actions">
 					<button @click="cell.state.orderBy.push('')"><span class="fa fa-plus"></span>Order By</button>
 				</div>
@@ -211,6 +248,55 @@
 			</n-collapsible>
 			<slot name="settings"></slot>
 		</n-form>
+	</div>
+</template>
+
+<template id="data-common-content">
+	<div>
+		<div class="data-common-header">
+			<h2 v-if="data.cell.state.title">{{$services.page.translate($services.page.interpret(data.cell.state.title, data))}}</h2>
+			<data-common-filter
+				:filters="data.getLiveFilters()"
+				:orderable="data.orderable"
+				:state="data.getFilterState()"
+				:page="data.page"
+				:cell="data.cell"
+				:edit="data.edit"
+				@updatedEvents="data.$emit('updatedEvents')"
+				@refresh="data.refresh"
+				@clear="data.clearFilters"
+				@filter="data.setFilter"
+				@sort="data.sort"
+				@close="data.$emit('close')"/>
+			<div class="page-startup-wizard" v-if="data.edit && !data.cell.state.operation && !data.cell.state.array && !data.cell.state.dynamicArrayType && (!data.cell.state.fields || !data.cell.state.fields.length)">
+				<div class="step" v-if="wizard == 'step1'">
+					<h2 class="title">Choose a data source</h2>
+					<n-form-combo label="Operation" :value="data.cell.state.operation" 
+						:filter="data.getDataOperations"
+						@input="data.updateOperation"
+						v-if="!data.cell.state.array && !data.cell.state.collect"/>
+					<div v-if="$services.page.getAllArrays(data.page, data.cell.id).length">
+						<h3>Or</h3>
+						<n-form-combo label="Array" :value="data.cell.state.array"
+							:filter="function(value) { return $services.page.getAllArrays(data.page, data.cell.id) }"
+							v-if="!data.cell.state.operation && !data.cell.state.collect"
+							@input="data.updateArray"/>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<slot></slot>
+		<data-common-footer :page="data.page" :parameters="data.parameters" :cell="data.cell" 
+			:edit="data.edit"
+			:records="data.records"
+			:selected="data.selected"
+			:inactive="data.inactive"
+			:global-actions="data.globalActions"
+			@updatedEvents="data.$emit('updatedEvents')"
+			@close="data.$emit('close')"
+			:multiselect="true"
+			:updatable="true"/>
 	</div>
 </template>
 
@@ -433,7 +519,7 @@
 			@filter="setFilter"
 			@sort="sort"/>
 			
-		<div class="page-startup-wizard" v-if="edit && !cell.state.operation && !cell.state.array && (!cell.state.fields || !cell.state.fields.length)">
+		<div class="page-startup-wizard" v-if="edit && !cell.state.operation && !cell.state.array && !cell.state.dynamicArrayType && (!cell.state.fields || !cell.state.fields.length)">
 			<div class="step" v-if="wizard == 'step1'">
 				<h2 class="title">Choose a data source</h2>
 				<n-form-combo label="Operation" :value="cell.state.operation" 
@@ -495,3 +581,4 @@
 	</div>
 </template>
 
+ 

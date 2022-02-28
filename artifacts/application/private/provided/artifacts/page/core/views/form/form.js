@@ -15,6 +15,10 @@ if (!nabu.page.views) { nabu.page.views = {} }
 // in the to-be we want to be able to reset on multiple fields (so an array instead of a string)
 // and the reset should be to the actual initial value which can be null but can also be a bound value
 
+// TODO: page arbitrary config gets the keys from the form but the page arbitrary does not get the values in the record
+// this means you can bind the form parameters if you are using page arbitrary, but they won't be passed along at runtime
+// i've already done a quick test with :record="{form:createResult()}" and variations thereof, but it didn't work
+// will have to dig deeper once needed
 nabu.page.formComponentConstructer = function(name) {
 	return Vue.component(name, {
 		template: "#" + name,
@@ -186,6 +190,34 @@ nabu.page.formComponentConstructer = function(name) {
 			});
 		},
 		methods: {
+			isPageActive: function(page) {
+				var result = this.createResult();
+				console.log("checking if page is active", page, result);
+				return (!page.enabledIf || this.$services.page.isCondition(page.enabledIf, result, this))
+					&& (!page.disabledIf || !this.$services.page.isCondition(page.disabledIf, result, this));	
+			},
+			hasNextActivePage: function(page) {
+				var index = this.cell.state.pages.indexOf(page);
+				// no next page at all
+				if (index >= this.cell.state.pages.length - 1) {
+					return false;
+				}
+				else {
+					for (var i = index + 1; i < this.cell.state.pages.length; i++) {
+						if (this.isPageActive(this.cell.state.pages[i])) {
+							return true;
+						}
+					}
+					return false;
+				}
+			},
+			// this works in conjunction with this.cell.state
+			// if you list it in this.cell.state, we can resolve it here
+			getCellValue: function(key) {
+				if (key.indexOf("form.") == 0) {
+					return this.$services.page.getValue(this.createResult(), key.substring("form.".length));
+				}
+			},
 			generateForm: function() {
 				var self = this;
 				var page = this.cell.state.pages[0];
@@ -483,26 +515,35 @@ nabu.page.formComponentConstructer = function(name) {
 			},
 			nextPage: function() {
 				var messages = this.$refs.form.validate();
-				if (!messages.length) {
-					this.currentPage = this.cell.state.pages[this.cell.state.pages.indexOf(this.currentPage) + 1];
-					this.$services.analysis.push({
-						pageName: this.page.content.name,
-						pageCategory: this.page.content.category,
-						category: "form",
-						type: "form-page",
-						counter: this.cell.state.pages.indexOf(this.currentPage),
-						method: "next",
-						group: this.analysisId,
-						event: this.analysisId + "-page-" + this.cell.state.pages.indexOf(this.currentPage)
-					});
-					// DEPRECATED
-					if (this.$services.analysis && this.$services.analysis.emit) {
-						this.$services.analysis.emit("form-page-" + this.cell.state.pages.indexOf(this.currentPage), this.analysisId, {method: "next"}, true);
+				var self = this;
+				var goNext = function() {
+					if (!messages.length) {
+						self.currentPage = self.cell.state.pages[self.cell.state.pages.indexOf(self.currentPage) + 1];
+						self.$services.analysis.push({
+							pageName: self.page.content.name,
+							pageCategory: self.page.content.category,
+							category: "form",
+							type: "form-page",
+							counter: self.cell.state.pages.indexOf(self.currentPage),
+							method: "next",
+							group: self.analysisId,
+							event: self.analysisId + "-page-" + self.cell.state.pages.indexOf(self.currentPage)
+						});
+						// DEPRECATED
+						if (self.$services.analysis && self.$services.analysis.emit) {
+							self.$services.analysis.emit("form-page-" + self.cell.state.pages.indexOf(self.currentPage), self.analysisId, {method: "next"}, true);
+						}
+					}
+					else {
+						self.showMessages(messages);
+						self.scrollToException(messages);
 					}
 				}
+				if (messages.then) {
+					messages.then(goNext, goNext);
+				}
 				else {
-					this.showMessages(messages);
-					this.scrollToException(messages);
+					goNext();
 				}
 			},
 			showMessages: function(messages) {
@@ -609,6 +650,10 @@ nabu.page.formComponentConstructer = function(name) {
 				this.cell.state.pages.push(nabu.utils.objects.deepClone(page));
 			},
 			configurator: function() {
+				// sneaky shit!
+				if (this.cell.state.autoclose == null) {
+					Vue.set(this.cell.state, "autoclose", true);
+				}
 				return "page-form-configure-all";
 			},
 			configure: function() {
@@ -647,16 +692,16 @@ nabu.page.formComponentConstructer = function(name) {
 					Vue.set(state, "class", null);
 				}
 				if (!state.hasOwnProperty("ok")) {
-					Vue.set(state, "ok", "Ok");
+					Vue.set(state, "ok", "%{Ok}");
 				}
 				if (!state.hasOwnProperty("edit")) {
-					Vue.set(state, "edit", "Edit");
+					Vue.set(state, "edit", "%{Edit}");
 				}
 				if (!state.hasOwnProperty("next")) {
-					Vue.set(state, "next", "Next");
+					Vue.set(state, "next", "%{Next}");
 				}
 				if (!state.hasOwnProperty("cancel")) {
-					Vue.set(state, "cancel", "Cancel");
+					Vue.set(state, "cancel", "%{Cancel}");
 				}
 				if (!state.hasOwnProperty("event")) {
 					Vue.set(state, "event", null);
@@ -1092,143 +1137,58 @@ nabu.page.formComponentConstructer = function(name) {
 					this.doingIt = true;
 					// if we have an embedded form with immediate turned on, don't valide it?
 					var messages = this.cell.state.immediate && this.cell.target == "page" ? [] : this.$refs.form.validate();
-					if (!messages.length) {
-						this.messages.splice(0, this.messages.length);
-						// commit the form
-						// refresh things that are necessary
-						// send out event! > can use this to refresh stuff!
-						// globale parameters that we can pass along
-						var self = this;
-						var result = this.createResult();
-						
-						if (self.cell.state.submitEvent) {
-							var pageInstance = self.$services.page.getPageInstance(self.page, self);
-							// if we have a 204 return, we get null back, we don't want to emit null however
-							pageInstance.emit(self.cell.state.submitEvent, result);
-						}
-						
-						//console.log("result is", JSON.stringify(result, null, 2));
-						if (this.cell.state.pageForm) {
-							// close before the page is updated
-							if (self.cell.state.autoclose == null || self.cell.state.autoclose) {
-								self.$emit("close");
+					var continueWithDoIt = function() {
+						if (!messages.length) {
+							self.messages.splice(0, self.messages.length);
+							// commit the form
+							// refresh things that are necessary
+							// send out event! > can use this to refresh stuff!
+							// globale parameters that we can pass along
+							var result = self.createResult();
+							
+							if (self.cell.state.submitEvent) {
+								var pageInstance = self.$services.page.getPageInstance(self.page, self);
+								// if we have a 204 return, we get null back, we don't want to emit null however
+								pageInstance.emit(self.cell.state.submitEvent, result);
 							}
-							var pageInstance = self.$services.page.getPageInstance(self.page, self);
-							var parameters = this.$services.page.getPageParameters(self.page);
-							Object.keys(result).forEach(function(x) {
-								// we have both the object-based notation and the . separated notation in the result
-								// in this case, for correct merging, we want to use the . separated, never the object in its entirety, unless it is an array!
-								if (result[x] == null || result[x] instanceof Array || (result != null && (Object(result[x]) !== result[x] || result[x] instanceof Date || result[x] instanceof File || result[x] instanceof Blob))) {
-									// only set if changed, otherwise we might overwrite external changes to the page state
-									if (self.hasChanged(x, result[x])) {
-										pageInstance.set("page." + x, result[x]);
-									}
-								}
-							});
-							if (self.cell.state.event) {
-								pageInstance.emit(self.cell.state.event, self.cell.on ? pageInstance.get(self.cell.on) : {});
-							}
-							// if we allow read only, revert to it after a successful edit
-							if (self.cell.state.allowReadOnly) {
-								self.readOnly = true;
-							}
-							self.doingIt = false;
-							// don't update the reference without updating the result!!
-							// update reference value for accurate checks next time around
-							self.initializePageForm();
-						}
-						else if (this.cell.state.functionForm) {
-							var promise = this.$services.q.defer();
-							var returnValue = this.$services.page.runFunction(this.cell.state.functionId, result, this, promise);
-							promise.then(function(result) {
-								if (self.cell.state.event) {
-									var pageInstance = self.$services.page.getPageInstance(self.page, self);
-									pageInstance.emit(self.cell.state.event, result == null ? returnValue : result);
-								}
+							
+							//console.log("result is", JSON.stringify(result, null, 2));
+							if (self.cell.state.pageForm) {
+								// close before the page is updated
 								if (self.cell.state.autoclose == null || self.cell.state.autoclose) {
 									self.$emit("close");
+								}
+								var pageInstance = self.$services.page.getPageInstance(self.page, self);
+								var parameters = self.$services.page.getPageParameters(self.page);
+								Object.keys(result).forEach(function(x) {
+									// we have both the object-based notation and the . separated notation in the result
+									// in this case, for correct merging, we want to use the . separated, never the object in its entirety, unless it is an array!
+									if (result[x] == null || result[x] instanceof Array || (result != null && (Object(result[x]) !== result[x] || result[x] instanceof Date || result[x] instanceof File || result[x] instanceof Blob))) {
+										// only set if changed, otherwise we might overwrite external changes to the page state
+										if (self.hasChanged(x, result[x])) {
+											pageInstance.set("page." + x, result[x]);
+										}
+									}
+								});
+								if (self.cell.state.event) {
+									pageInstance.emit(self.cell.state.event, self.cell.on ? pageInstance.get(self.cell.on) : {});
 								}
 								// if we allow read only, revert to it after a successful edit
 								if (self.cell.state.allowReadOnly) {
 									self.readOnly = true;
 								}
 								self.doingIt = false;
-								stop();
-							}, function(error) {
-								self.error = "Form submission failed";
-								// if we get an XMLHTTPResponse thingy, parse it
-								if (error && error.responseText) {
-									error = JSON.parse(error.responseText);
-								}
-								// we get a (hopefully) standardized event back from the function
-								if (error) {
-									if (!error.code) {
-										error.code = "HTTP-" + (error.status != null ? error.status : 500);
-									}
-									try {
-										if (self.cell.state.errorEvent) {
-											if (!self.cell.state.errorEventCodes || self.cell.state.errorEventCodes.split(/[\\s]*,[\\s]*/).indexOf(error.code) >= 0) {
-												var pageInstance = self.$services.page.getPageInstance(self.page, self);
-												pageInstance.emit(self.cell.state.errorEvent, error);
-											}
-										}
-										var translated = self.$services.page.translateErrorCode(error.code, error.title ? error.title : error.message);
-										self.error = translated;
-										self.messages.push({
-											type: "request",
-											severity: "error",
-											title: translated
-										})
-									}
-									catch (exception) {
-										self.messages.push({
-											type: "request",
-											severity: "error",
-											title: self.$services.page.translateErrorCode(error.status ? "HTTP-" + error.status : "HTTP-500")
-										})
-									}
-								}
-								else {
-									self.messages.push({
-										type: "request",
-										severity: "error",
-										title: self.$services.page.translateErrorCode("HTTP-500")
-									});
-								}
-								self.doingIt = false;
-								stop(self.error);
-							})
-						}
-						else if (this.cell.state.operation) {
-							try {
-								this.$services.swagger.execute(this.cell.state.operation, result).then(function(returnValue) {
-									var pageInstance = self.$services.page.getPageInstance(self.page, self);
-									// if we want to synchronize the values, do so
-									if (self.cell.state.synchronize) {
-										Object.keys(self.cell.bindings).map(function(name) {
-											// only set it if we actually bound something to it
-											if (self.cell.bindings[name] != null) {
-												var newValue = self.result[name];
-												var valueSet = false;
-												// if we are setting an array, check if the original value was an array as well
-												if (newValue instanceof Array) {
-													var originalValue = pageInstance.get(self.cell.bindings[name]);
-													if (originalValue instanceof Array) {
-														originalValue.splice(0);
-														nabu.utils.arrays.merge(originalValue, newValue);
-														valueSet = true;
-													}
-												}
-												if (!valueSet) {
-													pageInstance.set(self.cell.bindings[name], newValue);
-												}
-											}
-										});
-									}
+								// don't update the reference without updating the result!!
+								// update reference value for accurate checks next time around
+								self.initializePageForm();
+							}
+							else if (self.cell.state.functionForm) {
+								var promise = self.$services.q.defer();
+								var returnValue = self.$services.page.runFunction(self.cell.state.functionId, result, self, promise);
+								promise.then(function(result) {
 									if (self.cell.state.event) {
-										// if we have a 204 return, we get null back, we don't want to emit null however
-										var emitValue = returnValue == null ? result : returnValue;
-										pageInstance.emit(self.cell.state.event, emitValue == null ? {} : emitValue);
+										var pageInstance = self.$services.page.getPageInstance(self.page, self);
+										pageInstance.emit(self.cell.state.event, result == null ? returnValue : result);
 									}
 									if (self.cell.state.autoclose == null || self.cell.state.autoclose) {
 										self.$emit("close");
@@ -1241,61 +1201,153 @@ nabu.page.formComponentConstructer = function(name) {
 									stop();
 								}, function(error) {
 									self.error = "Form submission failed";
-									try {
-										if (error.responseText) {
-											error = JSON.parse(error.responseText);
-										}
-										if (self.cell.state.errorEvent) {
-											if (!self.cell.state.errorEventCodes || self.cell.state.errorEventCodes.split(/[\\s]*,[\\s]*/).indexOf(error.code) >= 0) {
-												var pageInstance = self.$services.page.getPageInstance(self.page, self);
-												pageInstance.emit(self.cell.state.errorEvent, error);
-											}
-										}
-										var translated = self.$services.page.translateErrorCode(error.code, error.title ? error.title : error.message);
-										self.error = translated;
-										self.messages.push({
-											type: "request",
-											severity: "error",
-											title: translated
-										})
+									// if we get an XMLHTTPResponse thingy, parse it
+									if (error && error.responseText) {
+										error = JSON.parse(error.responseText);
 									}
-									catch (exception) {
+									// we get a (hopefully) standardized event back from the function
+									if (error) {
+										if (!error.code) {
+											error.code = "HTTP-" + (error.status != null ? error.status : 500);
+										}
+										try {
+											if (self.cell.state.errorEvent) {
+												if (!self.cell.state.errorEventCodes || self.cell.state.errorEventCodes.split(/[\\s]*,[\\s]*/).indexOf(error.code) >= 0) {
+													var pageInstance = self.$services.page.getPageInstance(self.page, self);
+													pageInstance.emit(self.cell.state.errorEvent, error);
+												}
+											}
+											var translated = self.$services.page.translateErrorCode(error.code, error.title ? error.title : error.message);
+											self.error = translated;
+											self.messages.push({
+												type: "request",
+												severity: "error",
+												title: translated
+											})
+										}
+										catch (exception) {
+											self.messages.push({
+												type: "request",
+												severity: "error",
+												title: self.$services.page.translateErrorCode(error.status ? "HTTP-" + error.status : "HTTP-500")
+											})
+										}
+									}
+									else {
 										self.messages.push({
 											type: "request",
 											severity: "error",
-											title: self.$services.page.translateErrorCode(error.status ? "HTTP-" + error.status : "HTTP-500")
-										})
+											title: self.$services.page.translateErrorCode("HTTP-500")
+										});
 									}
 									self.doingIt = false;
 									stop(self.error);
-								});
+								})
 							}
-							catch(exception) {
+							else if (self.cell.state.operation) {
+								try {
+									self.$services.swagger.execute(self.cell.state.operation, result).then(function(returnValue) {
+										var pageInstance = self.$services.page.getPageInstance(self.page, self);
+										// if we want to synchronize the values, do so
+										if (self.cell.state.synchronize) {
+											Object.keys(self.cell.bindings).map(function(name) {
+												// only set it if we actually bound something to it
+												if (self.cell.bindings[name] != null) {
+													var newValue = self.result[name];
+													var valueSet = false;
+													// if we are setting an array, check if the original value was an array as well
+													if (newValue instanceof Array) {
+														var originalValue = pageInstance.get(self.cell.bindings[name]);
+														if (originalValue instanceof Array) {
+															originalValue.splice(0);
+															nabu.utils.arrays.merge(originalValue, newValue);
+															valueSet = true;
+														}
+													}
+													if (!valueSet) {
+														pageInstance.set(self.cell.bindings[name], newValue);
+													}
+												}
+											});
+										}
+										if (self.cell.state.event) {
+											// if we have a 204 return, we get null back, we don't want to emit null however
+											var emitValue = returnValue == null ? result : returnValue;
+											pageInstance.emit(self.cell.state.event, emitValue == null ? {} : emitValue);
+										}
+										if (self.cell.state.autoclose == null || self.cell.state.autoclose) {
+											self.$emit("close");
+										}
+										// if we allow read only, revert to it after a successful edit
+										if (self.cell.state.allowReadOnly) {
+											self.readOnly = true;
+										}
+										self.doingIt = false;
+										stop();
+									}, function(error) {
+										self.error = "Form submission failed";
+										try {
+											if (error.responseText) {
+												error = JSON.parse(error.responseText);
+											}
+											if (self.cell.state.errorEvent) {
+												if (!self.cell.state.errorEventCodes || self.cell.state.errorEventCodes.split(/[\\s]*,[\\s]*/).indexOf(error.code) >= 0) {
+													var pageInstance = self.$services.page.getPageInstance(self.page, self);
+													pageInstance.emit(self.cell.state.errorEvent, error);
+												}
+											}
+											var translated = self.$services.page.translateErrorCode(error.code, error.title ? error.title : error.message);
+											self.error = translated;
+											self.messages.push({
+												type: "request",
+												severity: "error",
+												title: translated
+											})
+										}
+										catch (exception) {
+											self.messages.push({
+												type: "request",
+												severity: "error",
+												title: self.$services.page.translateErrorCode(error.status ? "HTTP-" + error.status : "HTTP-500")
+											})
+										}
+										self.doingIt = false;
+										stop(self.error);
+									});
+								}
+								catch(exception) {
+									self.doingIt = false;
+									console.error("Could not submit form", exception);
+									stop(exception.message);
+								}
+							}
+							else {
+								var pageInstance = self.$services.page.getPageInstance(self.page, self);
+								if (self.cell.state.event) {
+									pageInstance.emit(self.cell.state.event, {});
+								}
+								if (self.cell.state.autoclose == null || self.cell.state.autoclose) {
+									self.$emit("close");
+								}
+								// if we allow read only, revert to it after a successful edit
+								if (self.cell.state.allowReadOnly) {
+									self.readOnly = true;
+								}
 								self.doingIt = false;
-								console.error("Could not submit form", exception);
-								stop(exception.message);
+								stop();
 							}
 						}
 						else {
-							var pageInstance = self.$services.page.getPageInstance(self.page, self);
-							if (self.cell.state.event) {
-								pageInstance.emit(self.cell.state.event, {});
-							}
-							if (self.cell.state.autoclose == null || self.cell.state.autoclose) {
-								self.$emit("close");
-							}
-							// if we allow read only, revert to it after a successful edit
-							if (self.cell.state.allowReadOnly) {
-								self.readOnly = true;
-							}
 							self.doingIt = false;
-							stop();
+							self.showMessages(messages);
+							self.scrollToException(messages);
 						}
 					}
+					if (messages.then) {
+						messages.then(continueWithDoIt, continueWithDoIt);
+					}
 					else {
-						self.doingIt = false;
-						this.showMessages(messages);
-						this.scrollToException(messages);
+						continueWithDoIt();
 					}
 				}
 			},
@@ -1418,20 +1470,16 @@ Vue.component("page-form-field", {
 			var pageInstance = self.$services.page.getPageInstance(self.page, self);
 			this.field.listeners.forEach(function(x) {
 				self.subscriptions.push(pageInstance.subscribe(x.to.replace(/^([^.]+).*/, "$1"), function(value) {
-					// this was initially added to fill in filter fields in a data component
-					// for some reason, this bit was triggered with the correct value but then immediately retriggered with the incorrect value
-					// perhaps the event is triggering a load which in turn triggers an unset of some sort?
-					// it is not entirely clear but for the current purposes, it is enough to ignore null values
-					// perhaps in the future, if we want to unset values with a remote event (not sure how that would go though?) we could try to dig deeper
-					// perhaps a "reset" listener is better suited, as emitting null is not ideal anyway
+					// there was a circumstance where the event was emitted twice, once with data, once without
+					// for this reason, initially we did not allow setting to null
+					// however in a new usecase, null resets were actually needed so we disabled the requirement to have null
+					// in this new usecase I tested both with and without values and everything worked as expected
 					var result = value ? self.$services.page.getValue(value, x.to.replace(/^[^.]+[.](.*)/, "$1")) : null;
 					// it seems to immediately trigger to null?
-					if (result != null) {
-						self.$emit("input", result);
-						// currently we reuse this one, but maybe we should always validate at that point?
-						if (self.validateOnBlur) {
-							setTimeout(self.validate, 1);
-						}
+					self.$emit("input", result);
+					// currently we reuse this one, but maybe we should always validate at that point?
+					if (self.validateOnBlur) {
+						setTimeout(self.validate, 1);
 					}
 				}));
 			});
@@ -1486,12 +1534,14 @@ Vue.component("page-form-field", {
 			return provided ? provided.component : null;	
 		},
 		fieldClasses: function(field) {
+			var result = [];
+			result.push("p-" + field.type);
 			if (field.styles) {
 				var self = this;
 				var pageInstance = self.$services.page.getPageInstance(self.page, self);
-				return this.$services.page.getDynamicClasses(field.styles, this.state, this);
+				nabu.utils.arrays.merge(result, this.$services.page.getDynamicClasses(field.styles, this.state, this));
 			}
-			return [];
+			return result;
 		},
 		validate: function(soft) {
 			var messages = nabu.utils.vue.form.validateChildren(this, soft);
@@ -1602,6 +1652,11 @@ Vue.component("page-form-configure", {
 			type: Boolean,
 			required: false,
 			default: false
+		},
+		allowPaste: {
+			type: Boolean,
+			required: false,
+			default: false
 		}
 	},
 	methods: {
@@ -1632,6 +1687,15 @@ Vue.component("page-form-configure", {
 			var index = this.fields.indexOf(field);
 			if (index < this.fields.length - 1) {
 				this.fields.splice(index, 1, replacement);
+				this.fields.push(field);
+			}
+		},
+		pasteField: function(page) {
+			var field = this.$services.page.pasteItem("page-form-field");	
+			if (field) {
+				if (!this.fields) {
+					Vue.set(this, "fields", []);
+				}
 				this.fields.push(field);
 			}
 		},
@@ -1814,6 +1878,12 @@ Vue.component("page-configure-arbitrary", {
 		// we want to find the rendered instance
 		var pageInstance = this.$services.page.getPageInstance(this.page, this);
 		var components = pageInstance.components[this.cell.id];
+		// note for my future self:
+		// this only works if there is at least one page-arbitrary rendered on the page
+		// so for example suppose you have a page arbitrary in the fields of a table (e.g. to draw an inline graph)
+		// you need at least one record in that table to have an instance of the page arbitrary
+		// once you have an instance, we have the configuration parameters
+		// note that, if said field is behind a conditional that prevents rendering in certain cases, those cases must be met to make sure it is actually rendered
 		this.instance = null;
 		if (components) {
 			if (components.$$arbitraryCellId == this.cell.id) {

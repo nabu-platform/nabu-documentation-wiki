@@ -66,7 +66,7 @@
 					
 					<n-form-section v-if="!action.dynamic">
 						<n-form-combo v-model="action.route" v-if="(!action.event || !action.event.name) && !action.url" :filter="listRoutes" label="Route"/>
-						<n-form-combo v-model="action.anchor" v-if="action.route" label="Anchor" :filter="function(value) { return value ? [value, '$blank', '$window'] : ['$blank', '$window'] }"/>
+						<n-form-combo v-model="action.anchor" v-if="action.route || action.url" label="Anchor" :filter="function(value) { return value ? [value, '$blank', '$window'] : ['$blank', '$window'] }"/>
 						<n-form-switch v-model="action.absolute" v-if="action.route && !cell.state.useButtons" label="Absolute"/>
 						<n-form-switch v-model="action.mask" label="Mask" v-if="action.route"/>
 						<n-form-text v-model="action.url" label="URL" v-if="!action.route && (!action.event || !action.event.name)" :timeout="600"/>
@@ -106,7 +106,7 @@
 					<button @click="action.activeRoutes.push('')"><span class="fa fa-plus"></span>Active Route<n-info>When is this action considered active (apart from the route you can already assign)?</n-info></button>
 				</div>
 				<div class="list-row padded-content" v-for="i in Object.keys(action.activeRoutes)">
-					<n-form-combo v-model="action.activeRoutes[i]" label="Active Route" :filter="function(value) { return listRoutes(value, true) }"/>
+					<n-form-combo v-model="action.activeRoutes[i]" label="Active Route" :filter="listRoutes"/>
 					<span @click="action.activeRoutes.splice(i, 1)" class="fa fa-times"></span>
 				</div>
 				
@@ -150,9 +150,9 @@
 			
 			<template v-else>
 				<span v-if="edit && !action.dynamic" class="fa fa-cog" @click="configureAction(action)"></span>
-				<a auto-close-actions class="page-action-link page-action-entry" :href="getActionHref(action)"
+				<a auto-close-actions class="p-link page-action-link page-action-entry" :href="getActionHref(action)"
 					:data-event="action.name"
-					:target="action.anchor == '$blank' ? '_blank' : null"
+					:target="action.anchor == '$blank' && (action.url || action.route) ? '_blank' : null"
 					:class="getDynamicClasses(action)"
 					:sequence="(edit ? getActions() : resolvedActions).indexOf(action) + 1"
 					:disabled="isDisabled(action)"
@@ -161,7 +161,7 @@
 					v-if="!cell.state.useButtons && (action.route || hasEvent(action) || action.url || action.close)"
 						><html-fragment v-if="action.icon" :html="$services.page.getIconHtml(action.icon)"></html-fragment
 						><span v-content.parameterized="{value:$services.page.translate($services.page.interpret(action.label, $self)), sanitize:!action.compileLabel, compile: !!action.compileLabel, plain: !action.compileLabel }"></span></a>
-				<button auto-close-actions class="page-action-button page-action-entry"
+				<button auto-close-actions class="p-button page-action-button page-action-entry"
 					:data-event="action.name"
 					:class="getDynamicClasses(action)"
 					:sequence="(edit ? getActions() : resolvedActions).indexOf(action) + 1"

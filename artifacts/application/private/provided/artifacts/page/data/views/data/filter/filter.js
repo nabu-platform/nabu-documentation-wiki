@@ -48,8 +48,26 @@ Vue.component("data-filter-default", {
 	computed: {
 		tags: function() {
 			var self = this;
+			var alreadyAdded = [];
 			return this.filters.filter(function(filter) {
-				return self.state[filter.name] != null;
+				var value = self.state[filter.name];
+				// never show empty
+				if (value == null) {
+					return false;
+				}
+				// if not empty, we might not want to show some values
+				if (self.cell.state.defaultFilter.hideBooleanTags) {
+					if (value == true || value == false || value == "true" || value == "false") {
+						return false;
+					}
+				}
+				if (alreadyAdded.indexOf(filter.name) >= 0) {
+					return false;
+				}
+				else {
+					alreadyAdded.push(filter.name);
+				}
+				return true;
 			}).map(function(filter) {
 				return {
 					filter: filter,

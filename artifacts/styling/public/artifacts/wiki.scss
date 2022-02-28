@@ -97,6 +97,10 @@ $wiki-menu-title-color-article: $theme-secondary;
 	}
 }
 
+body {
+	background-color: $wiki-background-color !important;
+	min-height: 100vh;
+}
 // make sure it overflows correctly
 #wiki-content {
 	margin-left: $menu-width;
@@ -256,7 +260,6 @@ $wiki-menu-title-color-article: $theme-secondary;
 	}
 }
 .wiki-article-container {
-	background-color: $wiki-background-color;
 //	max-width: calc(1024px + 10rem);
 	
 	.wiki-article {
@@ -459,7 +462,7 @@ $wiki-menu-title-color-article: $theme-secondary;
 		margin-left: 0.3rem;
 	}
 	.fa-info-circle, .fa-tag {
-		color: lighten($primary-wiki-color, 30%);
+		color: $primary-wiki-color-dark;
 		margin-right: 0.2rem;
 	}
 	
@@ -541,18 +544,32 @@ $wiki-menu-title-color-article: $theme-secondary;
 }
 
 @media print {
+	.wiki-menu-container {
+		display: none;
+	}
 	.wiki-toc, .wiki-menu, .page-actions.menu {
 		display: none;
+	}
+	#wiki-content {
+		margin-left: 0;
 	}
 	.wiki-article {
 		overflow: visible !important;
 		width: 100%;
 		max-width: 100% !important;
 	}
+	.wiki-article-container {
+		width: 100vw;
+		margin: 0;
+		padding:0;
+	}
 	h1 {
 		page-break-before: always;
 	}
 	[page="wiki-index"] .page-row {
 		display: block;
+	}
+	.fa-tag, .fa-eye {
+		display: none;
 	}
 }

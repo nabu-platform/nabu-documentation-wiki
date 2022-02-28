@@ -719,7 +719,7 @@ nabu.page.views.PageActionsGenerator = function(name) {
 					}
 					else if (action.url) {
 						var url = this.$services.page.interpret(action.url, this);
-						if (action.anchor) {
+						if (action.anchor == "$blank") {
 							window.open(url);
 						}
 						else {

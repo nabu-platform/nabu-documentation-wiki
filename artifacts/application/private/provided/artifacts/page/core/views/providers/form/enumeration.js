@@ -8,9 +8,13 @@ Vue.component("page-form-input-enumeration-configure", {
 		+ "		<n-form-switch v-if='!field.complex' v-model='field.allowCustom' label='Allow Custom Values'/>"
 		+ "		<n-form-combo v-model='field.required' label='Required' :items=\"[true,false]\" />"
 		+ "		<n-form-combo v-if='field.showRadioView' v-model='field.mustChoose' label='Must choose' :items=\"[true,false]\" />"
-		+ "		<n-form-text v-model='field.description' label='Description' :timeout='600'/>"
-		+ "		<n-form-combo v-model='field.descriptionType' label='Description type' :items=\"['before','after','info']\" />"
-		+ "		<n-form-text v-model='field.descriptionIcon' label='Description icon' :timeout='600'/>"
+			+ "	<n-form-text v-model='field.info' label='Info Content'/>"
+			+ "	<n-form-text v-model='field.before' label='Before Content'/>"
+			+ "	<n-form-text v-model='field.beforeIcon' label='Before Icon' v-if='field.before'/>"
+			+ "	<n-form-text v-model='field.after' label='After Content'/>"
+			+ "	<n-form-text v-model='field.afterIcon' label='After Icon' v-if='field.after'/>"
+			+ "	<n-form-text v-model='field.suffix' label='Suffix' v-if='!field.suffixIcon'/>"
+			+ "	<n-form-text v-model='field.suffixIcon' label='Suffix Icon' v-if='!field.suffix'/>"
 		+ "		<button @click='addEnumeration'>Add enumeration</button>"
 		+ "		<div v-if='!field.complex'><n-form-section class='enumeration list-row' v-for='i in Object.keys(field.enumerations)' :key=\"field.name + 'enumeration_' + i\">"
 		+ "			<n-form-text v-model='field.enumerations[i]'/>"
@@ -91,6 +95,10 @@ Vue.component("page-form-input-enumeration", {
 			+ "		:description='field.description ? $services.page.translate(field.description) : null'"
 			+ "		:description-type='field.descriptionType'"
 			+ "		:description-icon='field.descriptionIcon'"
+			+ "		:info='field.info ? $services.page.translate(field.info) : null'"
+			+ "		:before='field.before ? $services.page.translate(field.before) : null'"
+			+ "		:after='field.after ? $services.page.translate(field.after) : null'"
+			+ "		:suffix='field.suffixIcon ? $services.page.getIconHtml(field.suffixIcon) : field.suffix'"
 			+ "		:schema='schema'"
 			+ "		v-bubble:label"
 			+ "		:required='field.required'"
@@ -110,6 +118,10 @@ Vue.component("page-form-input-enumeration", {
 			+ "		:description='field.description ? $services.page.translate(field.description) : null'"
 			+ "		:description-type='field.descriptionType'"
 			+ "		:description-icon='field.descriptionIcon'"
+			+ "		:info='field.info ? $services.page.translate(field.info) : null'"
+			+ "		:before='field.before ? $services.page.translate(field.before) : null'"
+			+ "		:after='field.after ? $services.page.translate(field.after) : null'"
+			+ "		:suffix='field.suffixIcon ? $services.page.getIconHtml(field.suffixIcon) : field.suffix'"
 			+ "		:schema='schema'"
 			+ "		:required='field.required'"
 			+ "		:extracter='extracter'"			
@@ -164,6 +176,7 @@ Vue.component("page-form-input-enumeration", {
 				return value;
 			}
 			else if (value) {
+				// probably not used because we already resolve interpretations in the enumerate (?)
 				if (value.value) {
 					return this.$services.page.interpret(this.$services.page.translate(value.value, this), this);
 				}
@@ -186,8 +199,23 @@ Vue.component("page-form-input-enumeration", {
 			}
 		},
 		enumerate: function(value) {
-			var result = this.field.enumerations.filter(function(x) {
-				return !value || x.toLowerCase().indexOf(value.toLowerCase()) >= 0;
+			var self = this;
+			var result = this.field.enumerations.map(function(x) {
+				if(typeof(x) == "string"){
+					return "" + (x && x.indexOf("=") == 0 ? self.$services.page.interpret(x, self) : x);
+				}
+				else {
+					x = nabu.utils.objects.clone(x);
+					x.value = "" + (x && x.value && x.value.indexOf("=") == 0 ? self.$services.page.interpret(x.value, self) : x.value);
+					return x;
+				}
+			}).filter(function(x) {
+				if(typeof(x) == "string"){
+					return !value || x.toLowerCase().indexOf(value.toLowerCase()) >= 0;
+				}
+				else {
+					return !value || x.value.toLowerCase().indexOf(value.toLowerCase()) >= 0;
+				}
 			});
 			if (this.field.allowCustom && result.indexOf(value) < 0) {
 				result.unshift(value);

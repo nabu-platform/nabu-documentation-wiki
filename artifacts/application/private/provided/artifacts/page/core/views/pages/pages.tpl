@@ -132,7 +132,7 @@
 								<n-form-switch info="You can set this page as a default common root to all other pages that don't have any parent specified" 
 									v-if="!page.content.pageParent && !page.content.path" label="Is default parent page" v-model="page.content.initial" @input="save(page)"/>
 								<n-form-switch label="Is slow" v-if="!page.content.initial" v-model="page.content.slow" @input="save(page)"/>
-								<n-form-text v-if="!page.content.initial" v-model="page.content.path" label="Path" :timeout="600" @input="save(page)"/>
+								<n-form-text v-if="!page.content.initial" v-model="page.content.path" label="Path" :timeout="600" @input="save(page)" info="This should always start with a leading slash"/>
 								<n-form-combo v-if="!page.content.initial" v-model="page.content.pageParent" label="Page Parent" :timeout="600" @input="save(page)"
 									:filter="getRoutes"/>
 								<n-form-text info="If this page is a parent to other pages, you can set a location where that child content should be routed in by default." v-model="page.content.defaultAnchor" label="Default Content Anchor" :timeout="600" @input="save(page)"/>

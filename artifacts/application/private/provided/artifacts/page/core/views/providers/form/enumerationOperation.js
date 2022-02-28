@@ -15,7 +15,10 @@ Vue.component("page-form-input-enumeration-operation-configure", {
 			+ "			:filter='function() { return getEnumerationParameters(field.enumerationOperation) }'/>"
 			+ "		<n-form-combo v-if='field.enumerationOperation && field.enumerationOperationValue' :filter='function() { return getEnumerationParameters(field.enumerationOperation) }' v-model='field.enumerationOperationResolve' label='Resolve Field'/>"
 			+ "		<page-fields-edit :allow-multiple='false' fields-name='enumerationFields' v-if='field.enumerationOperation && field.enumerationOperationLabelComplex' :cell='{state:field}' :page='page' :keys='getEnumerationFields(field.enumerationOperation)' :allow-editable='false'/>"
-			+ "		<n-form-text v-model='field.emptyValue' label='Empty Value Text'/>"
+			+ "		<n-form-text v-if='!field.showRadioView' v-model='field.emptyValue' label='Empty Value Text'/>"
+			+ "		<n-form-text v-if='!field.showRadioView' v-model='field.calculatingValue' label='Calculating Value Text' info='The text to show while the result is being calculated'/>"
+			+ "		<n-form-text v-if='!field.showRadioView' v-model='field.resetValue' label='Reset Value Text' info='The text to show to reset the current value'/>"
+			+ " 	<n-form-switch v-if='!field.showRadioView' v-model='field.readOnly' label='Read only' />"
 			+ " 	<n-form-switch v-model='field.showRadioView' label='Show radio visualisation'/>"
 			+ " 	<n-form-switch v-model='field.selectFirstIfEmpty' label='Select the first value if none has been selected yet'/>"
 			+ "		<n-form-text v-if='field.showRadioView' v-model='field.mustChoose' label='Must choose' allow-typing='true' />"
@@ -75,7 +78,7 @@ Vue.component("page-form-input-enumeration-operation-configure", {
 		enumerationFilter: function(value) {
 			var providers = nabu.page.providers("page-enumerate").map(function(x) { return x.name });
 			if (value) {
-				providers = providers.filter(function(x) { return x.toLowerCase().indeOf(value.toLowerCase()) >= 0 });
+				providers = providers.filter(function(x) { return x.toLowerCase().indexOf(value.toLowerCase()) >= 0 });
 			}
 			providers.sort();
 			return providers;
@@ -196,7 +199,10 @@ Vue.component("page-form-input-enumeration-operation", {
 			+ "		v-bubble:blur"
 			+ "		:label='label'"
 			+ "		:value='value'"
+			+ "		:allow-typing='!field.readOnly'"
 			+ "		:empty-value='field.emptyValue ? $services.page.translate($services.page.interpret(field.emptyValue)) : null'"
+			+ "		:calculating-value='field.calculatingValue ? $services.page.translate($services.page.interpret(field.calculatingValue)) : null'"
+			+ "		:reset-value='field.resetValue ? $services.page.translate($services.page.interpret(field.resetValue)) : null'"
 			+ "		:info='field.info ? $services.page.translate(field.info) : null'"
 			+ "		:before='field.before ? $services.page.translate(field.before) : null'"
 			+ "		:after='field.after ? $services.page.translate(field.after) : null'"

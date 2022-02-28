@@ -12,6 +12,10 @@ Vue.component("page-format-resolver", {
 		fragment: {
 			type: Object,
 			required: true
+		},
+		keys: {
+			type: Array,
+			required: false
 		}
 	},
 	created: function() {
@@ -33,9 +37,22 @@ Vue.component("page-format-resolver", {
 		+ "		<page-fields-edit :allow-multiple='false' v-if='fragment.resolveOperation && fragment.resolveOperationLabelComplex' fields-name='resolveFields' :cell='{state:fragment}' :page='page' :keys='getEnumerationFields(fragment.resolveOperation)' :allow-editable='false'/>"
 		+ "		<n-page-mapper v-if='fragment.resolveOperation && hasMappableEnumerationParameters(fragment)'"
 		+ "			v-model='fragment.resolveOperationBinding'"
-		+ "			:from='$services.page.getAvailableParameters(page, cell)'"
+		+ "			:from='availableParameters'"
 		+ "			:to='getMappableEnumerationParameters(fragment)'/>"
 		+ "</n-form-section>",
+	computed: {
+		availableParameters: function() {
+			var result = this.$services.page.getAvailableParameters(this.page, this.cell);
+			if (this.keys) {
+				var record = {properties:{}}
+				this.keys.forEach(function(key) {
+					record.properties[key] = {type: "string"}
+				});
+				result.record = record;
+			}
+			return result;
+		}
+	},
 	methods: {
 		// copy/pasted from the table getOperations
 		getEnumerationServices: function(name) {

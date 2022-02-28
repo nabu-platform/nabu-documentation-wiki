@@ -40,6 +40,7 @@
 		<n-form-switch v-model="cell.state.defaultFilter.displayOpenOnly" label="Always show filters"/>
 		<n-form-text v-model="cell.state.defaultFilter.textBefore" label="Text before"/>
 		<n-form-switch v-model="cell.state.defaultFilter.useTags" label="Use Tags"/>
+		<n-form-switch v-model="cell.state.defaultFilter.hideBooleanTags" label="Hide boolean tags" v-if="cell.state.defaultFilter.useTags"/>
 		<n-form-text v-model="cell.state.defaultFilter.clearFilterIcon" v-if="showClear" label="Clear filter icon"/>
 		<n-form-text v-model="cell.state.defaultFilter.clearFilterText" v-if="showClear" label="Clear filter text"/>
 	</n-form-section>

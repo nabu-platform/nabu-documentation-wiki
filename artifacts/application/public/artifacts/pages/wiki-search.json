@@ -152,7 +152,8 @@
 						"defaultFilter": {
 							"displayOpenOnly": true
 						},
-						"class": "search-results"
+						"class": "search-results",
+						"emptyPlaceholder": "%{Try a search query}"
 					},
 					"target": "page",
 					"on": null,

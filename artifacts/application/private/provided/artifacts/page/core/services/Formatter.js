@@ -1,6 +1,6 @@
 nabu.services.VueService(Vue.extend({
 	methods: {
-		format: function(value, properties, page, cell) {
+		format: function(value, properties, page, cell, record, component) {
 			if (!properties.format) {
 				return value;
 			}
@@ -45,7 +45,7 @@ nabu.services.VueService(Vue.extend({
 			// otherwise we are using a provider
 			else {
 				var result = nabu.page.providers("page-format").filter(function(x) { return x.name == properties.format })[0]
-					.format(value, properties, page, cell);
+					.format(value, properties, page, cell, record, component);
 				return result;
 			}
 		},

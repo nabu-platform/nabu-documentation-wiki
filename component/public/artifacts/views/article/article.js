@@ -36,7 +36,13 @@ Vue.view("wiki-article-container", {
 					var substring = all.substring(0, index);
 					var amountOfOpening = substring.length - substring.replace(/</g, "").length;
 					var amountOfClosing = substring.length - substring.replace(/>/g, "").length;
-					if (amountOfClosing == amountOfOpening) {
+					
+					// we don't want hits within a header element
+					var lastElement = all.lastIndexOf("<", index);
+					if (lastElement >= 0 && all.substring(lastElement + 1, lastElement + 3).match(/h[0-9]+/)) {
+						return findPlain(all, part, index + 1);
+					}
+					else if (amountOfClosing == amountOfOpening) {
 						return index;
 					}
 					else {
@@ -78,7 +84,7 @@ Vue.view("wiki-article-container", {
 			var clicker = function(href) {
 				var path = href.replace(/.*?\?path=(.*)$/, "$1");
 				return function(event) {
-					self.$services.router.route("article", { path: path });
+					self.$services.router.route("wiki-article", { path: path });
 				}
 			};
 			var addEvents = function(icon, path) {
@@ -125,7 +131,7 @@ Vue.view("wiki-article-container", {
 							var a = document.createElement("a");
 							a.innerHTML = single.replace(/^[/]+/, "").replace(/\.[^.]+$/, "").replace(/[/]+/g, " > ");
 							a.onclick = function() {
-								self.$services.router.route("article", { path : single });
+								self.$services.router.route("wiki-article", { path : single });
 							}
 							li.appendChild(a);
 						});
@@ -145,7 +151,7 @@ Vue.view("wiki-article-container", {
 							var readOriginal = document.createElement("a");
 							readOriginal.setAttribute("class", "read-original");
 							readOriginal.onclick = function() {
-								self.$services.router.route("article", { path: path });
+								self.$services.router.route("wiki-article", { path: path });
 							};
 							readOriginal.innerHTML = "%{Go to this article} <span class='fa fa-chevron-right'></span>";
 							self.$refs.inline.insertBefore(readOriginal, self.$refs.inline.firstChild);

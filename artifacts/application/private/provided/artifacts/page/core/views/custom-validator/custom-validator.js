@@ -167,7 +167,7 @@ Vue.view("custom-validator", {
 						self.messages.defer(promise);
 						var parameters = {};
 						Object.keys(validation.bindings).map(function(key) {
-							self.$services.page.setValue(parameters, key, self.$services.page.getBindingValue(pageInstance, validation.bindings[key]));
+							self.$services.page.setValue(parameters, key, self.$services.page.getBindingValue(pageInstance, validation.bindings[key], self));
 						});
 						self.$services.swagger.execute(validation.operationId, parameters).then(function(x) {
 							var validations = [];

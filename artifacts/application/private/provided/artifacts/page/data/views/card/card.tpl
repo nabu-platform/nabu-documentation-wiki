@@ -46,6 +46,7 @@
 					:cell="cell"/>
 				<div class="data-card-actions" v-if="actions.length" @mouseover="actionHovering = true" @mouseout="actionHovering = false">
 					<button v-if="!action.condition || $services.page.isCondition(action.condition, {record:record}, $self)" 
+						class="p-button"
 						v-for="action in recordActions" 
 						@click="trigger(action, record)"
 						:class="[action.class, {'has-icon': action.icon}]"><span v-if="action.icon" class="fa" :class="action.icon"></span><label v-if="action.label">{{$services.page.translate(action.label)}}</label></button>
@@ -57,7 +58,7 @@
 			:has-next="paging.current != null && paging.total != null && paging.current < paging.total - 1"/>
 		<n-paging :value="paging.current" :total="paging.total" :load="load" :initialize="false" v-else-if="!cell.state.loadLazy && !cell.state.loadMore"/>
 		<div class="load-more" v-else-if="cell.state.loadMore && paging.current != null && paging.total != null && paging.current < paging.total - 1">
-			<button class="load-more-button" @click="load(paging.current + 1, true)">%{Load More}</button>
+			<button class="p-button load-more-button" @click="load(paging.current + 1, true)">%{Load More}</button>
 		</div>
 		<div v-if="!records.length && !showEmpty && cell.state.emptyPlaceholder" class="no-data">{{ $services.page.translate(cell.state.emptyPlaceholder) }}</div>
 		

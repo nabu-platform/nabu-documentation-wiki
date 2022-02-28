@@ -1,5 +1,5 @@
 Vue.component("page-field-fragment-data-configure", {
-	template: "<page-formatted-configure :fragment='fragment' :allow-html='true' :cell='cell' :page='page'/>",
+	template: "<page-formatted-configure :fragment='fragment' :allow-html='true' :cell='cell' :page='page' :keys='keys'/>",
 	props: {
 		cell: {
 			type: Object,
@@ -13,6 +13,10 @@ Vue.component("page-field-fragment-data-configure", {
 		fragment: {
 			type: Object,
 			required: true
+		},
+		keys: {
+			type: Array,
+			required: false
 		}
 	}
 });

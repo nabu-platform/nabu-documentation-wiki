@@ -71,7 +71,13 @@ Vue.component("n-page-mapper", {
 				}
 				return enumerations;
 			}
-			var fields = this.$services.page.getSimpleKeysFor(this.from[label], true, true);
+			// in some cases the root definition is an array (e.g. batch selection event from a table)
+			// at that point, we want the fields within, the getSimpleKeys does not support this well atm
+			var def = this.from[label];
+			if (def.type == "array" && def.items) {
+				def = def.items;
+			}
+			var fields = this.$services.page.getSimpleKeysFor(def, true, true);
 			if (value) {
 				fields = fields.filter(function(x) { x.toLowerCase().indexOf(value.toLowerCase()) >= 0 });
 			}

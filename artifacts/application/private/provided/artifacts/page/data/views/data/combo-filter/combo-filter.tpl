@@ -24,7 +24,7 @@
 					v-if="!isHidden(activeFilter)"
 					@input="function(newValue) { setFilter(activeFilter, newValue) }"/>
 			</div>
-			<button class="primary refresh-button" v-if="showRefresh" @click="$emit('refresh')"><span class="fa fa-sync"></span></button>
+			<button class="p-button primary refresh-button" v-if="showRefresh" @click="$emit('refresh')"><span class="fa fa-sync"></span></button>
 		</div>
 		<div class="combo-filter-tags" v-if="cell.state.comboFilter && cell.state.comboFilter.useTags">
 			<div class="combo-filter-tag" v-for="tag in tags">

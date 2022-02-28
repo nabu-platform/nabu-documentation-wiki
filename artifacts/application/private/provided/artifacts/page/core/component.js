@@ -201,6 +201,7 @@ window.addEventListener("load", function() {
 								}
 								// make sure we send out a created event once done
 								cell.state.event = "created" + (name ? name : "");
+								cell.state.ok = "%{Create}";
 								// trigger on this create
 								cell.on = "create" + (name ? name : "");
 								// push an action to the datacomponent
@@ -224,6 +225,7 @@ window.addEventListener("load", function() {
 								// make sure we synchronize changes so we don't need to refresh
 								cell.state.synchronize = true;
 								cell.state.event = "updated" + (name ? name : "");
+								cell.state.ok = "%{Update}";
 								// trigger on this create
 								cell.on = "update" + (name ? name : "");
 								// push an action to the datacomponent
@@ -290,6 +292,19 @@ window.addEventListener("load", function() {
 			name: "Checkbox",
 			description: "A checkbox that allows you to toggle boolean values",
 			icon: "page/core/images/form-checkbox.svg"
+		});
+		$services.router.register({
+			alias: "page-form-enumeration-operation",
+			enter: function(parameters) {
+				parameters.formComponent = "page-form-input-enumeration-operation";
+				parameters.configurationComponent = "page-form-input-enumeration-operation-configure";
+				return new nabu.page.views.FormComponent({propsData: parameters});
+			},
+			form: "enumerationOperation",
+			category: "Form",
+			name: "Enumeration (Operation)",
+			description: "An enumeration based on an operation",
+			icon: "page/core/images/enumeration.png"
 		});
 		$services.router.register({
 			alias: "page-form-date",
@@ -494,6 +509,13 @@ window.addEventListener("load", function() {
 			namespace: "google",
 			multipleFields: true
 		});
+		nabu.page.provide("page-form-input", { 
+			component: "page-form-input-validate-custom", 
+			configure: "page-form-input-validate-custom-configure",
+			name: "validate",
+			namespace: "nabu.page",
+			multipleFields: true
+		});	
 		
 		// form list providers
 		nabu.page.provide("page-form-list-input", { 
@@ -524,6 +546,34 @@ window.addEventListener("load", function() {
 			cellTag: "e-columns"
 		});
 		
+		// functions
+		nabu.page.provide("page-function", {
+			id: "page.setAcceptedCookies",
+			async: false,
+			implementation: function(input, $services, $value, resolve, reject) {
+				// we are expecting an object where each key is a boolean true or false
+				// alternatively an array is also good
+				// if true, the cookie is accepted, if not, it isn't
+				var object = input.cookieObject;
+				var accepted = [];
+				if (object instanceof Array) {
+					nabu.utils.arrays.merge(accepted, object);
+				}
+				else if (object) {
+					Object.keys(object).forEach(function(key) {
+						if (object[key]) {
+							accepted.push(key);
+						}
+					});
+				}
+				$services.page.acceptCookies(accepted);
+			},
+			inputs: [{
+				"name": "cookieObject",
+				"required": true
+			}]
+		});
+		
 		nabu.page.provide("page-icon", {
 			name: "Font Awesome",
 			html: function(icon, additionalCss) {
@@ -539,7 +589,7 @@ window.addEventListener("load", function() {
 		
 		// formatters
 		nabu.page.provide("page-format", {
-			format: function(id, fragment, page, cell) {
+			format: function(id, fragment, page, cell, record) {
 				var properties = null;
 				var self = this;
 				var pageInstance = $services.page.getPageInstance(page, this);
@@ -547,8 +597,14 @@ window.addEventListener("load", function() {
 					properties = {};
 					Object.keys(fragment.resolveOperationBinding).map(function(key) {
 						if (fragment.resolveOperationBinding[key]) {
-							var bindingValue = $services.page.getBindingValue(pageInstance, fragment.resolveOperationBinding[key]);
-							properties[key] = bindingValue;
+							// looking inside the current record
+							if (fragment.resolveOperationBinding[key].indexOf("record.") == 0) {
+								properties[key] = record ? $services.page.getValue(record, fragment.resolveOperationBinding[key].substring("record.".length)) : null;
+							}
+							else {
+								var bindingValue = $services.page.getBindingValue(pageInstance, fragment.resolveOperationBinding[key]);
+								properties[key] = bindingValue;
+							}
 						}
 					});
 				}

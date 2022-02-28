@@ -54,6 +54,8 @@ window.addEventListener("load", function() {
 			}
 		});*/
 		
+		/*
+		// removed from the core, available as separate bundle
 		$services.router.register({
 			alias: "data-donut",
 			enter: function(parameters) {
@@ -85,6 +87,7 @@ window.addEventListener("load", function() {
 			},
 			slow: true
 		});
+		*/
 		
 		$services.router.register({
 			alias: "data-card",

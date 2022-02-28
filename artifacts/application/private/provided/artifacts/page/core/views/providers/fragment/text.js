@@ -36,7 +36,7 @@ Vue.component("page-field-fragment-text-configure", {
 });
 
 Vue.component("page-field-fragment-text", {
-	template: "<component :is='tag' v-content.parameterized='{value:$services.page.translate(fragment.content), compile:fragment.compile, plain:!fragment.html}'/>",
+	template: "<component :is='tag' v-content.parameterized='{value:$services.page.translate($services.page.interpret(fragment.content, $self)), compile:fragment.compile, plain:!fragment.html}'/>",
 	props: {
 		cell: {
 			type: Object,

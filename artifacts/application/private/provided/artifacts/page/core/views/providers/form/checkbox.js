@@ -1,8 +1,10 @@
 Vue.component("page-form-input-checkbox-configure", {
 	template: "<div><n-form-switch v-model='field.mustCheck' label='Must Check'/>"
-			+ "<n-form-text v-model='field.info' label='Info Content'/>" 
-			+ "<n-form-switch v-model='field.invert' label='Invert Boolean'/>" 
-			+ "<n-form-text v-model='field.infoIcon' label='Info Icon'/></div>",
+			+ "	<n-form-text v-model='field.info' label='Info Content'/>" 
+			+ "	<n-form-switch v-model='field.invert' label='Invert Boolean'/>" 
+			+ "	<n-form-text v-model='field.infoIcon' label='Info Icon'/>"
+			+ "	<n-page-mapper v-model='field.bindings' :from='availableParameters' :to='[\"item\"]'/>"
+			+ "</div>",
 	props: {
 		cell: {
 			type: Object,
@@ -16,6 +18,16 @@ Vue.component("page-form-input-checkbox-configure", {
 			type: Object,
 			required: true
 		}
+	},
+	created: function() {
+		if (!this.field.bindings) {
+			Vue.set(this.field, "bindings", {});
+		}
+	},
+	computed: {
+		availableParameters: function() {
+			return this.$services.page.getAvailableParameters(this.page, this.cell, true);
+		}
 	}
 });
 
@@ -28,6 +40,7 @@ Vue.component("page-form-input-checkbox", {
 			+ "		:must-check='field.mustCheck'"
 			+ "		@input=\"function(newValue) { $emit('input', newValue) }\""
 			+ "		:label='label'"
+			+ "		:item='getItem()'"
 			+ "		:value='value'"
 			+ "		:timeout='timeout'"
 			+ "		:invert='!!field.invert'"
@@ -71,6 +84,12 @@ Vue.component("page-form-input-checkbox", {
 	methods: {
 		validate: function(soft) {
 			return this.$refs.form.validate(soft);
+		},
+		getItem: function() {
+			if (this.field.bindings && this.field.bindings.item) {
+				var pageInstance = this.$services.page.getPageInstance(this.page, this);
+				return this.$services.page.getBindingValue(pageInstance, this.field.bindings.item, this);
+			}
 		}
 	}
 });

@@ -9,7 +9,8 @@ nabu.page.views.data.TableListGenerator = function(name) { return Vue.component(
 	data: function() {
 		return {
 			configuring: false,
-			hiddenColNames: []
+			hiddenColNames: [],
+			open: []
 		}
 	},
 	activate: function(done) {
@@ -39,10 +40,41 @@ nabu.page.views.data.TableListGenerator = function(name) { return Vue.component(
 			// if we change the records, reset the selected
 			// we especially need to clear the event!
 			// the data component should be wiping the selected already...?
-			this.clearAllSelected();		
+			this.clearAllSelected();
+			this.open.splice(0);
 		}
 	},
 	methods: {
+		toggleOpen: function(record) {
+			var index = this.open.indexOf(record);	
+			if (index < 0) {
+				if (this.cell.state.onlyOneDetailOpen) {
+					this.open.splice(0);
+				}
+				this.open.push(record);
+			}
+			else {
+				this.open.splice(index, 1);
+			}
+		},
+		isOpen: function(record) {
+			// if the detail fields contain arbitrary content, it needs to be rendered in order to be able to configure it
+			// so in edit mode, we render at least one
+			if (this.edit && this.records.indexOf(record) == 0) {
+				return true;
+			}
+			return this.open.indexOf(record) >= 0;
+		},
+		isShowAnyBatchSelection: function() {
+			var show = false;
+			for (var i = 0; i < this.records.length; i++) {
+				if (this.isShowBatchSelection(this.records[i])) {
+					show = true;
+					break;
+				}
+			}
+			return show;
+		},
 		isShowBatchSelection: function(record) {
 			if (this.cell.state.batchSelectionCondition) {
 				return this.$services.page.isCondition(this.cell.state.batchSelectionCondition, record, this);
@@ -146,7 +178,6 @@ nabu.page.views.data.TableListGenerator = function(name) { return Vue.component(
 			if (this.cell.state.multiselect && this.cell.state.batchSelectionEvent) {
 				events[this.cell.state.batchSelectionEvent] = {type: "array", items: {properties: this.definition, type: "object"}};
 			}
-			console.log("custom events are", events);
 			return events;
 		},
 		updateMultiSelect: function(index) {
@@ -258,7 +289,7 @@ nabu.page.views.data.TableListGenerator = function(name) { return Vue.component(
 			this.configuring = true;
 		},
 		configurator: function() {
-			return "data-table-list-configure"
+			return "data-table-list-configure";
 		},
 		addTopHeaderField: function() {
 			if (!this.cell.state.topHeaders) {

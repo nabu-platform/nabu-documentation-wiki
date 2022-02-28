@@ -40,8 +40,19 @@ Vue.component("data-combo-filter", {
 	computed: {
 		tags: function() {
 			var self = this;
+			var alreadyAdded = [];
 			return this.filters.filter(function(filter) {
-				return self.state[filter.name] != null;
+				if (self.state[filter.name] == null) {
+					return false;
+				}
+				if (alreadyAdded.indexOf(filter.name) >= 0) {
+					return false;
+				}
+				else {
+					alreadyAdded.push(filter.name);
+				}
+				return true;
+				
 			}).map(function(filter) {
 				return {
 					filter: filter,

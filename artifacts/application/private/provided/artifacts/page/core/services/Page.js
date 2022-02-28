@@ -92,10 +92,27 @@ nabu.services.VueService(Vue.extend({
 			rendering: 0,
 			// we start off false to mitigate initial faulty stable detection
 			stable: false,
-			stableTimer: null
+			stableTimer: null,
+			// we actually start with true, we are assuming you have a v-if bound to this boolean
+			// we don't want the cookie banner to temporarily visually appear until we can establish whether or not you accepted them
+			// due to the loading strategy this should not occur but still...
+			hasAcceptedCookies: true,
+			// functions that are run whenever cookie settings change
+			cookieHooks: [],
+			// you can set a cookie provider, the key is the name of the cookie provider, the value is an array of regexes (or names) of the cookies that belong to this provider
+			cookieProviders: {}
 		}
 	},
 	activate: function(done) {
+		// intercept all cookie actions
+		this.interceptCookies();
+		// make sure we fix the cookie stuff, this uses the cookies services
+		// we do this periodically to catch evil scripts!
+		this.synchronizeCookies(true);
+		
+		// check if we have already accepted the cookies
+		this.calculateAcceptedCookies();
+		
 		var self = this;
 		// non-reactive
 		this.pageCounter = 0;
@@ -137,6 +154,18 @@ nabu.services.VueService(Vue.extend({
 				self.$services.router.route("offline");
 			}, 1);
 		}
+		// any cookies you have provided that are not set to auto accept will be added to the cookie providers
+		nabu.page.providers("page-cookies").filter(function(x) { return x.name && !x.accept }).forEach(function(x) {
+			var group = x.group ? x.group : x.name;
+			var name = x.name;
+			if (!self.cookieProviders[group]) {
+				Vue.set(self.cookieProviders, group, []);
+			}
+			if (self.cookieProviders[group].indexOf(x.name) < 0) {
+				self.cookieProviders[group].push(x.name);
+			}
+		});
+		
 		this.activate(done, true);
 	},
 	clear: function(done) {
@@ -171,6 +200,47 @@ nabu.services.VueService(Vue.extend({
 		});
 	},
 	methods: {
+		calculateAcceptedCookies: function() {
+			this.hasAcceptedCookies = !!this.$services.cookies.get("cookie-settings");	
+		},
+		getAllowedCookies: function() {
+			// these technical cookies are always allowed
+			// JSESSIONID allows for server-side sessions
+			// language allows the user to choose a language, even if not logged in at the time of choosing
+			// the device cookie allows for remembering existing user, validating new devices, notifying the user if a new device is used...
+			// the realm cookie (in combination with te device cookie) actually holds the secret to remembering users
+			// the cookie settings allow to store additional whitelisted cookies
+			var allowedCookies = ["JSESSION", "language", "Device-${environment('realm')}", "Realm-${environment('realm')}", "cookie-settings"];
+			// check if we have already whitelisted cookies
+			var cookieSettings = this.getCookieSettings();
+			// each allowed cookie setting is either a name of a cookie, a regex of a cookie or the name of a provider that _has_ regexes
+			// the provider is simply to bundle the regexes etc into a readable and reusable name
+			var self = this;
+			cookieSettings.forEach(function(x) {
+				allowedCookies.push(x);
+				if (self.cookieProviders[x] instanceof Array) {
+					nabu.utils.arrays.merge(allowedCookies, self.cookieProviders[x]);
+				}
+			});
+			// you can whitelist cookies this way without specific user acceptance (e.g. they are technical)
+			nabu.page.providers("page-cookies").filter(function(x) { return x.name && x.accept }).forEach(function(x) {
+				allowedCookies.push(x.name);
+			});
+			return allowedCookies;
+		},
+		getCookieSettings: function() {
+			var allowedCookies = [];
+			var cookieSettings = this.$services.cookies.get("cookie-settings");
+			if (cookieSettings) {
+				try {
+					nabu.utils.arrays.merge(allowedCookies, JSON.parse(cookieSettings));
+				}
+				catch (exception) {
+					// ignore, someone messed with it?
+				}
+			}
+			return allowedCookies;
+		},
 		// check if a component is in fact a page
 		isPage: function(component) {
 			return component && component.$options && component.$options.template && component.$options.template == "#nabu-page";
@@ -189,7 +259,11 @@ nabu.services.VueService(Vue.extend({
 			return this.copiedType == item;
 		},
 		// copy it to the clipboard
-		copyItem: function(item, content) {
+		copyItem: function(item, content, clone) {
+			// if not specified, we set to true
+			if (clone == null) {
+				clone = true;
+			}
 			nabu.utils.objects.copy({
 				type: item,
 				content: content
@@ -957,7 +1031,7 @@ nabu.services.VueService(Vue.extend({
 			}
 		},
 		destroyPageInstance: function(page, instance) {
-			if (instance.pageInstanceId) {
+			if (instance.pageInstanceId != null) {
 				delete nabu.page.instances[page.name + "." + instance.pageInstanceId];
 			}
 			if (nabu.page.instances[page.name] == instance) {
@@ -1189,6 +1263,19 @@ nabu.services.VueService(Vue.extend({
 				})[0];
 				if (enumeration != null && typeof(enumeration) != "undefined") {
 					value = enumerators[key].value ? enumeration[enumerators[key].value] : enumeration;
+				}
+			}
+			// let's check parent contexts
+			if (value == null && context != null) {
+				while (context) {
+					if (context.getCellValue) {
+						var localResult = context.getCellValue(bindingValue);
+						if (localResult != null) {
+							value = localResult;
+							break;
+						}
+					}
+					context = context.$parent;
 				}
 			}
 			return value;
@@ -1460,7 +1547,7 @@ nabu.services.VueService(Vue.extend({
 			return styles.filter(function(style) {
 				return self.isCondition(style.condition, state, instance);
 			}).map(function(style) {
-				return self.$services.page.interpret(style.class, instance);
+				return self.$services.page.interpret(style.class, instance, state);
 			});
 		},
 		getRestrictedParameters: function() {
@@ -1530,14 +1617,28 @@ nabu.services.VueService(Vue.extend({
 			feature = feature.replace("}", "");
 			return this.enabledFeatures.indexOf(feature) >= 0;
 		},
-		evalInContext: function(context, code) {
+		evalInContext: function(context, js) {
+			if ((!js.match(/^[\s]*function\b.*/)) && (!js.match(/^[\s]*return[\s]+.*/))) {
+				js = "return " + js;
+			}
 			var value;
 			try {
-				// for expressions
-				value = eval('with(context) { ' + js + ' }');
+				// for statements
+				value = (new Function('with(this) { ' + js + ' }')).call(context);
 			}
 			catch (e) {
-				if (e instanceof SyntaxError) {
+				// do nothing
+			}
+			// during minification the variable "context" is renamed to something else
+			// that means the eval always fails at it expects a context variable to be available
+			//value = (new Function('with(this) { ' + js + ' }')).call(context);
+			//try {
+				// for expressions
+				//value = eval('with(context) { ' + js + ' }');
+			//	value = (new Function('with(this) { ' + js + ' }')).call(context);
+			//}
+			//catch (e) {
+				/*if (e instanceof SyntaxError) {
 					try {
 						// for statements
 						value = (new Function('with(this) { ' + js + ' }')).call(context);
@@ -1545,8 +1646,8 @@ nabu.services.VueService(Vue.extend({
 					catch (e) {
 						// do nothing
 					}
-				}
-			}
+				}*/
+			//}
 			return value;	
 		},
 		eval: function(condition, state, instance) {
@@ -2005,6 +2106,11 @@ nabu.services.VueService(Vue.extend({
 				return this.update(page).then(function() {
 					self.removeByName(oldName);
 				});
+			}
+			// you update the label, but it amounts to the same name
+			else if (newName == page.name && name != page.content.label) {
+				page.content.label = name;
+				return this.update(page);
 			}
 		},
 		remove: function(page) {
@@ -3120,6 +3226,148 @@ nabu.services.VueService(Vue.extend({
 			}
 			row.cells.forEach(this.normalizeCell);
 			return row;
+		},
+		unsetCookie: function(cookie) {
+			var index = cookie.indexOf('=');
+			var name = index >= 0 ? cookie.substring(0, index) : cookie;
+			var path = null;
+			if (cookie.indexOf("path") >= 0) {
+				path = cookie.replace(/[\n]+/, " ").replace(/.*;[\s]*path[\s]*=[\s]*([^;]+).*/, "$1");
+				if (path == cookie) {
+					path = null;
+				}
+			}
+			if (path == null) {
+				path = "${when(environment('cookiePath') == null, environment('serverPath'), environment('cookiePath'))}";
+			}
+			var expires = "";
+			var days = -365;
+			var value = "cleared"; 
+			var domain = null;
+			if (cookie.indexOf("domain") >= 0) {
+				domain = cookie.replace(/[\n]+/, " ").replace(/.*;[\s]*domain[\s]*=[\s]*([^;]+).*/, "$1");
+				if (domain == cookie) {
+					domain = null;
+				}
+			}
+			var date = new Date();
+			date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+			expires = "; expires=" + date.toUTCString();
+			var fullCookie = name + "=" + value + expires + "; path=" + path
+				+ (domain ? ";domain=" + domain : "");
+			// pre and post intercept
+			if (document.originalCookie != null) {
+				document.originalCookie = fullCookie;
+			}
+			else {
+				document.cookie = fullCookie;
+			}
+			// it seems setting with domain "null" does not unset cookies at for example ".sub.domain.com"
+			// we do a second round with the actual domain, this seems to work to remove those as well
+			if (domain == null) {
+				domain = "${environment('host')}";
+			}
+			var fullCookie = name + "=" + value + expires + "; path=" + path
+				+ (domain ? ";domain=" + domain : "");
+			if (document.originalCookie != null) {
+				document.originalCookie = fullCookie;
+			}
+			else {
+				document.cookie = fullCookie;
+			}
+		},
+		// check if the name is allowed
+		isAllowedCookie: function(name) {
+			var allowedCookies = this.getAllowedCookies();
+			if (allowedCookies.indexOf(name) >= 0) {
+				return true;
+			}
+			for (var i = 0; i < allowedCookies.length; i++) {
+				if (name.match(new RegExp(allowedCookies[i]))) {
+					return true;
+				}
+			}
+			return false;
+		},
+		// list all the cookies you want to accept, as an array
+		acceptCookies: function(cookies) {
+			if (!cookies) {
+				cookies = [];
+			}
+			else if (!(cookies instanceof Array)) {
+				cookies = [cookies];
+			}
+			// remember _100_ years!
+			this.$services.cookies.set("cookie-settings", JSON.stringify(cookies), 365*100);
+			this.calculateAcceptedCookies();
+			// synchronize immediately
+			this.synchronizeCookies();
+			this.cookieHooks.forEach(function(x) { x(cookies) });
+		},
+		// you can add functions that are run everytime the cookie settings change
+		addCookieHook: function(func) {
+			this.cookieHooks.push(func);
+			// immediately trigger in case you accepted in a previous instance
+			func(this.getAllowedCookies());
+		},
+		interceptCookies: function() {
+			var self = this;
+			// now we write an intercept so any new cookies being written can not violate this
+			var originalCookie = "originalCookie";
+			if (!this.isSsr) {
+				// we redirect document.cookie to document.originalCookie
+				Object.defineProperty(
+					Document.prototype, 
+					originalCookie, 
+					Object.getOwnPropertyDescriptor(Document.prototype, 'cookie')
+				);
+				// we redefine document.cookie
+				Object.defineProperty(Document.prototype, 'cookie', {
+					enumerable: true,
+					configurable: true,
+					get: function() {
+						return this[originalCookie];
+					},
+					set: function(value) {
+						// we check if the cookie is allowed
+						var index = value.indexOf('=');
+						if (index >= 0) {
+							var cookieName = value.substring(0, index);
+							// if it's allowed, we let it pass
+							if (self.isAllowedCookie(cookieName)) {
+								this[originalCookie] = value;
+							}
+							else {
+								console.log("Blocking cookie", cookieName);
+								self.unsetCookie(value);
+							}
+						}
+					}
+				});
+			}
+		},
+		synchronizeCookies: function(repeat) {
+			var self = this;
+			// first up: remove any cookies that should not be there
+			// the problem is load order, we can't fully guarantee to intercept all cookie setting, because that would require the javascript to be run before any includes are resolved
+			// because this is hard to guarantee, we simply remove the cookies later on if it is relevant
+			var cookies = document.cookie.split(/[\s]*;[\s]*/);
+			for (var i = 0; i < cookies.length; i++) {
+				var index = cookies[i].indexOf('=');
+				if (index >= 0) {
+					var name = cookies[i].substring(0, index);
+					if (!self.isAllowedCookie(name)) {
+						console.log("Removing cookie", name);
+						self.unsetCookie(cookies[i]);
+					}
+				}
+			}
+			if (repeat) {
+				// repeat periodically
+				setTimeout(function() {
+					self.synchronizeCookies(repeat)
+				}, 30000);
+			}
 		}
 	},
 	watch: {

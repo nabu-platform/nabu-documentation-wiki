@@ -601,6 +601,10 @@ Vue.component("page-formatted-configure", {
 			type: Boolean,
 			required: false,
 			default: false
+		},
+		keys: {
+			type: Array,
+			required: false
 		}
 	},
 	created: function() {
@@ -741,6 +745,7 @@ Vue.component("page-formatted", {
 					if (result.length > parseInt(this.fragment.maxLength)) {
 						result = result.substring(0, parseInt(this.fragment.maxLength)) + "...";
 					}
+					return result;
 				}
 				return this.value;
 			}
@@ -759,13 +764,13 @@ Vue.component("page-formatted", {
 				// this allows us to evaluate against the actual record state in a data list
 				var fraggy = this.fragment ? nabu.utils.objects.clone(this.fragment) : {};
 				fraggy.state = this.state;
-				return this.$services.formatter.format(this.value, fraggy);
+				return this.$services.formatter.format(this.value, fraggy, this.page, this.cell, this.state, this);
 			}
 			// otherwise we are using a provider
 			else {
 				var self = this;
 				var result = nabu.page.providers("page-format").filter(function(x) { return x.name == self.fragment.format })[0]
-					.format(this.value, this.fragment, this.page, this.cell);
+					.format(this.value, this.fragment, this.page, this.cell, this.state, this);
 				return result;
 			}
 		}

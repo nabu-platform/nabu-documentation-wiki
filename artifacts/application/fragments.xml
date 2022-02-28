@@ -2,6 +2,7 @@
 <webFragmentConfigurations>
     <parts>
         <configuration>
+            <property key="title">Nabu Documentation</property>
             <property key="home">wiki-search</property>
             <property key="homeUser">wiki-search</property>
             <property key="devices[0]/name">phone</property>
