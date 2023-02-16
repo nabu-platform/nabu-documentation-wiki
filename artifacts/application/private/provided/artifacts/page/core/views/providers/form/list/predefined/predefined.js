@@ -204,13 +204,16 @@ Vue.component("page-form-list-input-predefined", {
 									}
 								}
 								var optional = self.field.optionalField ? x[self.field.optionalField] : true;
+								var placeholder = self.field.placeholderField ? x[self.field.placeholderField] : null;
 								var result = {
 									type: type == null ? "string" : type,
 									name: name == null ? "unnamed" + nameCounter++ : name,
 									label: label == null ? (name == null ? "Unnamed" : name) : label,
 									value: value,
-									optional: optional
+									optional: optional,
+									placeholder: placeholder
 								}
+								console.log("calculated placeholder", placeholder);
 								if (value != null) {
 									self.value[result.name] = value;
 								}

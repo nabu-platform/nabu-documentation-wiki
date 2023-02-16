@@ -1344,6 +1344,32 @@ nabu.page.views.Page = Vue.component("n-page", {
 		resetEvents: function() {
 			this.cachedEvents = null;
 		},
+		getDraggables: function() {
+			var result = {};
+			var self = this;
+			Object.keys(this.components).map(function(cellId) {
+				var component = self.components[cellId];
+				var handle = function(component) {
+					// pages will _not_ send their events by default to other pages (only through global events)
+					// so this we skip the page components in this listing
+					if (component && component.getDraggables && !self.$services.page.isPage(component)) {
+						var cellDraggables = component.getDraggables();
+						if (cellDraggables) {
+							Object.keys(cellDraggables).forEach(function(key) {
+								result[key] = cellDraggables[key];
+							});
+						}
+					}
+				}
+				if (component instanceof Array) {
+					component.forEach(handle);
+				}
+				else {
+					handle(component);
+				}
+			});
+			return result;
+		},
 		getEvents: function() {
 			// non-watched cache property
 			// we have too many problems with update loops that are triggered by this method

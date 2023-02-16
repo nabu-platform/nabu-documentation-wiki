@@ -532,7 +532,7 @@ nabu.page.views.PageActionsGenerator = function(name) {
 				}
 				return "javascript:void(0)";
 			},
-			validateTarget: function(target) {
+			validateTarget: function(target, execute) {
 				var element = document.getElementById(target);
 				var elements = [];
 				if (element && element.__vue__ && element.__vue__.validate) {

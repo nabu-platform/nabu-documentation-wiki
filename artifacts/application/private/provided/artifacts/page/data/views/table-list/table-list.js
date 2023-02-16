@@ -45,6 +45,9 @@ nabu.page.views.data.TableListGenerator = function(name) { return Vue.component(
 		}
 	},
 	methods: {
+		isAllowedField: function(field) {
+			return !field.condition || this.$services.page.isCondition(field.condition, {}, this);
+		},
 		toggleOpen: function(record) {
 			var index = this.open.indexOf(record);	
 			if (index < 0) {

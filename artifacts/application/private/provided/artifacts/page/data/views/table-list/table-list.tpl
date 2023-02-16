@@ -113,6 +113,14 @@
 						@input="function(value) { field.orderField = value ? value : null }"/>
 				</div>
 			</n-collapsible>
+			<n-collapsible title="Field Conditions" v-if="cell.state.fields && cell.state.fields.length">
+				<div class="list-row" v-for="field in cell.state.fields">
+					<n-form-text v-model="field.condition" 
+						:label="field.label ? field.label : 'Unlabeled'"
+						info="If filled in, this condition must be met for the field to be available. Note that this is for the entire table and not record-specific."
+						/>
+				</div>
+			</n-collapsible>
 		</div>
 	</data-common-configure>
 </template>
@@ -141,7 +149,7 @@
 					v-for="field in cell.state.fields"
 					:cell="cell"
 					@mouseover="actionHovering = fieldActions(field).length > 0" @mouseout="actionHovering = false"
-					:actions="fieldActions(field)"/>
+					:actions="fieldActions(field, record)"/>
 				<div class="actions" v-if="recordActions.length" @mouseover="actionHovering = true" @mouseout="actionHovering = false">
 					<button v-if="!action.condition || $services.page.isCondition(action.condition, {record:record}, $self)" 
 						class="p-button"
@@ -151,7 +159,6 @@
 				</div>
 			</li>
 		</ul>
-		
 		<table class="classic data" cellspacing="0" cellpadding="0" :class="[dataClass, {'selectable': selectable}]" v-else-if="cell.state.useNativeTable && (edit || showEmpty || records.length)">
 			<thead>
 				<tr v-if="cell.state.useTopHeader && cell.state.topHeaders && cell.state.topHeaders.length" class="top-header">
@@ -164,7 +171,7 @@
 					<th v-if="cell.state.detailFields && cell.state.detailFields.length > 0"></th>
 					<th @click="sort(getSortKey(field))"
 							v-for="field in cell.state.fields"
-							v-if="!(isAllFieldHidden(field) && cell.state.hideEmptyColumns) && isAllowedDevice(field)">
+							v-if="!(isAllFieldHidden(field) && cell.state.hideEmptyColumns) && isAllowedDevice(field) && isAllowedField(field)">
 						<n-form-checkbox v-if="cell.state.batchSelectAll && cell.state.batchSelectionColumn != null && cell.state.fields.indexOf(field) == cell.state.batchSelectionColumn && isShowAnyBatchSelection()" 
 							:value="allSelected" @input="selectAll"/>
 						<span>{{ $services.page.translate(field.label) }}</span>
@@ -179,7 +186,7 @@
 				<template v-for="(record, recordIndex) in records">
 					<tr v-visible="lazyLoad.bind($self, record)" @click="cell.state.batchSelectionColumn == null ? select(record) : function() {}" :class="getRecordStyles(record)" :custom-style="cell.state.styles.length > 0" :key="record.id ? record.id : records.indexOf(record)">
 						<td v-if="cell.state.detailFields && cell.state.detailFields.length > 0"><span class="fa" :class="{'fa-chevron-down' : isOpen(record), 'fa-chevron-right': !isOpen(record)}" @click="toggleOpen(record)"></span></td>
-						<td :class="$services.page.getDynamicClasses(field.styles, {record:record}, $self)" v-for="field in cell.state.fields" v-if="!(isAllFieldHidden(field) && cell.state.hideEmptyColumns) && isAllowedDevice(field) && calculateRowspan(field, record) >= 0" :rowspan="calculateRowspan(field, record)">
+						<td :class="$services.page.getDynamicClasses(field.styles, {record:record}, $self)" v-for="field in cell.state.fields" v-if="!(isAllFieldHidden(field) && cell.state.hideEmptyColumns) && isAllowedDevice(field) && calculateRowspan(field, record) >= 0 && isAllowedField(field)" :rowspan="calculateRowspan(field, record)">
 							<n-form-checkbox v-if="cell.state.batchSelectionColumn != null && cell.state.fields.indexOf(field) == cell.state.batchSelectionColumn && isShowBatchSelection(record)" 
 								:value="selected" :item="record" @add="selectBatch" @remove="unselectBatch"/>
 							<page-field :field="field" :data="record" 
@@ -188,7 +195,7 @@
 								:label="false"
 								@updated="update(record)"
 								@mouseover="actionHovering = fieldActions(field).length > 0" @mouseout="actionHovering = false"
-								:actions="fieldActions(field)"
+								:actions="fieldActions(field, record)"
 								:page="page"
 								:cell="cell"/>
 						</td>
@@ -197,7 +204,7 @@
 								v-for="action in recordActions" 
 								class="p-button"
 								@click="trigger(action, record, cell.state.batchSelectionColumn != null && actionHovering)"
-								:class="[action.class, {'has-icon': action.icon && action.label }, {'inline': !action.class }]"><span class="fa" v-if="action.icon" :class="action.icon"></span><label v-if="action.label">{{$services.page.translate(action.label)}}</label></button>
+								:class="[action.class, {'has-icon': action.icon && action.label }, {'inline': !action.class }]"><span class="fa" v-if="action.icon" :class="action.icon"></span><label v-if="action.label">{{ $services.page.translate($services.page.interpret(action.label, record, $self)) }}</label></button>
 						</td>
 					</tr>
 					<tr v-if="cell.state.detailFields && cell.state.detailFields.length > 0 && isOpen(record)" class="data-detail">
@@ -221,4 +228,3 @@
 		<div v-if="!records.length && !showEmpty && cell.state.fields && cell.state.fields.length" class="no-data">{{ cell.state.emptyPlaceholder ? $services.page.translate(cell.state.emptyPlaceholder) : "%{No data available}"}}<span v-if="$services.page.wantEdit && cell.state.fields && cell.state.fields.length" class="fa fa-table generate-stub" @click="generateStub" title="Generate Stub Data"></span></div>
 	</data-common-content>
 </template>
-

@@ -19,6 +19,7 @@
 				<div class="tab" @click="selectedTab = 'styles'" :class="{'selected': selectedTab == 'styles' }"><span class="fa fa-file-image"></span>Style</div>
 				<div class="tab" @click="selectedTab = 'functions'" :class="{'selected': selectedTab == 'functions' }"><span class="fa fa-file-code"></span>Script</div>
 				<div v-if="false" class="tab" @click="selectedTab = 'bundles'" :class="{'selected': selectedTab == 'bundles' }"><span class="fa fa-cube"></span>Bundles</div>
+				<div v-for="entry in getAdditionalSettings()" class="tab" @click="selectedTab = entry.route" :class="[{'selected': selectedTab == entry.route }, 'setting-' + entry.name]"><html-fragment v-if="entry.icon" :html="$services.page.getIconHtml(entry.icon)"/>{{entry.title}}</div>
 			</div>
 			<div v-if="selectedTab == 'settings'">
 				<div class="divider">
@@ -108,7 +109,7 @@
 				</div>
 			</div>
 			
-			<div v-if="selectedTab == 'pages'" @drop="dropOnPages($event)" @dragover="dragOverPages($event)">
+			<div v-else-if="selectedTab == 'pages'" @drop="dropOnPages($event)" @dragover="dragOverPages($event)">
 				<div class="divider">
 					<h1>Pages</h1>
 					<p class="subscript">You can add and remove pages to your application.</p>
@@ -169,7 +170,7 @@
 				</n-sidebar>
 			</div>
 			
-			<div v-if="selectedTab == 'styles'">
+			<div v-else-if="selectedTab == 'styles'">
 				<div class="divider">
 					<h1>Styling</h1>
 					<p class="subscript">You can add custom scss based stylesheets to your application here.</p>
@@ -190,7 +191,7 @@
 				</n-collapsible>
 			</div>
 			
-			<div v-if="selectedTab == 'functions'">
+			<div v-else-if="selectedTab == 'functions'">
 				<div>
 					<div class="divider">
 						<h1>Functions</h1>
@@ -293,6 +294,8 @@
 					</div>
 				</div>
 			</div>
+			
+			<div v-else v-route-render="{alias: selectedTab}"></div>
 		</n-form>
 		<div v-else>%{You don't have permission to view this page, you might want to try to <a v-route:login>log in</a> as a user with sufficient privileges}</div>
 	</div>

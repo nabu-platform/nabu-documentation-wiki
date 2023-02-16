@@ -137,7 +137,7 @@
 				:class="{'is-active': currentPage == page}"><span>{{$services.page.interpret($services.page.translate(page.name), self)}}</span></button>
 		</div>
 		<h2 v-if="cell.state.title">{{$services.page.translate($services.page.interpret(cell.state.title, $self))}}</h2>
-		<n-form class="p-form" :class="[cell.state.class, {'form-read-only': readOnly, 'form-edit': !readOnly}, {'form-error': !!error }]" ref="form" :id="cell.state.formId" :component-group="cell.state.componentGroup" 
+		<n-form class="p-form" :class="[cell.state.class, {'form-read-only': readOnly, 'form-edit': !readOnly}, {'form-error': !!error }]" ref="form" :id="cell.state.formId" :component-group="cell.state.componentGroup ? cell.state.componentGroup : 'default'" 
 				:mode="cell.state.mode">
 			<header class="p-form-header" slot="header" v-if="cell.state.dynamicHeader"><component :is="cell.state.dynamicHeader" :form="$self" :page="page" :cell="cell"/></header>
 			<n-form-section class="p-form-section" :key="'form_page_' + cell.state.pages.indexOf(currentPage)">
@@ -151,6 +151,7 @@
 							:cell="cell"
 							:edit="edit"
 							:field="field"
+							:disabled="isDisabled(field)"
 							@changed="changed"
 							:timeout="600"
 							:schema="getSchemaFor(field.name)"/>

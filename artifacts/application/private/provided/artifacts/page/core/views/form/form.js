@@ -1116,6 +1116,9 @@ nabu.page.formComponentConstructer = function(name) {
 				}
 			},
 			doIt: function() {
+				return this.execute();
+			},
+			execute: function(skipValidation) {
 				var self = this;
 				if (!this.doingIt) {
 					var date = new Date();
@@ -1138,6 +1141,7 @@ nabu.page.formComponentConstructer = function(name) {
 					// if we have an embedded form with immediate turned on, don't valide it?
 					var messages = this.cell.state.immediate && this.cell.target == "page" ? [] : this.$refs.form.validate();
 					var continueWithDoIt = function() {
+						var promise = null;
 						if (!messages.length) {
 							self.messages.splice(0, self.messages.length);
 							// commit the form
@@ -1171,7 +1175,7 @@ nabu.page.formComponentConstructer = function(name) {
 									}
 								});
 								if (self.cell.state.event) {
-									pageInstance.emit(self.cell.state.event, self.cell.on ? pageInstance.get(self.cell.on) : {});
+									promise = pageInstance.emit(self.cell.state.event, self.cell.on ? pageInstance.get(self.cell.on) : {});
 								}
 								// if we allow read only, revert to it after a successful edit
 								if (self.cell.state.allowReadOnly) {
@@ -1183,7 +1187,7 @@ nabu.page.formComponentConstructer = function(name) {
 								self.initializePageForm();
 							}
 							else if (self.cell.state.functionForm) {
-								var promise = self.$services.q.defer();
+								promise = self.$services.q.defer();
 								var returnValue = self.$services.page.runFunction(self.cell.state.functionId, result, self, promise);
 								promise.then(function(result) {
 									if (self.cell.state.event) {
@@ -1246,7 +1250,7 @@ nabu.page.formComponentConstructer = function(name) {
 							}
 							else if (self.cell.state.operation) {
 								try {
-									self.$services.swagger.execute(self.cell.state.operation, result).then(function(returnValue) {
+									return self.$services.swagger.execute(self.cell.state.operation, result).then(function(returnValue) {
 										var pageInstance = self.$services.page.getPageInstance(self.page, self);
 										// if we want to synchronize the values, do so
 										if (self.cell.state.synchronize) {
@@ -1319,12 +1323,14 @@ nabu.page.formComponentConstructer = function(name) {
 									self.doingIt = false;
 									console.error("Could not submit form", exception);
 									stop(exception.message);
+									promise = self.$services.q.defer();
+									promise.reject(exception);
 								}
 							}
 							else {
 								var pageInstance = self.$services.page.getPageInstance(self.page, self);
 								if (self.cell.state.event) {
-									pageInstance.emit(self.cell.state.event, {});
+									promise = pageInstance.emit(self.cell.state.event, {});
 								}
 								if (self.cell.state.autoclose == null || self.cell.state.autoclose) {
 									self.$emit("close");
@@ -1342,12 +1348,23 @@ nabu.page.formComponentConstructer = function(name) {
 							self.showMessages(messages);
 							self.scrollToException(messages);
 						}
+						// did not work...?
+						if (promise == null) {
+							promise = self.$services.q.defer();
+							promise.reject();
+						}
+						return promise;
 					}
 					if (messages.then) {
-						messages.then(continueWithDoIt, continueWithDoIt);
+						var promise = this.$services.q.defer();
+						var continueWithPromise = function() {
+							continueWithDoIt().then(promise, promise);
+						};
+						messages.then(continueWithPromise, continueWithPromise);
+						return promise;
 					}
 					else {
-						continueWithDoIt();
+						return continueWithDoIt();
 					}
 				}
 			},

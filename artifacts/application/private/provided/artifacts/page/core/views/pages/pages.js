@@ -126,6 +126,14 @@ nabu.page.views.Pages = Vue.extend({
 		this.$services.page.disableReload = false;	
 	},
 	methods: {
+		getAdditionalSettings: function() {
+			// each entry should have:
+			// - icon
+			// - name: a technical name
+			// - title: pretty name for the user (can be translated)
+			// - route
+			return nabu.page.providers("page-settings");
+		},
 		dropOnPages: function(event) {
 			if (this.$services.page.getDragData(event, "template-content")) {
 				var content = JSON.parse(this.$services.page.getDragData(event, "template-content"));

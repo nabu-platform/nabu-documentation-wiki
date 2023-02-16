@@ -71,6 +71,15 @@
 					<n-form-switch v-else-if="hasStreamUpdate" v-model="cell.state.subscribeStream" label="Subscribe to updates"/>
 				</div>
 			</n-collapsible>
+			<n-collapsible title="Drag/drop">
+				<div class="padded-content">
+					<n-form-switch v-model="cell.state.enableDrag" label="Enable dragging"/>
+					<n-form-text v-model="cell.state.dragName" label="Drag source name" v-if="cell.state.enableDrag" placeholder="default"/>
+					<n-form-switch v-model="cell.state.enableDrop" label="Enable dropping"/>
+					<n-form-combo v-model="cell.state.dropName" label="Accepted drag source" v-if="cell.state.enableDrop" :filter="$services.page.getDraggableKeys"/>
+					<n-form-text v-model="cell.state.dropEventName" label="Drop Event Name" v-if="cell.state.enableDrop" />
+				</div>
+			</n-collapsible>
 			<n-collapsible title="Mapping" class="mapping padded" v-if="Object.keys(inputParameters.properties).length">
 				<n-page-mapper :to="inputParameters" :from="availableParameters" 
 					v-model="cell.bindings"/>
@@ -156,7 +165,8 @@
 				<n-collapsible class="list-item" :title="action.name ? action.name : 'Unnamed'" v-for="action in cell.state.actions">
 					<n-form-text v-model="action.name" label="Name" @input="$updateEvents()" :timeout="600"/>
 					<n-form-combo v-model="action.class" :filter="$services.page.getSimpleClasses" label="Class"/>
-					<n-form-switch v-model="action.global" label="Global" v-if="!action.field" />
+					<n-form-switch v-model="action.global" label="Global" v-if="!action.field && !action.section" />
+					<n-form-combo v-model="action.section" :items="getSections()" v-if="!action.global && !action.field && getSections && getSections().length > 0" label="Section"/>
 					<n-form-switch v-model="action.useSelection" v-if="action.global && !action.useAll" label="Use Selection" />
 					<n-form-switch v-model="action.useAll" v-if="action.global && !action.useSelection" label="Use All" />
 					<n-form-text v-model="action.icon" label="Icon" :timeout="600"/>
@@ -166,7 +176,7 @@
 					<n-form-switch v-model="action.close" label="Close"/>
 					<n-form-switch v-model="action.delete" label="Delete" v-if="!pageable && (!action.global || action.useSelection)"/>
 					<n-form-combo v-model="action.type" v-if="action.global" :items="['button', 'link']" :nillable="false" label="Type"/>
-					<n-form-combo v-model="action.field" v-if="!action.global" :items="eventFields"
+					<n-form-combo v-model="action.field" v-if="!action.global && !action.section" :items="eventFields"
 						:formatter="function(x) { return x.index + (x.label ? ' - ' + x.label : '') }"
 						:extracter="function(x) { return x.index }"
 						label="Link to field"/>
@@ -177,11 +187,13 @@
 					</div>
 				</n-collapsible>
 			</n-collapsible>
+			
+			<h2>Fields</h2>
 			<page-fields-edit :cell="cell" :page="page" :keys="keys" :allow-editable="true || !!cell.state.updateOperation" :allow-events="false" v-if="supportsFields"/>
 			
-			<div v-if="supportsFields">
+			<div v-if="supportsDetailFields">
 				<div class="padded-content">
-					<h2>Detail fields</h2>
+					<h2>Detail fields<span class="subscript">You can configure additional fields that provide details for a single record.</span></h2>
 				</div>
 				<page-fields-edit :cell="cell" :page="page" :keys="keys" :allow-editable="false" :allow-events="false" fields-name="detailFields"/>
 			</div>
@@ -287,7 +299,19 @@
 		</div>
 		
 		<slot></slot>
-		<data-common-footer :page="data.page" :parameters="data.parameters" :cell="data.cell" 
+		
+		<div class="data-common-footer">
+			<div class="global-actions" v-if="data.globalActions.length">
+				<component
+					v-for="action in data.globalActions"
+					:is="action.type == 'link' ? 'a' : 'button'"
+					:disabled="action.useSelection && !data.selected.length"
+					:class="[action.class, {'has-icon': action.icon}]"
+					href="javascript:void(0)"
+					v-action="function() { data.trigger(action) }"><span v-if="action.icon" class="fa" :class="action.icon"></span><label v-if="action.label">{{$services.page.translate(action.label)}}</label></component>
+			</div>
+		</div>
+		<!--<data-common-footer :page="data.page" :parameters="data.parameters" :cell="data.cell" 
 			:edit="data.edit"
 			:records="data.records"
 			:selected="data.selected"
@@ -296,7 +320,7 @@
 			@updatedEvents="data.$emit('updatedEvents')"
 			@close="data.$emit('close')"
 			:multiselect="true"
-			:updatable="true"/>
+			:updatable="true"/>-->
 	</div>
 </template>
 

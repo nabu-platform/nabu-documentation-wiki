@@ -210,7 +210,7 @@ nabu.services.VueService(Vue.extend({
 			// the device cookie allows for remembering existing user, validating new devices, notifying the user if a new device is used...
 			// the realm cookie (in combination with te device cookie) actually holds the secret to remembering users
 			// the cookie settings allow to store additional whitelisted cookies
-			var allowedCookies = ["JSESSION", "language", "Device-${environment('realm')}", "Realm-${environment('realm')}", "cookie-settings"];
+			var allowedCookies = ["JSESSION", "language", "Device-${environment('realm')}", "Realm-${environment('realm')}", "cookie-settings", "geolocation-refused"];
 			// check if we have already whitelisted cookies
 			var cookieSettings = this.getCookieSettings();
 			// each allowed cookie setting is either a name of a cookie, a regex of a cookie or the name of a provider that _has_ regexes
@@ -479,7 +479,6 @@ nabu.services.VueService(Vue.extend({
 		},
 		// this should work both in regular browers and javafx webview where the drag events are more or less messed up
 		setDragData: function(e, type, value) {
-			console.log("-> setting drag data", type, value);
 			if (e && e.dataTransfer && e.dataTransfer.setData) {
 				event.dataTransfer.setData(type, value);
 			}
@@ -1004,6 +1003,22 @@ nabu.services.VueService(Vue.extend({
 				}
 			}
 			return parentInstance;
+		},
+		getDraggables: function() {
+			var result = {};
+			var self = this;
+			Object.keys(nabu.page.instances).forEach(function(key) {
+				var draggables = nabu.page.instances[key].getDraggables();
+				Object.keys(draggables).forEach(function(draggable) {
+					result[draggable] = draggables[draggable];
+				});
+			});
+			return result;
+		},
+		getDraggableKeys: function(value) {
+			return Object.keys(this.getDraggables(value)).filter(function(x) {
+				return !value || x.toLowerCase().indexOf(value.toLowerCase()) >= 0;
+			});
 		},
 		getPageInstance: function(page, component) {
 			var pageInstance = null;
@@ -2389,12 +2404,15 @@ nabu.services.VueService(Vue.extend({
 				var keys = Object.keys(definition.properties);
 				for (var i = 0; i < keys.length; i++) {
 					var property = definition.properties[keys[i]];
-					var childPath = (path ? path + "." : "") + keys[i];
-					if (property.type == "array") {
-						arrays.push(childPath);
-					}
-					else if (property.properties) {
-						this.getArrays(property, childPath, arrays);
+					// we've had properties like "body" that were "undefined"
+					if (property != null) {
+						var childPath = (path ? path + "." : "") + keys[i];
+						if (property.type == "array") {
+							arrays.push(childPath);
+						}
+						else if (property.properties) {
+							this.getArrays(property, childPath, arrays);
+						}
 					}
 				}
 			}

@@ -48,7 +48,7 @@
 </template>
 
 <template id="custom-validator">
-	<div class="custom-validator" :component-group="cell.state.componentGroup">
+	<div class="custom-validator" :component-group="cell.state.componentGroup ? cell.state.componentGroup : 'default'">
 		<n-form>
 			<div class="n-form-component n-form-invalid">
 				<n-messages :messages="messages"></n-messages>

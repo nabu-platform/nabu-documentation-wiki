@@ -15,7 +15,7 @@
 		<component :is="formComponent" :page="page" :cell="cell"
 			ref="input"
 			@blur="blur"
-			:component-group="cell.state.componentGroup"
+			:component-group="cell.state.componentGroup ? cell.state.componentGroup : 'default'"
 			:field="cell.state"
 			:value="cell.state.name ? getPageInstance().get('page.' + cell.state.name) : null"
 			:label="$services.page.translate(cell.state.label)"
