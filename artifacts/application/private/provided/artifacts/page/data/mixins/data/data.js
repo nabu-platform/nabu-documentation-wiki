@@ -667,19 +667,21 @@ nabu.page.views.data.DataCommon = Vue.extend({
 				}
 				if (this.cell.state.updateLimitListeners) {
 					this.cell.state.updateLimitListeners.forEach(function(x) {
-						var index = x.indexOf(".");
-						var eventName = index >= 0 ? x.substring(0, index) : x;
-						self.subscriptions.push(pageInstance.subscribe(eventName, function(a) {
-							// we want a subpart of it
-							if (a && index >= 0) {
-								a = self.$services.page.getValue(a, x.substring(index + 1));
-							}
-							if (a != null) {
-								a = parseInt(a);
-							}
-							self.dynamicLimit = a;
-							self.load();
-						}));
+						if (x != null) {
+							var index = x.indexOf(".");
+							var eventName = index >= 0 ? x.substring(0, index) : x;
+							self.subscriptions.push(pageInstance.subscribe(eventName, function(a) {
+								// we want a subpart of it
+								if (a && index >= 0) {
+									a = self.$services.page.getValue(a, x.substring(index + 1));
+								}
+								if (a != null) {
+									a = parseInt(a);
+								}
+								self.dynamicLimit = a;
+								self.load();
+							}));
+						}
 					});
 				}
 			}
@@ -752,12 +754,14 @@ nabu.page.views.data.DataCommon = Vue.extend({
 					var definition = this.$services.swagger.resolve(schema).properties;
 					var found = false;
 					// we are interested in the (complex) array within this object
-					Object.keys(definition).map(function(key) {
-						if (!found && definition[key].type == "array" && definition[key].items.properties) {
-							definition = definition[key].items;
-							found = true;
-						}
-					});
+					if (definition) {
+						Object.keys(definition).map(function(key) {
+							if (!found && definition[key].type == "array" && definition[key].items.properties) {
+								definition = definition[key].items;
+								found = true;
+							}
+						});
+					}
 					if (!found) {
 						definition = null;
 					}
@@ -1864,7 +1868,7 @@ nabu.page.views.data.DataCommon = Vue.extend({
 					}
 				}
 				try {
-					this.$services.swagger.execute(this.cell.state.operation, parameters).then(function(list) {
+					var operationPromise = this.$services.swagger.execute(this.cell.state.operation, parameters).then(function(list) {
 						if (!append) {
 							self.records.splice(0, self.records.length);
 						}
@@ -1875,7 +1879,9 @@ nabu.page.views.data.DataCommon = Vue.extend({
 									if (root[field] instanceof Array && !arrayFound) {
 										root[field] = self.postProcess(root[field]);
 										root[field].forEach(function(x, i) {
-											x.$position = i;
+											if (x) {
+												x.$position = i;
+											}
 										});
 										nabu.utils.arrays.merge(self.records, root[field]);
 										nabu.utils.arrays.merge(self.allRecords, root[field]);
@@ -1918,6 +1924,9 @@ nabu.page.views.data.DataCommon = Vue.extend({
 					}, function(error) {
 						promise.resolve(error);
 					});
+					if (this.cell.state.slowOperation) {
+						this.$wait({promise: operationPromise});
+					}
 				}
 				catch(error) {
 					console.error("Could not run", this.cell.state.operation, error);

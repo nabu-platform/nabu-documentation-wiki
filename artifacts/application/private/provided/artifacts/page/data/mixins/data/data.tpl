@@ -52,6 +52,8 @@
 				
 				<n-form-switch v-if="cell.state.operation" v-model="cell.state.reverseData" label="Reverse data"/>
 				
+				<n-form-switch v-if="cell.state.operation" v-model="cell.state.slowOperation" label="Operation is slow"/>
+				
 				<n-form-ace v-model="cell.state.arrayFilter" v-if="cell.state.array" label="Array filter"/>
 				
 				<n-form-combo label="Update Operation" :value="cell.state.updateOperation"

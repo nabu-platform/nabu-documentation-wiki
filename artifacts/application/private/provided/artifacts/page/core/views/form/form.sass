@@ -1,0 +1,24 @@
+.page-arbitrary {
+	position: relative;
+	.page-arbitrary-menu {
+		display: none;
+		position: absolute;
+		top: 0;
+		button {
+			background-color: purple;
+			color: white;
+			border-radius: 0;
+		}
+	}
+}
+
+.page.edit {
+	.page-arbitrary {
+		min-height: 2rem;
+		&:hover {
+			> .page-arbitrary-menu {
+				display: block;
+			}
+		}
+	}
+}

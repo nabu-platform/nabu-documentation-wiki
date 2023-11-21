@@ -1,0 +1,53 @@
+.global-notifications {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	display: flex;
+	flex-direction: column-reverse;
+	height: auto;
+	width: auto;
+	z-index: 10000;
+	.basic-notification {
+		position: relative;
+		width: 30rem;
+		max-width: 100vw;
+		background-color: #efefef;
+		border: solid 1px #ccc;
+		
+		.close-icon {
+			position: absolute;
+			top: 0.7rem;
+			right: 0.7rem;
+			cursor: pointer;
+		}
+		&.info {
+			.notification-icon {
+				background-color: green;
+				color: white;
+			}
+		}
+		&.error {
+			.notification-icon {
+				background-color: red;
+				color: white;
+			}
+		}
+		&.warning {
+			.notification-icon {
+				background-color: yellow;
+				color: #666;
+			}
+		}
+		
+		display: flex;
+		.notification-icon {
+			font-size: 3rem;
+			padding: 0 1rem;
+			display: flex;
+			align-items: center;
+		}
+		.message, .title {
+			padding: 1rem;
+		}
+	}
+}

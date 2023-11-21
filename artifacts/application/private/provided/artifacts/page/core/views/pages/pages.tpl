@@ -1,5 +1,14 @@
 <template id="nabu-pages">
 	<div class="pages">
+		<h1 class="main">{{ $services.page.title ? $services.page.title : 'My Website'}}<span class="subscript">Powered by Nabu</span></h1>
+		<div class="tabs is-grid-row is-menu is-variant-toolbar">
+			<div class="tab is-grid-column" @click="selectedTab = 'settings'" :class="{'selected': selectedTab == 'settings' }"><span class="fa fa-cogs"></span>Settings</div>
+			<div class="tab is-grid-column" @click="selectedTab = 'pages'" :class="{'selected': selectedTab == 'pages' }"><span class="fa fa-file-alt"></span>Pages</div>
+			<div class="tab is-grid-column" @click="selectedTab = 'styles'" :class="{'selected': selectedTab == 'styles' }"><span class="fa fa-file-image"></span>Style</div>
+			<div class="tab is-grid-column" @click="selectedTab = 'functions'" :class="{'selected': selectedTab == 'functions' }"><span class="fa fa-file-code"></span>Script</div>
+			<div v-if="false" class="tab is-grid-column" @click="selectedTab = 'bundles'" :class="{'selected': selectedTab == 'bundles' }"><span class="fa fa-cube"></span>Bundles</div>
+			<div v-for="entry in getAdditionalSettings()" class="tab is-grid-column" @click="selectedTab = entry.route" :class="[{'selected': selectedTab == entry.route }, 'setting-' + entry.name]"><html-fragment v-if="entry.icon" :html="$services.page.getIconHtml(entry.icon)"/>{{entry.title}}</div>
+		</div>
 		<n-form class="settings pages page-settings" v-if="$services.page.canEdit()" mode="component" ref="form">
 			<n-prompt v-if="showing">
 				<n-form class="layout2">
@@ -12,15 +21,6 @@
 					</footer>
 				</n-form>
 			</n-prompt>
-			<h1 class="main">{{ $services.page.title ? $services.page.title : 'My Website'}}<span class="subscript">Powered by Nabu</span></h1>
-			<div class="tabs">
-				<div class="tab" @click="selectedTab = 'settings'" :class="{'selected': selectedTab == 'settings' }"><span class="fa fa-cogs"></span>Settings</div>
-				<div class="tab" @click="selectedTab = 'pages'" :class="{'selected': selectedTab == 'pages' }"><span class="fa fa-file-alt"></span>Pages</div>
-				<div class="tab" @click="selectedTab = 'styles'" :class="{'selected': selectedTab == 'styles' }"><span class="fa fa-file-image"></span>Style</div>
-				<div class="tab" @click="selectedTab = 'functions'" :class="{'selected': selectedTab == 'functions' }"><span class="fa fa-file-code"></span>Script</div>
-				<div v-if="false" class="tab" @click="selectedTab = 'bundles'" :class="{'selected': selectedTab == 'bundles' }"><span class="fa fa-cube"></span>Bundles</div>
-				<div v-for="entry in getAdditionalSettings()" class="tab" @click="selectedTab = entry.route" :class="[{'selected': selectedTab == entry.route }, 'setting-' + entry.name]"><html-fragment v-if="entry.icon" :html="$services.page.getIconHtml(entry.icon)"/>{{entry.title}}</div>
-			</div>
 			<div v-if="selectedTab == 'settings'">
 				<div class="divider">
 					<h1>General Settings</h1>

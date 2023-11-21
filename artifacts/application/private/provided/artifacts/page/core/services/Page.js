@@ -116,7 +116,7 @@ nabu.services.VueService(Vue.extend({
 		var self = this;
 		// non-reactive
 		this.pageCounter = 0;
-		document.title = "%{Loading...}";
+		//document.title = "%{Loading...}";
 		window.addEventListener("paste", function(event) {
 			if (self.canEdit()) {
 				var data = event.clipboardData.getData("text/plain");
@@ -3148,6 +3148,9 @@ nabu.services.VueService(Vue.extend({
 						element.setAttribute("property", "og:" + field);
 						element.setAttribute("content", self.currentBranding[field]);
 						document.head.appendChild(element);
+					}
+					if (field == "title" && self.currentBranding[field] != null) {
+						document.title = self.currentBranding[field];
 					}
 				}
 				else if (field == "imageAlt") {

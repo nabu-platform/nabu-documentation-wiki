@@ -186,7 +186,7 @@
 				<template v-for="(record, recordIndex) in records">
 					<tr v-visible="lazyLoad.bind($self, record)" @click="cell.state.batchSelectionColumn == null ? select(record) : function() {}" :class="getRecordStyles(record)" :custom-style="cell.state.styles.length > 0" :key="record.id ? record.id : records.indexOf(record)">
 						<td v-if="cell.state.detailFields && cell.state.detailFields.length > 0"><span class="fa" :class="{'fa-chevron-down' : isOpen(record), 'fa-chevron-right': !isOpen(record)}" @click="toggleOpen(record)"></span></td>
-						<td :class="$services.page.getDynamicClasses(field.styles, {record:record}, $self)" v-for="field in cell.state.fields" v-if="!(isAllFieldHidden(field) && cell.state.hideEmptyColumns) && isAllowedDevice(field) && calculateRowspan(field, record) >= 0 && isAllowedField(field)" :rowspan="calculateRowspan(field, record)">
+						<td :class="$services.page.getDynamicClasses(field.styles, {record:record}, $self)" v-for="field in cell.state.fields" v-if="!(isAllFieldHidden(field) && cell.state.hideEmptyColumns) && isAllowedDevice(field) && calculateRowspan(field, record) >= 0 && isAllowedField(field)" :rowspan="calculateRowspan(field, record)" :label="$services.page.translate(field.label)">
 							<n-form-checkbox v-if="cell.state.batchSelectionColumn != null && cell.state.fields.indexOf(field) == cell.state.batchSelectionColumn && isShowBatchSelection(record)" 
 								:value="selected" :item="record" @add="selectBatch" @remove="unselectBatch"/>
 							<page-field :field="field" :data="record" 

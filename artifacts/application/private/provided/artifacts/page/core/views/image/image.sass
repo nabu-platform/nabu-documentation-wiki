@@ -1,0 +1,21 @@
+.page-image {
+	text-align: center;
+	.image {
+	    background-position: center;
+	    background-repeat: no-repeat;
+	    width: 100%;
+	}
+}
+
+.settings {
+	.image-container {
+		padding: 0.3rem;
+		margin: 0.3rem;
+		border: solid 1px #ccc;
+		display: inline-block;
+		&.selected {
+			background-color: lighten($primary-color, 30%);
+			border-color: $primary-color;
+		}
+	}
+}

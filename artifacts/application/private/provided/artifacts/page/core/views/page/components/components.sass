@@ -1,0 +1,61 @@
+.page-components-overview, .page-components-selector {
+	.page-component, .page-template {
+		display: flex;
+		width: 100%;
+		padding: 1rem;
+		border: solid 1px #ccc;
+		background-color: white;
+		.about {
+			padding: 0 1rem;
+			&.operation {
+				.name {
+					font-size: 1rem;	
+				}
+				.operation-folder {
+					font-size: 0.6rem;
+					display: block;
+					color: #666;
+					margin-bottom: 0.3rem;
+				}
+			}
+		}
+		img {
+			width: 48px;
+			max-height: 48px;
+			min-width: 48px;
+		}
+		p {
+			font-size: 0.8rem;
+			color: #aaa;
+			margin: 0;
+		}
+		+.page-component, +.page-template {
+			border-top: none;
+		}
+		&.selected {
+			background-color: lightgreen;
+		}
+	}
+}
+
+.page-components-selector {
+	.page-component {
+		cursor: pointer;
+		background-color: #fafafa;
+		&:hover {
+			background-color: #eaeaea;
+		}
+	}
+}
+
+.n-prompt-container[route="page-components-selector"] {
+	background-color: white;
+	padding: 2rem;
+	h2 {
+		font-size: 1.2rem;
+	}
+	.buttons {
+		padding: 1rem 0;
+		text-align: right;
+	}
+}

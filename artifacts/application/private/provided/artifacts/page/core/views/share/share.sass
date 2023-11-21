@@ -1,0 +1,53 @@
+.page-share-social {
+	.share-icons {
+		.icon {
+			width: 32px;
+			height: 32px;
+			background-size: 32px;
+			background-repeat: no-repeat;
+			background-position: center;
+			display: inline-block;
+			&.facebook {
+				background-image: url('${server.root()}resources/images/social/facebook.svg');
+			}
+			&.linkedin {
+				background-image: url('${server.root()}resources/images/social/linkedin.svg');
+			}
+			&.twitter {
+				background-image: url('${server.root()}resources/images/social/twitter.svg');
+			}
+			&.pinterest {
+				background-image: url('${server.root()}resources/images/social/pinterest.svg');
+			}
+			&.instagram {
+				background-image: url('${server.root()}resources/images/social/instagram.svg');
+			}
+			&.email {
+				background-image: url('${server.root()}resources/images/social/email.svg');
+			}
+		}
+	}
+	&.horizontal-left {
+		.share-icon {
+			display: inline-block;
+			&.share-icon {
+				margin-left: 0.3rem;
+			}
+		}
+	}
+	&.horizontal-center {
+		.share-icon {
+			display: inline-block;
+			&.share-icon {
+				margin-left: 0.3rem;
+			}
+		}
+		text-align: center;
+	}
+	&.fixed-right {
+		position: fixed;
+		right: 1rem;
+		top: 40%;
+		z-index: 10;
+	}
+}

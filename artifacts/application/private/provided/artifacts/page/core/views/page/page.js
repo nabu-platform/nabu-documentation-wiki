@@ -2431,6 +2431,28 @@ nabu.page.views.Page = Vue.component("n-page", {
 							route.query)
 					}
 				}
+				var self = this;
+				// if we have a page variable update, check if we have any subscribers
+				if (name.indexOf && name.indexOf("page.") == 0) {
+					// we want to alert anyone listening to a parent as well that something has changed
+					while (name != null) {
+						if (this.subscriptions[name]) {
+							var valueToEmit = self.get(name);
+							console.log("subscriber", name, valueToEmit);
+							this.subscriptions[name].forEach(function(handler) {
+								handler(valueToEmit);
+							});
+						}
+						var index = name.lastIndexOf(".");
+						if (index < 0) {
+							name = null;
+							break;
+						}
+						else {
+							name = name.substring(0, index);
+						}
+					}
+				}
 			}
 			else {
 				console.log("Could not set", name, value);
